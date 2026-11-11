@@ -233,6 +233,26 @@ html{scroll-behavior:smooth}
 .pr{display:grid;grid-template-columns:.9fr 1fr 64px 60px 2.1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.pr.head{font-size:13px;color:var(--ink-2)}.pr .r{text-align:right}
 .kL{background:var(--mute)}
 .snapnote{font-size:14.5px;color:var(--ink-2);padding:16px 0 4px;max-width:86ch}.snapnote .link{font-size:14.5px;color:var(--ink)}
+.slides{display:grid;grid-template-columns:2fr 1fr;gap:20px;padding-top:28px}
+.slide{aspect-ratio:16/9;container-type:inline-size;background:#FBFAF7;border:1px solid var(--ink);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.slide:first-child{grid-row:span 2}
+.slide>header{display:flex;justify-content:space-between;align-items:baseline;padding:3.4cqw 4cqw 0;font-size:1.5cqw;color:var(--ink-2)}
+.slide>header b{font-size:2.9cqw;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.slide>footer{margin:0;padding:1.6cqw 4cqw;border-top:1px solid var(--line);font-size:1.25cqw;color:var(--ink-2);display:flex;justify-content:space-between;gap:2cqw}
+.s-body{padding:0 4cqw;display:grid;align-content:center}
+.s-lead{font-size:3.5cqw;font-weight:700;letter-spacing:-.03em;line-height:1.12;max-width:24em;margin-bottom:5cqw}.s-lead em{font-style:normal;color:var(--red)}
+.s-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4cqw}
+.s-kpis div{border-top:.22cqw solid var(--ink);padding-top:1.5cqw}
+.s-kpis .v{display:block;font-size:4.3cqw;font-weight:700;letter-spacing:-.04em;line-height:1.05;white-space:nowrap}
+.s-kpis .l{display:block;font-size:1.5cqw;margin-top:.9cqw;line-height:1.25}
+.s-kpis .d{display:block;font-size:1.4cqw;margin-top:.6cqw;color:var(--ink-2)}.d.good{color:var(--green)}.d.bad{color:var(--red)}
+.s-mv{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw 3cqw}
+.s-mv b{display:block;font-size:4.6cqw;font-weight:700;letter-spacing:-.04em;line-height:1}.s-mv .bad b{color:var(--red)}
+.s-mv span{font-size:1.9cqw}.s-mv small{display:block;font-size:1.5cqw;color:var(--ink-2)}
+.s-al{display:grid;gap:2.2cqw}
+.s-al div{display:grid;grid-template-columns:13cqw 1fr;gap:2.4cqw;align-items:baseline;border-top:1px solid var(--line);padding-top:1.8cqw}
+.s-al b{font-size:4.2cqw;font-weight:700;letter-spacing:-.04em;color:var(--red);white-space:nowrap}
+.s-al span{font-size:2.1cqw;font-weight:600;line-height:1.25}.s-al small{display:block;font-size:1.6cqw;font-weight:400;color:var(--ink-2);margin-top:.5cqw}
 #ask{padding-top:56px}h2 .link{font-size:14px;font-weight:400}
 .qs{display:grid;grid-template-columns:repeat(3,1fr)}
 .qb{padding:22px 28px 24px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}.qb:nth-child(3n+1){border-left:0;padding-left:0}
@@ -256,13 +276,14 @@ html{scroll-behavior:smooth}
 @media screen and (max-width:980px){
   .wrap{padding:0 20px}.drop,.verdict,.find,.two,.locks,.cta,.help{grid-template-columns:1fr;gap:36px}.drop{padding-top:36px}
   .grid{grid-template-columns:1fr}.fig,.fig+.fig{padding:26px 0;border-left:0}.fig h3{min-height:0}
-  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}.qs{grid-template-columns:1fr}.qb,.qb:nth-child(3n+1){padding:20px 0;border-left:0}.ctx-row{flex-direction:column}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
+  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.slides{grid-template-columns:1fr}.slide:first-child{grid-row:auto}.mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}.qs{grid-template-columns:1fr}.qb,.qb:nth-child(3n+1){padding:20px 0;border-left:0}.ctx-row{flex-direction:column}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
   .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
   .fr{grid-template-columns:1fr 56px 56px;gap:6px 10px}.fr-b{grid-column:1/-1;order:9}.fr span:nth-child(5),.fr-l,.fr.head span:nth-child(2){display:none}
   .arow{grid-template-columns:56px 1fr 96px}.arow span:nth-child(4),.arow span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
   .cta{padding:32px 24px}.cta form{flex-direction:column}.cta input{width:100%}.top span.hide{display:none}
 }
 @page{size:A4;margin:11mm 10mm}
+@page deck{size:1280px 720px;margin:0}
 @media print{
   html{zoom:.6}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -273,6 +294,11 @@ html{scroll-behavior:smooth}
   .cell{animation:none!important}.noprint{display:none!important}
   h2{break-after:avoid}section{padding-top:60px}
   .all summary::after{content:""}
+  html:not(.ps) #deck{display:none!important}
+  html.ps{zoom:1}
+  html.ps .slab,html.ps .wrap>section:not(#deck),html.ps .wrap>footer,html.ps #deck h2{display:none!important}
+  html.ps .wrap{max-width:none;padding:0}html.ps #deck{padding:0}html.ps .slides{display:block;padding:0}
+  html.ps .slide{page:deck;width:1280px;height:720px;aspect-ratio:auto;border:0;break-after:page;break-inside:avoid}
 }
 </style>
 </head>
@@ -346,6 +372,7 @@ html{scroll-behavior:smooth}
     <section><details class="all"><summary>Voir le détail des <span id="allN"></span> contrôles exécutés, avec leurs seuils</summary><div id="all"></div></details></section>
     <section><h2>Pistes d’amélioration pour les 30 prochains jours</h2><ol class="steps" id="steps"></ol>
       <div class="help"><div><h3>Ces constats sont des pistes, pas encore un plan.</h3><p>Audit augmenté : trente minutes de debrief avec un consultant RevOps et un plan d’action priorisé, adapté à votre équipe. 199 €, déduits de la première mission.</p></div><form id="debrief"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail pour le debrief"><button class="btn" type="submit">Réserver le debrief</button><small>Votre e-mail et le résumé de cet audit sont transmis pour vous recontacter. Aucune donnée de vos deals.</small></form></div></section>
+    <section id="deck"><h2>Les slides pour votre review <span><button class="link" id="deckPdf" type="button">Exporter les slides en PDF</button></span></h2><div class="slides" id="slides"></div></section>
     <section><h2>Ce qu’un seul export ne permet pas de voir <span id="lockSub"></span></h2><p class="snapnote" id="snapNote"></p><div class="locks" id="locks"></div>
       <div class="cta"><div><h3>Recevez ces chiffres chaque semaine.</h3><p>La veille de votre review, par e-mail, sous forme de slide. Un mois offert, sans carte.</p></div>
         <form id="form"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail"><button class="btn" type="submit">Recevoir le rapport</button></form></div>
@@ -357,9 +384,9 @@ html{scroll-behavior:smooth}
 <aside class="rules" id="rules" aria-label="Règles métier"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261111140740 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261111140740"></script>
-<script src="./engine.js?v=20261111140740"></script>
+<!-- ?v=20261111141149 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261111141149"></script>
+<script src="./engine.js?v=20261111141149"></script>
 <script>
 (function () {
   var E = window.BIF, F = E.fmt, NB = " ", S = {};
@@ -435,15 +462,34 @@ html{scroll-behavior:smooth}
 
   // ---------- snapshots: each anonymised export is remembered in this browser and compared with the next ----------
   function compareSnapshots() {
-    S.mv = null; S.snaps = 0; var cur = S.M.snapshot; if (!cur) return;
+    S.mv = null; S.snaps = 0; S.prevKpi = null; S.prevDate = null; var cur = S.M.snapshot; if (!cur) return;
     var all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {}
     var ids = {}; cur.deals.forEach(function (d) { ids[d[0]] = 1; });
     var same = function (p) { return p.deals.filter(function (d) { return ids[d[0]]; }).length >= 0.3 * p.deals.length; };
     var prev = all.filter(function (p) { return p.date < cur.date && same(p); }).sort(function (a, b) { return b.date - a.date; })[0];
     if (prev) S.mv = E.diff(prev, cur);
-    all = all.filter(function (p) { return !(p.date === cur.date && same(p)); }); all.push({ date: cur.date, stages: cur.stages, deals: cur.deals, file: S.name });
+    all = all.filter(function (p) { return !(p.date === cur.date && same(p)); }); S.prevKpi = prev && prev.kpi ? prev.kpi : null; S.prevDate = prev ? prev.date : null;
+    all.push({ date: cur.date, stages: cur.stages, deals: cur.deals, file: S.name, kpi: slideKpis(S.M) });
     all.sort(function (a, b) { return a.date - b.date; }); while (all.length > 6) all.shift();
     store.set("fsfa-snaps", JSON.stringify(all)); S.snaps = all.filter(same).length;
+  }
+
+  // ---------- slides: the deliverable taken to the review ----------
+  function slideKpis(M) { var by = {}; M.checks.forEach(function (c) { by[c.id] = c; }); var past = M.checks.filter(function (c) { return c.id === "D2"; })[0]; return { open: M.kpi.openEur, k2: M.kpi.k2, k4: M.kpi.k4, bad: M.pipe.open ? M.pipe.union / M.pipe.open * 100 : null, past: past ? parseFloat(String(past.value).replace(",", ".")) : null }; }
+  function renderSlides(M) {
+    var k = slideKpis(M), p = S.prevKpi, mv = S.mv;
+    var delta = function (cur, old, unit, upGood, fmtv) { if (p == null || old == null || cur == null) return '<span class="d">premier export</span>'; var d = cur - old; if (Math.abs(d) < (unit === "€" ? 500 : 0.05)) return '<span class="d">stable</span>'; var good = (d > 0) === upGood; return '<span class="d ' + (good ? "good" : "bad") + '">' + (d > 0 ? "▲ +" : "▼ −") + fmtv(Math.abs(d)) + "</span>"; };
+    var pts = function (v) { return v.toFixed(1).replace(".", ",") + NB + "pt" + (v >= 2 ? "s" : ""); }, dj = function (v) { return Math.round(v) + NB + "j"; };
+    var cells = [[F.eur(k.open), "Pipeline ouvert", delta(k.open, p && p.open, "€", true, F.eur)], [k.k2 != null ? F.pct(k.k2) : "—", "Win rate", delta(k.k2, p && p.k2, "pt", true, pts)], [k.k4 != null ? F.days(k.k4) : "—", "Cycle de vente médian", delta(k.k4, p && p.k4, "j", false, dj)], [k.bad != null ? F.pct(k.bad) : "—", "Pipeline inactif ou périmé", delta(k.bad, p && p.bad, "pt", false, pts)], [k.past != null ? F.pct(k.past) : "—", "Close dates dépassées", delta(k.past, p && p.past, "pt", false, pts)]];
+    var foot = "<footer><span>Définitions v1, gelées · données au " + F.date(M.snap) + " · " + F.int(M.meta.rows) + " deals</span><span>Flash Sales Funnel Audit</span></footer>";
+    var sub = S.prevDate ? "évolution depuis l’export du " + F.date(S.prevDate) : "données au " + F.date(M.snap);
+    var s1 = '<div class="slide"><header><b>Pipeline commercial : les cinq chiffres</b><span>' + sub + '</span></header><div class="s-body">' + (M.top[0] ? '<p class="s-lead">' + hl(M.top[0].text) + "</p>" : "") + '<div class="s-kpis">' + cells.map(function (c) { return '<div><span class="v">' + c[0] + '</span><span class="l">' + c[1] + "</span>" + c[2] + "</div>"; }).join("") + "</div></div>" + foot + "</div>";
+    var s2 = "";
+    if (mv) { var se = function (a) { var t = 0; a.forEach(function (x) { t += (x.d || x)[3]; }); return t; }, st = function (n, l, sm, bad) { return "<div" + (bad ? ' class="bad"' : "") + "><b>" + n + "</b><span> " + l + "</span><small>" + sm + "</small></div>"; };
+      s2 = '<div class="slide"><header><b>Ce qui a bougé</b><span>depuis le ' + F.date(mv.from) + '</span></header><div class="s-body"><div class="s-mv">' + st(mv.created.length, "deals créés", F.eur(se(mv.created))) + st(mv.won.length, "gagnés", F.eur(se(mv.won))) + st(mv.lost.length, "perdus", F.eur(se(mv.lost))) + st(mv.pushed.length, "close dates repoussées", F.eur(se(mv.pushed)), mv.pushed.length > 0) + st(mv.amount.length, "montants modifiés", "") + st(mv.gone.length + mv.regressed.length, "disparus ou en recul", "", mv.gone.length + mv.regressed.length > 0) + "</div></div>" + foot + "</div>"; }
+    var al = M.top.filter(function (f) { return f.status === "r"; }).slice(0, 3);
+    var s3 = '<div class="slide"><header><b>' + (al.length ? "Alertes" : "Aucune alerte") + "</b><span>" + al.length + " contrôle" + (al.length > 1 ? "s" : "") + ' en rouge</span></header><div class="s-body"><div class="s-al">' + al.map(function (f) { return "<div><b>" + esc(String(f.value).split(" vs ")[0]) + "</b><span>" + esc(f.text) + "<small>" + esc(f.reco) + "</small></span></div>"; }).join("") + "</div></div>" + foot + "</div>";
+    $("slides").innerHTML = s1 + s2 + s3;
   }
 
   // ---------- chart primitives ----------
@@ -493,6 +539,7 @@ html{scroll-behavior:smooth}
     $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' rouges</span><span><i class="o"></i>' + count("o") + ' oranges</span><span><i class="g"></i>' + count("g") + ' verts</span><span><i class="lock"></i>' + M.locked.length + " verrouillés</span>";
 
     $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + " · " + f.id + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
+    renderSlides(M);
     // week-over-week movements (only when a previous export of the same pipeline is remembered)
     var mv = S.mv; $("moves").hidden = !mv;
     if (mv) {
@@ -575,6 +622,9 @@ html{scroll-behavior:smooth}
   leadForm("debrief", "debrief", "Demande reçue. Vous serez recontacté par e-mail pour fixer un créneau.");
   leadForm("form", "weekly", "C’est noté. Vous serez prévenu dès l’ouverture des rapports hebdomadaires.");
   $("pdf").onclick = function () { window.print(); };
+  $("deckPdf").onclick = function () { document.documentElement.classList.add("ps"); window.print(); };
+  window.addEventListener("afterprint", function () { document.documentElement.classList.remove("ps"); });
+  if (new URLSearchParams(location.search).get("print") === "slides") document.documentElement.classList.add("ps");
   window.addEventListener("beforeprint", function () { var d = document.querySelector(".all"); if (d) { d.dataset.was = d.open ? "1" : ""; d.open = true; } });
   window.addEventListener("afterprint", function () { var d = document.querySelector(".all"); if (d && !d.dataset.was) d.open = false; });
   $("qs").addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (!b) return; var q = S.M.questions[+b.dataset.q]; S.cfg.answers[q.id] = +b.dataset.o; E.applyRule(S.cfg, q.options[+b.dataset.o].set); recompute(); });
