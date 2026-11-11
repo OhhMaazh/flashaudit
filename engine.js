@@ -330,6 +330,9 @@
     if (S >= 3) Q.push({ id: "qual", check: "B2", text: "À partir de quelle étape un deal est-il vraiment qualifié chez vous ?", why: "Le win rate se calcule sur les deals ayant atteint cette étape.", options: stages.slice(0, Math.min(4, S)).map(function (st, i) { return { label: st, set: { qualStage: i } }; }) });
     M.questions = Q; M.values = values;
     M.rules = { eomOk: !!cfg.eomOk, exclude: excl, qualStage: Math.min(qs, Math.max(S - 1, 0)), stagMult: mult, wrMin: wrMin, wrMax: wrMax, cycle: +cfg.cycle || null, cycleAuto: autoDays, fixedAmounts: fixed, pipeline: pipeUsed, pipelines: pipeNames.map(function (k) { return { name: k, n: pipes[k].length }; }) };
+    // compact anonymised snapshot of the analysed pipeline, kept by the app to compare with the next export
+    var idOk = deals.length && deals.every(function (d) { return d.id; }) && Object.keys(groupBy(deals, function (d) { return d.id; })).length === deals.length;
+    M.snapshot = idOk ? { date: snap, stages: stages, deals: deals.map(function (d) { return [String(d.id), d.cur, d.status === "won" ? 1 : d.status === "lost" ? 2 : 0, d.amount || 0, d.close || 0, d.owner]; }) } : null;
     M.meta = { rows: deals.length, open: open.length, won: won.length, lost: lost.length, months: Math.round((snap - Math.min.apply(null, deals.map(function (d) { return d.created; }))) / DAY / 30.4), reps: codes.length, cohort: cohort.length, executed: M.checks.filter(function (c) { return c.status !== "na" && !c.pattern; }).length };
     return M;
   }
@@ -372,6 +375,32 @@
     return out;
   }
 
-  var api = { applyRule: applyRule, interpret: interpret, parseCSV: parseCSV, proposeMapping: proposeMapping, fieldLabel: fieldLabel, isPiiField: isPiiField, FIELDS: FIELDS, REQUIRED: REQUIRED, anonymize: anonymize, analyze: analyze, fmt: fmt };
+  // ---------- 6. movements between two snapshots (référentiel §2.3, N3) ----------
+  // deal tuple: [id, stageIndex, status 0 open / 1 won / 2 lost, amount, closeDay, ownerHash]
+  function diff(prev, cur) {
+    var pm = {}, cm = {}, map = prev.stages.map(function (n) { return cur.stages.indexOf(n); });
+    var mv = { from: prev.date, to: cur.date, created: [], won: [], lost: [], gone: [], pushed: [], pulled: 0, amount: [], regressed: [], advanced: 0, owner: 0 };
+    prev.deals.forEach(function (d) { pm[d[0]] = d; }); cur.deals.forEach(function (d) { cm[d[0]] = d; });
+    cur.deals.forEach(function (c) {
+      var p = pm[c[0]];
+      if (!p) { if (c[2] === 0) mv.created.push(c); else if (c[2] === 1) { mv.created.push(c); mv.won.push(c); } else { mv.created.push(c); mv.lost.push(c); } return; }
+      if (p[2] !== 0) return;
+      if (c[2] === 1) return mv.won.push(c);
+      if (c[2] === 2) return mv.lost.push(c);
+      if (c[4] && p[4] && c[4] > p[4]) mv.pushed.push({ d: c, days: Math.round((c[4] - p[4]) / DAY), old: p[4] }); else if (c[4] && p[4] && c[4] < p[4]) mv.pulled++;
+      if (c[3] !== p[3]) mv.amount.push({ d: c, old: p[3] });
+      var ps = p[1] >= 0 ? map[p[1]] : -1; if (c[1] >= 0 && ps >= 0) { if (c[1] < ps) mv.regressed.push({ d: c, from: prev.stages[p[1]] }); else if (c[1] > ps) mv.advanced++; }
+      if (c[5] !== p[5]) mv.owner++;
+    });
+    var prevOpen = prev.deals.filter(function (d) { return d[2] === 0; });
+    prevOpen.forEach(function (p) { if (!cm[p[0]]) mv.gone.push(p); });
+    mv.prevOpen = prevOpen.length; mv.slippage = prevOpen.length ? mv.pushed.length / prevOpen.length * 100 : null;
+    // forecast proxy (H1): what happened to the deals that were due to close during the interval
+    var due = prevOpen.filter(function (d) { return d[4] > prev.date && d[4] <= cur.date; }), st = function (d) { var c = cm[d[0]]; return !c ? "gone" : c[2] === 1 ? "won" : c[2] === 2 ? "lost" : c[4] > d[4] ? "pushed" : "open"; };
+    mv.due = { n: due.length, won: 0, lost: 0, pushed: 0, open: 0, gone: 0 }; due.forEach(function (d) { mv.due[st(d)]++; });
+    return mv;
+  }
+
+  var api = { diff: diff, applyRule: applyRule, interpret: interpret, parseCSV: parseCSV, proposeMapping: proposeMapping, fieldLabel: fieldLabel, isPiiField: isPiiField, FIELDS: FIELDS, REQUIRED: REQUIRED, anonymize: anonymize, analyze: analyze, fmt: fmt };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.BIF = api;
 })(typeof window !== "undefined" ? window : globalThis);
