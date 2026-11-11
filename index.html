@@ -361,6 +361,8 @@ html{scroll-behavior:smooth}
     r.onload = function () { var text; try { text = new TextDecoder("utf-8", { fatal: true }).decode(r.result); } catch (e) { text = new TextDecoder("windows-1252").decode(r.result); } load(f.name, text); };
     r.readAsArrayBuffer(f);
   }
+  // hashing needs a secure context (https or localhost)
+  if (!window.isSecureContext) zoneMsg("Connexion non sécurisée : l’anonymisation exige https. Rouvrez cette page à l’adresse https://" + location.host + location.pathname);
   $("pick").onclick = function () { $("file").click(); };
   $("file").onchange = function (e) { readFile(e.target.files[0]); };
   var sampleName = (new URLSearchParams(location.search).get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
