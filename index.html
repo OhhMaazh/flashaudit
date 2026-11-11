@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="Déposez l’export de vos deals : l’audit de votre funnel de vente sort en deux minutes. Les données identifiantes sont hachées dans votre navigateur.">
+<title>Flash Sales Funnel Audit</title>
+<!-- Working prototype: drop a CRM export → columns recognised → identifying values hashed in this browser → report computed by engine.js. Nothing is sent anywhere. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F5F1;--ink:#15140F;--ink-2:#5F5B51;--line:#DCD9CF;--mark:#2A2823;--mute:#CBC7BB;--band:#E4E0D3;
+  --red:#CF3A1E;--amber:#E0A91B;--green:#16875C;--slab:#15140F;--slab-2:#A6A193;--slab-line:#37342D;
+  --hatch:repeating-linear-gradient(135deg,var(--amber) 0 2px,transparent 2px 5px);--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Schibsted Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.n{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em;word-spacing:-.28em}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+[hidden]{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0;font-size:14px}
+.brand{font-weight:800;letter-spacing:.12em;font-size:13px;white-space:nowrap;flex:none}
+.top .hide{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.btn{background:var(--ink);color:var(--bg);border:0;padding:13px 22px;font-weight:650;font-size:15px;cursor:pointer;transition:background .2s var(--ease),transform .1s}
+.btn:hover{background:var(--red)}.btn:active{transform:translateY(1px)}.btn[disabled]{opacity:.35;cursor:not-allowed;background:var(--ink)}
+.link{background:none;border:0;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;cursor:pointer;font-size:15px}
+
+/* ---- 1. drop ---- */
+.drop{display:grid;grid-template-columns:7fr 4fr;gap:88px;padding:64px 0 96px;align-items:start}
+.drop h1{font-weight:700;font-size:clamp(36px,4.5vw,62px);line-height:1.03;letter-spacing:-.035em}
+.drop h1 span{color:var(--ink-2)}
+.zone{margin-top:44px;border:1.5px dashed var(--ink);padding:40px 36px;display:grid;gap:16px;justify-items:start;transition:background .2s,border-color .2s}
+.zone.over{background:#fff;border-style:solid;border-color:var(--red)}
+.zone strong{font-size:22px;font-weight:650;letter-spacing:-.015em}
+.zone p{color:var(--ink-2);font-size:15px;max-width:52ch}.zone p.warn{color:var(--red)}.zone p.warn:empty{display:none}
+.zone div{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.assure{margin-top:26px;display:grid;gap:8px;font-size:15px;list-style:none}
+.assure li::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ink);margin-right:12px;vertical-align:1px}
+.scope{border-top:2px solid var(--ink);padding-top:14px;margin-top:8px}
+.scope h2{font-size:15px;font-weight:650;margin-bottom:6px}
+.scope li{display:grid;grid-template-columns:20px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px;list-style:none}
+.scope li span:first-child{color:var(--ink-2)}
+.scope p{margin-top:14px;font-size:14px;color:var(--ink-2)}
+
+/* ---- 2. mapping ---- */
+.map{padding:48px 0 96px;max-width:1040px}
+.map h1{font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1.12;max-width:22ch}
+.map .lede{margin-top:12px;color:var(--ink-2);max-width:64ch}
+.facts{display:flex;gap:36px;margin:32px 0 26px;flex-wrap:wrap}
+.facts div{border-top:2px solid var(--ink);padding-top:10px;min-width:150px}
+.facts .n{display:block;font-size:30px;letter-spacing:-.04em;line-height:1.1}
+.facts span{font-size:14px;color:var(--ink-2)}
+.mr{display:grid;grid-template-columns:1.25fr 1.35fr 1.1fr 170px;gap:22px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.mr.head{font-size:13px;color:var(--ink-2);border-bottom:2px solid var(--ink)}
+.mr select{background:none;border:0;border-bottom:1px solid var(--ink);padding:5px 0;width:100%;border-radius:0;cursor:pointer}
+.mr .ex{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mr.pii .ex{text-decoration:line-through;text-decoration-color:var(--red)}
+.mr.off{color:var(--ink-2)}
+.tg{font-size:13px}.tg.hash{color:var(--red);font-weight:650}
+.go{margin-top:30px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.warn{color:var(--red);font-size:14.5px;font-weight:600}
+
+/* ---- 3. run ---- */
+.run{padding:120px 0;max-width:720px}
+.run h1{font-size:34px;font-weight:700;letter-spacing:-.025em;margin-bottom:28px}
+.run li{list-style:none;padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:26px 1fr;font-size:15.5px;animation:rise .5s var(--ease) both}
+.run li::before{content:"";width:8px;height:8px;background:var(--ink);margin-top:8px}
+.run li small{display:block;color:var(--ink-2);font-size:13.5px}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+
+/* ---- 4. report: dark verdict slab ---- */
+.slab{background:var(--slab);color:#F2F0E8;padding-bottom:56px}
+.slab .top{border-bottom:1px solid var(--slab-line);color:var(--slab-2)}
+.slab .brand{color:#F2F0E8}
+.slab .link{color:#F2F0E8}
+.verdict{display:grid;grid-template-columns:7fr 5fr;gap:72px;padding-top:56px;align-items:start}
+.eyebrow{font-size:13px;color:var(--slab-2)}
+.verdict h1{margin-top:16px;font-weight:700;font-size:clamp(34px,4.2vw,60px);line-height:1.03;letter-spacing:-.035em;max-width:15ch}
+.verdict h1 em,.find h3 em{font-style:normal;color:var(--red)}
+.verdict h1 em{color:#FF6A4A}
+.v-detail{margin-top:22px;font-size:17px;line-height:1.5;color:#D8D5CA;max-width:50ch}
+.v-kpis{margin-top:40px;display:grid;grid-template-columns:repeat(3,auto);gap:44px;justify-content:start}
+.v-kpis div{border-top:1px solid var(--slab-line);padding-top:12px}
+.v-kpis .n{display:block;font-size:34px;letter-spacing:-.05em;line-height:1.1}
+.v-kpis span{font-size:13.5px;color:var(--slab-2);display:block}
+.v-kpis small{font-size:13px;color:#FF8A70}
+/* check matrix: red is loud, amber hatched, green quiet, locked dashed — never colour alone */
+.mx{display:grid;gap:7px;margin-top:16px}
+.mx-r{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:center}
+.mx-r>span{font-size:13px;color:var(--slab-2)}
+.mx-c{display:flex;flex-wrap:wrap;gap:5px}
+.cell{width:36px;height:26px;display:grid;place-items:center;font:500 10.5px "Geist Mono",monospace;text-decoration:none;border:1px solid var(--slab-line);color:#8C877A;opacity:0;animation:pop .35s var(--ease) forwards;animation-delay:calc(var(--k)*22ms + 250ms)}
+.cell.g{box-shadow:inset 0 -3px 0 var(--green)}
+.cell.o{background:var(--hatch);border-color:var(--amber);color:#F2F0E8}
+.cell.r{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.cell.lock{border-style:dashed;color:#6B675C}
+.cell.na{color:#6B675C}
+.cell:hover{outline:1px solid #F2F0E8}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1}}
+.mx-leg{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--slab-2)}
+.mx-leg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border:1px solid var(--slab-line)}
+.mx-leg .r{background:var(--red);border-color:var(--red)}.mx-leg .o{background:var(--hatch);border-color:var(--amber)}.mx-leg .g{box-shadow:inset 0 -3px 0 var(--green)}.mx-leg .lock{border-style:dashed}
+
+section{padding-top:88px}
+h2{font-size:15px;font-weight:650;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:20px;align-items:baseline}
+h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
+
+/* findings: analysis on the left, the chart that proves it on the right */
+.find{display:grid;grid-template-columns:5fr 7fr;gap:72px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start}
+.f-id{font-size:13px;color:var(--ink-2)}.f-id span{margin-left:10px}
+.find h3{margin-top:10px;font-size:27px;font-weight:700;line-height:1.14;letter-spacing:-.025em}
+.find p{margin-top:12px;color:var(--ink-2);font-size:15.5px;max-width:46ch}
+.find .reco{color:var(--ink);padding-left:14px;border-left:2px solid var(--ink)}
+.find .reco b{display:block;font-size:13px;font-weight:650}
+.f-meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:4px 20px;font-size:13px;color:var(--ink-2)}
+.f-meta b{color:var(--ink);font-weight:650}
+.cap{margin-top:14px;font-size:13px;color:var(--ink-2)}
+.c-title{font-size:13px;color:var(--ink-2);margin-bottom:14px}
+
+/* chart primitives */
+.hb{display:grid;gap:9px}
+.hb-r{display:grid;grid-template-columns:132px 1fr 132px;gap:14px;align-items:center;font-size:14px}
+.hb-t{position:relative;height:12px}
+.hb-t i{position:absolute;inset:0 auto 0 0;background:var(--mute);border-radius:0 3px 3px 0;transform-origin:left;transition:transform .9s var(--ease) calc(var(--i)*60ms)}
+.hb-r.hl .hb-t i{background:var(--red)}.hb-r.ink .hb-t i{background:var(--mark)}
+.hb-r.hl .hb-l{font-weight:650}
+.hb-t .bd{position:absolute;top:-4px;bottom:-4px;background:var(--band);border-left:1px solid var(--ink-2);border-right:1px solid var(--ink-2);z-index:-1}
+.hb-v{text-align:right;font-size:13.5px}
+.cols{display:flex;gap:3px;align-items:flex-end}
+.col{flex:1;min-width:0;text-align:center;font-size:11.5px;color:var(--ink-2)}
+.stack{height:var(--h);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;border-bottom:1px solid var(--ink)}
+.stack i{display:block;background:var(--mute);border-radius:3px 3px 0 0;transform-origin:bottom;transition:transform .9s var(--ease) calc(var(--i)*30ms)}
+.stack i.b2,.col.hl .stack i{background:var(--red)}.col.ink .stack i:not(.b2){background:var(--mark)}.col.dim .stack i{opacity:.45}
+.col span{display:block;height:16px;margin-top:5px;white-space:nowrap}
+.col.hl span{color:var(--ink);font-weight:650}
+.seg{display:flex;gap:2px;height:44px}
+.seg i{display:block;min-width:2px;transform-origin:left;transition:transform .9s var(--ease) calc(var(--i)*90ms)}
+.k0{background:var(--mark)}.k1{background:var(--hatch);outline:1px solid var(--amber);outline-offset:-1px}.k2{background:#E58A76}.k3{background:var(--red)}
+.leg{margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px 28px;font-size:14px}
+.leg div{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center}
+.leg i{width:12px;height:12px}
+.cmp{margin-top:24px;display:flex;gap:26px;align-items:center;font-size:14px;color:var(--ink-2)}
+.cmp .n{display:block;font-size:30px;letter-spacing:-.05em;color:var(--ink);line-height:1.15}
+.cmp div:last-child .n{color:var(--red)}
+.cmp .ar{font-size:22px;color:var(--ink)}
+.dots{position:relative;height:74px;margin:26px 8px 0}
+.d-ax{position:absolute;left:0;right:0;top:36px;height:1px;background:var(--ink)}
+.dot{position:absolute;top:30px;width:13px;height:13px;margin-left:-6.5px;border-radius:50%;background:var(--mute);box-shadow:0 0 0 2px var(--bg)}
+.dot.hl{background:var(--red);z-index:2}
+.dot b{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);font-size:13.5px;font-weight:500;color:var(--ink);white-space:nowrap}
+.d-ref{position:absolute;top:16px;height:40px;border-left:1px dashed var(--ink)}
+.d-ref b{position:absolute;top:-22px;left:-1px;transform:translateX(-50%);font-size:13px;font-weight:500;white-space:nowrap;color:var(--ink-2)}
+.d-sc{position:absolute;left:0;right:0;top:46px;display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+
+/* funnel ledger */
+.fr{display:grid;grid-template-columns:150px 1fr 70px 78px 78px 1fr;gap:18px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
+.fr.head{font-size:13px;color:var(--ink-2);padding:14px 0 8px}
+.fr .r{text-align:right}
+.fr-b,.fr-l{height:12px;position:relative}
+.fr-b i,.fr-l i{position:absolute;inset:0 auto 0 0;background:var(--mark);border-radius:0 3px 3px 0;transform-origin:left;transition:transform 1s var(--ease) calc(var(--i)*70ms)}
+.fr-l i{background:var(--mute)}
+.fr-l em{position:absolute;right:0;top:-5px;font-style:normal;font-size:13.5px}
+.fr.leak{font-weight:650}.fr.leak .fr-l i,.fr.leak .fr-b i{background:var(--red)}.fr.leak span:first-child{color:var(--red)}
+.fr.end{border-bottom:2px solid var(--ink)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.fig{padding:30px 32px 34px 0;border-top:1px solid var(--line)}
+.fig+.fig{padding-left:32px;border-left:1px solid var(--line)}
+.fig:nth-child(3n+1){padding-left:0;border-left:0}.fig:nth-child(3n){padding-right:0}
+.fig h3{font-size:18px;font-weight:650;line-height:1.25;letter-spacing:-.012em;margin:8px 0 22px;min-height:68px}
+.chip{font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px}
+.mk{display:inline-block;width:10px;height:10px;border:1px solid var(--ink-2)}
+.mk.r{background:var(--red);border-color:var(--red)}.mk.o{background:var(--hatch);border-color:var(--amber)}.mk.g{background:var(--green);border-color:var(--green)}
+.fig .hb-r{grid-template-columns:112px 1fr 52px}
+.fig h3 em{font-style:normal}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:72px}
+.rowl{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
+.rowl small{display:block;color:var(--ink-2);font-size:13.5px}
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:64px 1fr 150px;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);font-size:19px;line-height:1.4;font-weight:500;letter-spacing:-.01em}
+.steps li::before{content:"0" counter(s);font:400 15px "Geist Mono",monospace;color:var(--ink-2);padding-top:4px}
+.steps small{font-size:13px;color:var(--ink-2);font-weight:400;text-align:right;padding-top:5px}
+.locks{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:8px}
+.locks h3{font-size:15px;font-weight:650;padding:16px 0 4px}
+.locks p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
+.locks li{list-style:none;font-size:14.5px;padding:7px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:36px 1fr;gap:8px}
+.cta{margin-top:56px;background:var(--slab);color:#F2F0E8;padding:44px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
+.cta h3{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.08;max-width:18ch}
+.cta p{margin-top:10px;color:var(--slab-2);font-size:15px}
+.cta form{display:flex;gap:12px}
+.cta input{background:none;border:0;border-bottom:1px solid #F2F0E8;padding:12px 0;width:260px;border-radius:0;color:#F2F0E8}
+.cta input::placeholder{color:var(--slab-2)}
+.cta .btn{background:#F2F0E8;color:var(--ink)}.cta .btn:hover{background:var(--red);color:#fff}
+footer{margin-top:72px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 28px}
+.names{font-size:13px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+
+.v-kpis .n,.cmp .n,.facts .n{font-family:"Schibsted Grotesk",sans-serif;font-weight:700;letter-spacing:-.035em;word-spacing:0;font-variant-numeric:normal}
+.all summary{cursor:pointer;font-size:15px;font-weight:650;padding:14px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);list-style:none}.all summary::-webkit-details-marker{display:none}
+.all summary::after{content:"+";float:right;font-family:"Geist Mono",monospace}.all[open] summary::after{content:"−"}
+.ar{display:grid;grid-template-columns:64px 1.3fr 130px 2fr 70px;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.ar.head{font-size:13px;color:var(--ink-2)}.q{color:var(--ink-2)}.ar span:last-child{text-align:right}
+html{scroll-behavior:smooth}
+.sum{margin-top:48px;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--slab-line)}
+.sum a{padding:16px 18px 2px;text-decoration:none;color:inherit;border-right:1px solid var(--slab-line);transition:background .2s}.sum a:first-child{padding-left:0}.sum a:last-child{border-right:0}
+.sum a:hover b{color:#FF6A4A}.sum .n{font-size:12.5px;color:var(--slab-2)}.sum b{display:block;font-size:24px;font-weight:700;letter-spacing:-.03em;margin:5px 0 3px;transition:color .2s}.sum span{font-size:13.5px;color:#D8D5CA;display:block;line-height:1.35}
+.acts{display:flex;gap:22px;flex:none;white-space:nowrap}
+.v-rules{margin-top:28px;font-size:14px;color:var(--slab-2);max-width:58ch}.v-rules .link{font-size:14px}
+.find .why{color:var(--ink)}.find .why b,.find .pot b{display:block;font-size:13px;font-weight:650}.find .pot{color:var(--ink)}
+.help{margin-top:36px;border:2px solid var(--ink);padding:30px 34px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
+.help h3{font-size:22px;font-weight:700;letter-spacing:-.02em}.help p{margin-top:6px;color:var(--ink-2);font-size:15px;max-width:64ch}
+.scrim{position:fixed;inset:0;background:rgba(21,20,15,.4);z-index:39;opacity:0;pointer-events:none;transition:opacity .3s}.scrim.on{opacity:1;pointer-events:auto}
+.rules{position:fixed;top:0;right:0;bottom:0;width:470px;max-width:100vw;background:var(--bg);z-index:40;border-left:2px solid var(--ink);padding:24px 32px 48px;overflow-y:auto;transform:translateX(102%);visibility:hidden;transition:transform .46s var(--ease),visibility 0s .46s}
+.rules.on{transform:none;visibility:visible;transition-delay:0s}
+.r-top{display:flex;justify-content:space-between;align-items:baseline}
+.rules h2{border:0;padding:0;font-size:24px;font-weight:700;letter-spacing:-.02em;display:block}
+.r-lede{margin:10px 0 14px;color:var(--ink-2);font-size:14.5px}
+.rule{padding:18px 0;border-top:1px solid var(--line)}
+.rule label{display:block;font-weight:650;font-size:15px}
+.rule small{display:block;color:var(--ink-2);font-size:13.5px;margin:3px 0 10px;line-height:1.4}
+.rule select,.rule input{background:none;border:0;border-bottom:1px solid var(--ink);padding:6px 0;border-radius:0;width:100%}
+.pair{display:flex;gap:10px;align-items:center;font-size:15px}.rule .pair input{width:76px}
+.rr{display:grid;grid-template-columns:1fr 200px;gap:12px;align-items:center;font-size:14px;padding:4px 0}.rr .n{color:var(--ink-2);font-size:12.5px;margin-left:4px}
+.r-end{padding-top:22px;border-top:1px solid var(--line)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#F2F0E8;font-size:13px;line-height:1.4;padding:8px 11px;max-width:300px;opacity:0;transition:opacity .12s}
+.rv{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv:not(.in) .hb-t i,.rv:not(.in) .fr-b i,.rv:not(.in) .fr-l i,.rv:not(.in) .seg i{transform:scaleX(0)}
+.rv:not(.in) .stack i{transform:scaleY(0)}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv,.cell{opacity:1!important;transform:none!important}}
+@media (max-width:980px){
+  .wrap{padding:0 20px}.drop,.verdict,.find,.two,.locks,.cta,.help{grid-template-columns:1fr;gap:36px}.drop{padding-top:36px}
+  .grid{grid-template-columns:1fr}.fig,.fig+.fig{padding:26px 0;border-left:0}.fig h3{min-height:0}
+  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
+  .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
+  .fr{grid-template-columns:1fr 56px 56px;gap:6px 10px}.fr-b{grid-column:1/-1;order:9}.fr span:nth-child(5),.fr-l,.fr.head span:nth-child(2){display:none}
+  .ar{grid-template-columns:56px 1fr 96px}.ar span:nth-child(4),.ar span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
+  .cta{padding:32px 24px}.cta form{flex-direction:column}.cta input{width:100%}.top span.hide{display:none}
+}
+@media print{.slab .link,.cta,#tip{display:none}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- 1. DROP -->
+<main id="v-drop" class="wrap">
+  <header class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span>Gratuit, sans compte</span></header>
+  <div class="drop">
+    <div>
+      <h1>Déposez l’export de vos deals. <span>L’audit de votre funnel sort en deux minutes.</span></h1>
+      <div class="zone" id="zone">
+        <strong>Glissez votre fichier CSV ici</strong>
+        <p>Un export de deals depuis HubSpot, Pipedrive, Salesforce ou un tableur. Les colonnes sont reconnues automatiquement.</p>
+        <div>
+          <button class="btn" id="pick" type="button">Choisir un fichier</button>
+          <button class="link" id="sample" type="button">Essayer avec un export d’exemple</button>
+          <input type="file" id="file" accept=".csv,text/csv" hidden>
+        </div>
+        <p class="warn" id="zoneMsg" role="alert"></p>
+      </div>
+      <ul class="assure">
+        <li>Noms, e-mails et entreprises sont hachés dans ce navigateur, avant toute analyse.</li>
+        <li>Aucune question avant le résultat.</li>
+        <li>Chaque chiffre est calculé par un moteur déterministe, avec des définitions gelées.</li>
+      </ul>
+    </div>
+    <aside class="scope">
+      <h2>Ce que l’audit contrôle sur un seul export</h2>
+      <ul id="scope"></ul>
+      <p>Une trentaine de contrôles sur un seul export. D’autres se débloquent avec un export déposé chaque semaine.</p>
+    </aside>
+  </div>
+</main>
+
+<!-- 2. MAPPING + ANONYMISATION -->
+<main id="v-map" class="wrap" hidden>
+  <header class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><button class="link" data-restart type="button">Changer de fichier</button></header>
+  <div class="map">
+    <h1>Voici ce que nous avons reconnu dans votre fichier.</h1>
+    <p class="lede">Vérifiez d’un coup d’œil. Les colonnes identifiantes sont hachées ici, dans votre navigateur : nous ne voyons jamais les noms.</p>
+    <div class="facts" id="facts"></div>
+    <div id="maprows"></div>
+    <div class="go"><button class="btn" id="run" type="button">Anonymiser et lancer l’audit</button><span class="warn" id="mapwarn"></span></div>
+  </div>
+</main>
+
+<!-- 3. RUN -->
+<main id="v-run" class="wrap" hidden>
+  <div class="run"><h1>Audit en cours</h1><ul id="log"></ul></div>
+</main>
+
+<!-- 4. REPORT -->
+<div id="v-report" hidden>
+  <header class="slab"><div class="wrap">
+    <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span class="hide" id="filefacts"></span><span class="acts"><button class="link" id="openRules" type="button">Règles métier</button><button class="link" data-restart type="button">Nouvel export</button></span></div>
+    <div class="verdict">
+      <div><p class="eyebrow" id="vEyebrow"></p><h1 id="vTitle"></h1><p class="v-detail" id="vDetail"></p><div class="v-kpis" id="vKpis"></div><p class="v-rules" id="vRules"></p></div>
+      <div><p class="eyebrow" id="mxTitle"></p><div class="mx" id="mx"></div><div class="mx-leg" id="mxLeg"></div></div>
+    </div>
+    <nav class="sum" id="sum" aria-label="Sommaire des constats"></nav>
+  </div></header>
+  <div class="wrap">
+    <section><h2>Ce que l’audit a trouvé <span id="topSub"></span></h2><div id="top"></div></section>
+    <section><h2>Le funnel, étape par étape <span id="funnelSub"></span></h2><div class="rv" id="funnel"></div></section>
+    <section><h2>Le reste de l’analyse <label class="names"><input type="checkbox" id="names"> Afficher les noms des commerciaux (ils sont restés dans ce navigateur)</label></h2><div class="grid" id="grid"></div></section>
+    <section class="two"><div><h2>Autres points d’attention</h2><div id="others"></div></div><div><h2>Ce qui va bien</h2><div id="good"></div></div></section>
+    <section><details class="all"><summary>Voir le détail des <span id="allN"></span> contrôles exécutés, avec leurs seuils</summary><div id="all"></div></details></section>
+    <section><h2>Pistes d’amélioration pour les 30 prochains jours</h2><ol class="steps" id="steps"></ol>
+      <div class="help"><div><h3>Ces constats sont des pistes, pas encore un plan.</h3><p>Audit augmenté : trente minutes de debrief avec un consultant RevOps et un plan d’action priorisé, adapté à votre équipe. 199 €, déduits de la première mission.</p></div><button class="btn" id="debrief" type="button">Réserver le debrief</button></div></section>
+    <section><h2>Ce qu’un seul export ne permet pas de voir <span id="lockSub"></span></h2><div class="locks" id="locks"></div>
+      <div class="cta"><div><h3>Recevez ces chiffres chaque semaine.</h3><p>La veille de votre review, par e-mail, sous forme de slide. Un mois offert, sans carte.</p></div>
+        <form id="form"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail"><button class="btn" type="submit">Recevoir le rapport</button></form></div>
+    </section>
+    <footer id="foot"></footer>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="rules" id="rules" aria-label="Règles métier"></aside>
+<div id="tip" role="tooltip"></div>
+
+<script src="./engine.js"></script>
+<script>
+(function () {
+  var E = window.BIF, F = E.fmt, NB = " ", S = {};
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var view = function (v) { ["drop", "map", "run", "report"].forEach(function (k) { $("v-" + k).hidden = k !== v; }); window.scrollTo(0, 0); };
+  var FAM = { A: "Structure", B: "Conversion", C: "Vélocité", D: "Données", E: "Équipe", F: "Organisation", G: "Méthode", H: "Forecast", I: "Mix et segments" };
+  $("scope").innerHTML = [["A", "Structure du pipeline", 5], ["B", "Volume et conversion", 6], ["C", "Vélocité", 4], ["D", "Fiabilité des données", 5], ["E", "Performance par commercial", 3], ["G", "Méthode de vente", 3], ["H", "Discipline de forecast", 2], ["I", "Mix et segments", 1]].map(function (f) { return '<li><span class="n">' + f[0] + "</span><span>" + f[1] + "</span><span></span></li>"; }).join("");
+
+  // ---------- 1. file intake ----------
+  var zoneMsg = function (t) { $("zoneMsg").textContent = t; };
+  function load(name, text) {
+    var parsed = E.parseCSV(text);
+    if (parsed.header.length < 3 || !parsed.rows.length) return zoneMsg("Ce fichier est vide ou n’a pas pu être lu comme un tableau. Exportez vos deals au format CSV, avec une ligne d’en-têtes.");
+    zoneMsg(""); S.name = name; S.parsed = parsed; S.cols = E.proposeMapping(parsed); renderMap(); view("map");
+  }
+  function readFile(f) {
+    if (!f) return;
+    if (!/\.(csv|txt|tsv)$/i.test(f.name)) return zoneMsg("« " + f.name + " » n’est pas un fichier CSV. Dans Excel ou Google Sheets : Fichier, Enregistrer sous, format CSV.");
+    var r = new FileReader();
+    // Excel on Windows often saves CSV as Windows-1252: fall back when the bytes are not valid UTF-8
+    r.onload = function () { var text; try { text = new TextDecoder("utf-8", { fatal: true }).decode(r.result); } catch (e) { text = new TextDecoder("windows-1252").decode(r.result); } load(f.name, text); };
+    r.readAsArrayBuffer(f);
+  }
+  $("pick").onclick = function () { $("file").click(); };
+  $("file").onchange = function (e) { readFile(e.target.files[0]); };
+  var sampleName = (new URLSearchParams(location.search).get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
+  $("sample").onclick = function () { fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); }).catch(function () { zoneMsg("L’export d’exemple n’a pas pu être chargé."); }); };
+  var z = $("zone");
+  ["dragenter", "dragover"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.add("over"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.remove("over"); }); });
+  z.addEventListener("drop", function (e) { readFile(e.dataTransfer.files[0]); });
+  [].forEach.call(document.querySelectorAll("[data-restart]"), function (b) { b.onclick = function () { $("file").value = ""; view("drop"); }; });
+
+  // ---------- 2. mapping ----------
+  function renderMap() {
+    var cols = S.cols, mapped = cols.filter(function (c) { return c.field; }), pii = mapped.filter(function (c) { return c.pii && c.field !== "stage_entered"; }), stages = cols.filter(function (c) { return c.field === "stage_entered"; });
+    $("facts").innerHTML = [[F.int(S.parsed.rows.length), "lignes lues"], [mapped.length + " / " + cols.length, "colonnes reconnues"], [pii.length, "colonnes identifiantes, hachées ici"], [stages.length ? "N2" : "N1", stages.length ? "historique des étapes présent" : "photo sans historique d’étapes"]].map(function (f) { return '<div><span class="n">' + f[0] + "</span><span>" + f[1] + "</span></div>"; }).join("");
+    var opts = [["", "Ignorer cette colonne"]].concat(E.FIELDS.map(function (f) { return [f[0], f[1]]; })).concat([["stage_entered", "Date d’entrée dans une étape"]]);
+    $("maprows").innerHTML = '<div class="mr head"><span>Colonne de votre fichier</span><span>Exemple</span><span>Reconnue comme</span><span>Traitement</span></div>' + cols.map(function (c, i) {
+      var hashed = c.field && c.pii && c.field !== "stage_entered";
+      return '<div class="mr' + (hashed ? " pii" : "") + (c.field ? "" : " off") + '"><span>' + esc(c.source) + '</span><span class="ex">' + esc(c.sample[0] || "—") + '</span><select data-i="' + i + '" aria-label="Champ pour ' + esc(c.source) + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + ((c.field || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") +
+        '</select><span class="tg' + (hashed ? " hash" : "") + '">' + (hashed ? "Haché dans ce navigateur" : c.field ? "Conservé" : "Ignoré, jamais lu") + "</span></div>";
+    }).join("");
+    [].forEach.call($("maprows").querySelectorAll("select"), function (s) { s.onchange = function () { var c = S.cols[+s.dataset.i]; c.field = s.value || null; c.pii = E.isPiiField(c.field); if (c.field === "stage_entered" && !c.stage) c.stage = c.source; renderMap(); }; });
+    var missing = E.REQUIRED.filter(function (r) { return !mapped.some(function (c) { return c.field === r; }); });
+    $("mapwarn").textContent = missing.length ? "Il manque : " + missing.map(E.fieldLabel).join(", ") + "." : "";
+    $("run").disabled = !!missing.length;
+  }
+
+  // ---------- 3. anonymise + analyse ----------
+  $("run").onclick = function () {
+    view("run"); $("log").innerHTML = "";
+    var salt = sessionStorage.getItem("bif-salt") || Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+    sessionStorage.setItem("bif-salt", salt);
+    var line = function (t, sub) { return new Promise(function (ok) { $("log").insertAdjacentHTML("beforeend", "<li><span>" + t + (sub ? "<small>" + sub + "</small>" : "") + "</span></li>"); setTimeout(ok, 420); }); };
+    var ignored = S.cols.filter(function (c) { return !c.field; });
+    line("Lecture du fichier", F.int(S.parsed.rows.length) + " lignes, " + S.cols.length + " colonnes")
+      .then(function () { return E.anonymize(S.parsed, S.cols, salt); })
+      .then(function (a) { S.anon = a; var ex = Object.keys(a.vault)[0]; return line("Anonymisation dans ce navigateur", F.int(a.hashedValues) + " valeurs hachées (SHA-256 + sel) dans " + a.piiColumns.length + " colonnes" + (ex ? " · « " + esc(a.vault[ex]) + " » devient " + ex : "")); })
+      .then(function () { return ignored.length ? line("Colonnes ignorées", ignored.map(function (c) { return esc(c.source); }).join(", ") + " : jamais lues") : null; })
+      .then(function () { S.cfg = { reasons: {} }; S.M = E.analyze(S.anon, S.cfg); return line("Niveau " + S.M.level + " détecté", S.M.level === "N2" ? "Dates d’entrée par étape présentes : conversion et durée par étape calculables" : "Pas d’historique d’étapes : conversion par étape non calculable"); })
+      .then(function () { return line(S.M.meta.executed + " contrôles exécutés", S.M.locked.length + " autres demandent un historique hebdomadaire ou du contexte"); })
+      .then(function () { return line("Rapport prêt"); })
+      .then(function () { renderReport(); view("report"); observe(); })
+      .catch(function (e) { $("log").insertAdjacentHTML("beforeend", '<li><span class="warn">Lecture impossible : ' + esc(e.message) + "</span></li>"); });
+  };
+
+  // ---------- chart primitives ----------
+  function hbars(items) {
+    var max = Math.max.apply(null, items.map(function (i) { return Math.max(i.v, i.band ? i.band[1] : 0); })) || 1;
+    return '<div class="hb">' + items.map(function (i, k) { return '<div class="hb-r ' + (i.cls || "") + '" style="--i:' + k + '" data-tip="' + esc(i.tip || "") + '"><span class="hb-l">' + esc(i.l) + '</span><span class="hb-t">' + (i.band ? '<b class="bd" style="left:' + (i.band[0] / max * 100) + "%;width:" + ((i.band[1] - i.band[0]) / max * 100) + '%"></b>' : "") + '<i style="width:' + (i.v / max * 100).toFixed(1) + '%"></i></span><span class="hb-v n">' + i.f + "</span></div>"; }).join("") + "</div>";
+  }
+  function cols(items, h) {
+    var max = Math.max.apply(null, items.map(function (i) { return i.v + (i.v2 || 0); })) || 1;
+    return '<div class="cols" style="--h:' + (h || 120) + 'px">' + items.map(function (i, k) { return '<div class="col ' + (i.cls || "") + '" style="--i:' + k + '" data-tip="' + esc(i.tip || "") + '"><div class="stack">' + (i.v2 ? '<i class="b2" style="height:' + (i.v2 / max * 100).toFixed(1) + '%"></i>' : "") + '<i style="height:' + (i.v / max * 100).toFixed(1) + '%"></i></div><span>' + (i.l || "") + "</span></div>"; }).join("") + "</div>";
+  }
+  function dots(items, ref, refLabel) {
+    var hi = Math.ceil((Math.max.apply(null, items.map(function (i) { return i.v; }).concat([ref])) + 8) / 10) * 10, x = function (v) { return (v / hi * 100).toFixed(1); };
+    return '<div class="dots"><div class="d-ax"></div><span class="d-ref" style="left:' + x(ref) + '%"><b>' + refLabel + "</b></span>" + items.map(function (i) { return '<i class="dot' + (i.hl ? " hl" : "") + '" style="left:' + x(i.v) + '%" data-who="' + i.who + '" data-tip="{who} : ' + esc(i.tip) + '">' + (i.hl ? '<b class="n">' + i.f + "</b>" : "") + "</i>"; }).join("") + '<div class="d-sc n"><span>0' + NB + "%</span><span>" + hi + NB + "%</span></div></div>";
+  }
+  var hl = function (t) { return esc(t).replace(/(\d[\d,]*\s%)/, "<em>$1</em>"); };
+
+  // the chart that proves each finding
+  function chartFor(f, M) {
+    var Sx = M.funnel.length;
+    if (f.chart === "pipe") {
+      var p = M.pipe, ok = p.open - p.union, parts = [["Actif", ok, "k0"], ["Stagnant", p.stagOnly, "k1"], ["Stagnant et close date dépassée", p.both, "k3"], ["Close date dépassée", p.pastOnly, "k2"]];
+      return '<p class="c-title">Pipeline ouvert, en montant · ' + F.eur(p.open) + " · " + p.n + ' deals</p><div class="seg">' + parts.map(function (x, k) { return '<i class="' + x[2] + '" style="flex:' + Math.max(x[1], 1) + ";--i:" + k + '" data-tip="' + x[0] + " : " + F.eur(x[1]) + " (" + F.pct(x[1] / p.open * 100) + ')"></i>'; }).join("") + '</div><div class="leg">' + parts.map(function (x) { return '<div><i class="' + x[2] + '"></i><span>' + x[0] + '</span><span class="n">' + F.eur(x[1]) + "</span></div>"; }).join("") +
+        '</div><div class="cmp"><div><span class="n">' + F.eur(p.open) + '</span>pipeline affiché</div><span class="ar">→</span><div><span class="n">' + F.eur(ok) + "</span>pipeline réellement actif</div></div>";
+    }
+    if (f.chart === "loss") return '<p class="c-title">Deals perdus, selon la dernière étape atteinte · cohorte de ' + F.int(M.meta.cohort) + " deals</p>" + hbars(M.funnel.map(function (s, i) { return { l: s.name, v: s.lost, f: F.int(s.lost) + " · " + F.eur(s.lostEur), cls: i >= Sx - 2 ? "hl" : "", tip: s.name + " : " + s.lost + " deals perdus, " + F.eur(s.lostEur) }; }));
+    if (f.chart === "reasons") { var tot = M.reasons.reduce(function (t, r) { return t + r.n; }, 0); return '<p class="c-title">Raisons de perte déclarées · ' + F.int(tot) + " deals perdus</p>" + hbars(M.reasons.map(function (r) { return { l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: r.cls === (f.id === "D8" ? "vague" : "nd") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }; })) + '<p class="cap">En rouge : ' + (f.id === "D8" ? "les valeurs qui ne disent pas pourquoi le deal est perdu." : "les pertes sans décision de l’acheteur.") + " Cette lecture s’adapte dans les règles métier.</p>"; }
+    if (f.chart === "amounts") { var mk = Math.floor(f.mode / 1000); return '<p class="c-title">Nombre de deals par tranche de 1 000 € de montant</p>' + cols(M.amountBins.map(function (b) { return { v: b.n, l: b.k === 30 ? "30+" : b.k % 5 ? "" : b.k + NB + "k", cls: b.k === mk ? "hl" : "", tip: (b.k === 30 ? "30 000 € et plus" : F.int(b.k * 1000) + " à " + F.int(b.k * 1000 + 999) + NB + "€") + " : " + b.n + " deals" }; }), 150) + '<p class="cap">Le pic isolé à ' + F.int(f.mode) + NB + "€ n’a aucune raison statistique d’exister : c’est une valeur saisie par défaut.</p>"; }
+    if (f.chart === "reps" && M.blocked) { var s = M.blocked.stage; return '<p class="c-title">Conversion de l’étape ' + esc(M.stages[s]) + " vers la suivante · un point par commercial</p>" + dots(M.reps.filter(function (r) { return r.stageConv[s]; }).map(function (r) { return { v: r.stageConv[s].conv, f: F.pct(r.stageConv[s].conv), hl: r.hash === M.blocked.hash, who: r.hash, tip: F.pct(r.stageConv[s].conv) + " sur " + r.stageConv[s].n + " deals" }; }), M.funnel[s].conv, "équipe " + F.pct(M.funnel[s].conv)) + '<p class="cap">Les autres commerciaux sont groupés autour de l’équipe : l’écart est individuel et localisé à une étape.</p>'; }
+    return "";
+  }
+
+  // ---------- 4. report ----------
+  function renderReport() {
+    var M = S.M, by = {}, a = S.anon; M.checks.forEach(function (c) { by[c.id] = c; });
+    var count = function (st) { return M.checks.filter(function (c) { return c.status === st && !c.pattern; }).length; }, top = M.top[0];
+    $("filefacts").textContent = S.name + " · " + F.int(M.meta.rows) + " deals sur " + M.meta.months + " mois · " + (M.rules.pipelines.length > 1 && M.rules.pipeline ? "pipeline " + M.rules.pipeline + " · " : "") + "niveau " + M.level + " · " + F.int(a.hashedValues) + " valeurs hachées dans ce navigateur";
+    if (top) { $("vEyebrow").textContent = "Constat nº 1 sur " + M.findings.length + " · " + top.id + (top.impact ? " · " + F.eur(top.impact) + " concernés" : ""); $("vTitle").innerHTML = hl(top.text); $("vDetail").textContent = top.detail || top.reco; }
+    else { $("vEyebrow").textContent = "Aucun contrôle hors du vert"; $("vTitle").textContent = "Le funnel est sain sur tous les contrôles exécutés."; $("vDetail").textContent = ""; }
+    $("vKpis").innerHTML = [[M.kpi.k2 != null ? F.pct(M.kpi.k2) : "—", "Win rate · n" + NB + "=" + NB + F.int(M.kpi.k2n), "fourchette attendue " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%", false], [M.kpi.k4 != null ? F.days(M.kpi.k4) : "—", "Cycle de vente médian", "panier médian " + F.eur(M.kpi.basket), false], [F.eur(M.kpi.openEur), "Pipeline ouvert · " + M.meta.open + " deals", by.P1 ? "dont " + F.eur(M.pipe.union) + " inactifs ou périmés" : "", !!by.P1]]
+      .map(function (k) { return '<div><span class="n">' + k[0] + "</span><span>" + k[1] + "</span>" + (k[3] ? "<small>" + k[2] + "</small>" : "<span>" + k[2] + "</span>") + "</div>"; }).join("");
+    // check matrix
+    var all = M.checks.filter(function (c) { return !c.pattern; }).concat(M.locked), k = 0;
+    $("mxTitle").textContent = M.meta.executed + " contrôles exécutés sur ce fichier, " + M.locked.length + " verrouillés";
+    $("mx").innerHTML = Object.keys(FAM).map(function (f) { var cs = all.filter(function (c) { return c.fam === f; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; }); return cs.length ? '<div class="mx-r"><span>' + FAM[f] + '</span><div class="mx-c">' + cs.map(function (c) { return '<span class="cell ' + c.status + '" style="--k:' + (k++) + '" data-tip="' + esc(c.id + " · " + c.label + (c.status === "lock" ? " — " + c.text : " — " + (c.value || "") + (c.thr ? " · seuils : " + c.thr : "") + (M.absorbed[c.id] ? " · regroupé dans " + M.absorbed[c.id] : ""))) + '">' + c.id + "</span>"; }).join("") + "</div></div>" : ""; }).join("");
+    $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' rouges</span><span><i class="o"></i>' + count("o") + ' oranges</span><span><i class="g"></i>' + count("g") + ' verts</span><span><i class="lock"></i>' + M.locked.length + " verrouillés</span>";
+
+    $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + " · " + f.id + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
+    // findings with their proof
+    $("topSub").textContent = M.top.length + " constats, par ordre de priorité · seuils du référentiel";
+    $("top").innerHTML = M.top.map(function (f, i) {
+      var abs = (f.absorbs || []).filter(function (x) { return M.absorbed[x] === f.id; });
+      return '<article class="find rv" id="f' + i + '"><div><div class="f-id n">0' + (i + 1) + " · " + f.id + (abs.length ? "<span>regroupe " + abs.join(", ") + "</span>" : "") + "</div><h3>" + hl(f.text) + "</h3>" + (f.detail ? "<p>" + esc(f.detail) + "</p>" : "") + (f.cause ? '<p class="why"><b>Cause probable</b>' + esc(f.cause) + "</p>" : "") + '<p class="reco"><b>Piste d’amélioration</b>' + esc(f.reco) + "</p>" + (f.potential ? '<p class="pot"><b>Potentiel</b>' + esc(f.potential) + "</p>" : "") + '<div class="f-meta">' + (f.impact ? "<span><b>" + F.eur(f.impact) + "</b> concernés</span>" : "") + "<span>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Structurel · 1 à 3 mois") + "</span><span>" + (f.indicative ? "Indicatif" : "Confiance solide") + " · n" + NB + "=" + NB + F.int(f.n) + "</span></div></div><div>" + chartFor(f, M) + "</div></article>";
+    }).join("");
+
+    // funnel ledger
+    var fm = M.funnel.length ? M.funnel[0].reached : 1, lm = Math.max.apply(null, M.funnel.map(function (f) { return f.lostEur; })) || 1;
+    $("funnelSub").textContent = "cohorte de création · " + F.int(M.meta.cohort) + " deals créés depuis plus de quatre mois";
+    $("funnel").innerHTML = M.funnel.length ? '<div class="fr head"><span>Étape</span><span>Deals ayant atteint l’étape</span><span class="r">Deals</span><span class="r">Passent</span><span class="r">Durée</span><span>Montants perdus à cette étape</span></div>' + M.funnel.map(function (f, i) {
+      return '<div class="fr' + (f.name === M.leak ? " leak" : "") + '" data-tip="' + esc(f.name + " : " + f.reached + " deals, " + f.next + " passent à la suite, " + f.lost + " perdus ici") + '"><span>' + esc(f.name) + '</span><span class="fr-b"><i style="width:' + (f.reached / fm * 100).toFixed(1) + "%;--i:" + i + '"></i></span><span class="n r">' + F.int(f.reached) + '</span><span class="n r">' + F.pct(f.conv) + '</span><span class="n r">' + (f.days != null ? F.days(f.days) : "—") + '</span><span class="fr-l"><i style="width:' + (f.lostEur / lm * 62).toFixed(1) + "%;--i:" + i + '"></i><em class="n">' + F.eur(f.lostEur) + "</em></span></div>";
+    }).join("") + '<div class="fr end"><span>Gagné</span><span class="fr-b"><i style="width:' + (M.funnel[M.funnel.length - 1].next / fm * 100).toFixed(1) + '%;--i:6"></i></span><span class="n r">' + F.int(M.funnel[M.funnel.length - 1].next) + "</span><span></span><span></span><span></span></div>" : '<p class="c-title">Pipeline ouvert, par étape actuelle</p>' + hbars(M.openStages.map(function (x) { return { l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink", tip: x.name + " : " + x.n + " deals ouverts, " + F.eur(x.eur) }; })) + '<p class="cap">Votre export ne contient pas les dates d’entrée par étape : la conversion et la durée par étape ne peuvent pas être calculées. Ajoutez ces colonnes à l’export (dans HubSpot : « Date d’entrée dans la phase… ») pour obtenir le funnel complet.</p>';
+    if (!M.funnel.length) $("funnelSub").textContent = "niveau N1 · photo du pipeline, sans historique d’étapes";
+
+    // secondary figures
+    var k4 = M.kpi.k4, REF = { inbound: [30, 45], outbound: [10, 20], partenaire: [25, 40], referral: [25, 40] }, figs = [];
+    var fig = function (c, chart, cap) { if (c && c.status !== "na") figs.push('<figure class="fig rv"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><h3>" + hl(c.text) + "</h3>" + chart + '<figcaption class="cap">' + cap + "</figcaption></figure>"); };
+    fig(by.C4, cols(M.ageBins.map(function (b, i) { return { v: b.n, l: i === 8 ? "240+" : String(b.from), cls: k4 && b.from >= 2 * k4 ? "hl" : "ink", tip: b.n + " deals ouverts, " + F.eur(b.eur) }; })), "Deals ouverts par âge, en jours. En rouge : au-delà de deux cycles gagnants.");
+    fig(by.D2, cols(M.closeMonths.map(function (m) { return { v: m.future, v2: m.past, l: m.label, cls: "ink" + (m.current ? " hl" : ""), tip: (m.past + m.future) + " deals attendus, dont " + m.eom + " au dernier jour du mois" }; })), "Deals ouverts par mois de close date. En rouge : dates déjà passées." + (by.H3 ? " " + by.H3.text : ""));
+    fig(by.B4, cols(M.monthly.map(function (m) { return { v: m.created, l: m.label, cls: m.partial ? "dim" : "ink", tip: m.created + " deals créés, " + m.won + " gagnés" }; })), "Deals créés par mois sur quinze mois. Le mois en cours est partiel.");
+    fig(by.B5, hbars((M.sources || []).map(function (s) { return { l: s.name, v: s.wr, f: F.pct(s.wr), cls: "ink", band: REF[s.name.toLowerCase()], tip: s.name + " : " + F.pct(s.wr) + " de win rate sur " + s.n + " deals clos, " + F.pct(s.vol) + " du volume" }; })), "Win rate par source. La bande grise est la fourchette de référence de la source.");
+    fig(by.C2, hbars(M.funnel.map(function (f) { return { l: f.name, v: f.days || 0, f: f.days != null ? F.days(f.days) : "—", cls: "ink", tip: "Durée médiane en " + f.name }; })), "Durée médiane passée dans chaque étape." + (by.C1 ? " " + by.C1.text : ""));
+    var cmp = M.reps.filter(function (r) { return r.wr != null; });
+    if (by.E1 && cmp.length) fig(by.E1, dots(cmp.map(function (r) { return { v: r.wr, f: F.pct(r.wr), who: r.hash, hl: false, tip: F.pct(r.wr) + " de win rate sur " + r.closed + " deals clos" }; }), M.kpi.k2, "équipe " + F.pct(M.kpi.k2)), "Win rate par commercial, un point chacun." + (by.E4 ? " " + by.E4.text : ""));
+    $("grid").innerHTML = figs.join("");
+
+    var ex = M.checks.filter(function (c) { return !c.pattern; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; });
+    $("allN").textContent = ex.length;
+    $("all").innerHTML = '<div class="ar head"><span>Contrôle</span><span></span><span>Valeur</span><span>Seuils du référentiel</span><span>Échantillon</span></div>' + ex.map(function (c) { return '<div class="ar"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><span>" + esc(c.label) + (M.absorbed[c.id] ? ' <span class="q">· regroupé dans ' + M.absorbed[c.id] + "</span>" : "") + '</span><span class="n">' + esc(c.value || "—") + '</span><span class="q">' + esc(c.thr || "") + '</span><span class="n q">' + (c.n != null ? F.int(c.n) : "—") + "</span></div>"; }).join("");
+    var row = function (c) { return '<div class="rowl"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><span>" + esc(c.text) + "<small>" + (c.status === "g" ? "Seuils : " + esc(c.thr) : esc(c.reco || "")) + "</small></span></div>"; };
+    $("others").innerHTML = M.others.map(row).join("") || '<p class="cap">Rien d’autre hors du vert.</p>';
+    $("good").innerHTML = M.good.map(row).join("");
+    $("steps").innerHTML = M.top.slice().sort(function (x, y) { return (x.horizon === "quick" ? 0 : 1) - (y.horizon === "quick" ? 0 : 1); }).slice(0, 3).map(function (f) { return "<li><span>" + esc(f.reco) + "</span><small>" + (f.horizon === "quick" ? "Quick win" : "Structurel") + " · " + f.id + "</small></li>"; }).join("");
+    $("lockSub").textContent = M.locked.length + " contrôles verrouillés";
+    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates, la fiabilité du forecast et « ce qui a bougé » se mesurent entre deux observations."], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return '<li><span class="n">' + l.id + "</span><span>" + l.label + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
+    var rsum = rulesSummary();
+    $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + ". " : "Calculé avec les règles par défaut. Tous les business ne se ressemblent pas : ") + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "adaptez les règles au vôtre") + "</button>";
+    $("vRulesBtn").onclick = openRules;
+    $("openRules").textContent = "Règles métier" + (rsum.length ? " · " + rsum.length + " adaptée" + (rsum.length > 1 ? "s" : "") : "");
+    $("foot").innerHTML = "<span>Règles métier : " + (rsum.length ? esc(rsum.join(" · ")) : "valeurs par défaut") + "</span><span>Définitions v1, gelées · seuils du référentiel v0.1</span><span>Moteur déterministe : aucun chiffre n’est produit par un LLM</span><span>Données au " + F.date(M.snap) + "</span><span>Prototype : tout est calculé dans ce navigateur, rien n’est envoyé</span>";
+  }
+  $("debrief").onclick = function () { this.outerHTML = "<p><b>Demande notée.</b> Vous recevrez une proposition de créneau par e-mail.</p>"; };
+
+  // ---------- business rules: adjusted after the first result, report recomputed live ----------
+  function rulesSummary() {
+    var c = S.cfg, M = S.M, o = [], n = Object.keys(c.reasons || {}).length;
+    if (c.pipeline) o.push(c.pipeline === "*" ? "tous les pipelines ensemble" : "pipeline « " + c.pipeline + " »");
+    if (c.qualStage != null && +c.qualStage !== 1) o.push("qualifié dès " + M.stages[c.qualStage]);
+    if ((c.wrMin != null && +c.wrMin !== 17) || (c.wrMax != null && +c.wrMax !== 30)) o.push("win rate attendu " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%");
+    if (c.cycle) o.push("cycle attendu " + c.cycle + NB + "j");
+    if (c.stagMult && +c.stagMult !== 2) o.push("stagnation à " + String(c.stagMult).replace(".", ",") + "×");
+    if (c.fixedAmounts && c.fixedAmounts.length) o.push(c.fixedAmounts.length + " montant" + (c.fixedAmounts.length > 1 ? "s" : "") + " à prix fixe");
+    if (n) o.push(n + " raison" + (n > 1 ? "s" : "") + " de perte reclassée" + (n > 1 ? "s" : ""));
+    return o;
+  }
+  function renderRules() {
+    var M = S.M, r = M.rules, c = S.cfg, o = function (v, l, sel) { return '<option value="' + esc(v) + '"' + (sel ? " selected" : "") + ">" + esc(l) + "</option>"; };
+    var CL = [["vague", "Ne dit rien (fourre-tout)"], ["nd", "Sans décision de l’acheteur"], ["comp", "Concurrence"], ["price", "Prix"], ["other", "Autre motif précis"]];
+    $("rules").innerHTML = '<div class="r-top"><h2>Règles métier</h2><button class="link" id="closeRules" type="button">Fermer</button></div><p class="r-lede">Tous les business ne se ressemblent pas. Adaptez ces règles au vôtre : le rapport se recalcule aussitôt, et chaque règle adaptée reste affichée en pied de rapport.</p>'
+      + (r.pipelines.length > 1 ? '<div class="rule"><label for="r-pipe">Pipeline analysé</label><small>Votre fichier contient plusieurs pipelines. Par défaut, le plus volumineux est analysé.</small><select id="r-pipe" data-k="pipeline">' + r.pipelines.map(function (p) { return o(p.name, p.name + " · " + p.n + " deals", r.pipeline === p.name); }).join("") + o("*", "Tous les pipelines ensemble", c.pipeline === "*") + "</select></div>" : "")
+      + (M.stages.length > 1 ? '<div class="rule"><label for="r-qual">Un deal est qualifié à partir de</label><small>Le win rate se calcule sur les deals ayant atteint cette étape.</small><select id="r-qual" data-k="qualStage">' + M.stages.map(function (s, i) { return o(i, s, i === r.qualStage); }).join("") + "</select></div>" : "")
+      + '<div class="rule"><label>Win rate attendu</label><small>Par défaut 17–30 %, la référence B2B. Inbound : 30–45 %. Outbound à froid : 10–20 %.</small><div class="pair">de <input type="number" min="1" max="99" data-k="wrMin" value="' + r.wrMin + '" aria-label="Win rate attendu minimum"> à <input type="number" min="1" max="100" data-k="wrMax" value="' + r.wrMax + '" aria-label="Win rate attendu maximum"> %</div></div>'
+      + '<div class="rule"><label for="r-cycle">Cycle de vente attendu</label><small>Laissez vide pour la référence de votre panier (' + r.cycleAuto + ' jours).</small><div class="pair"><input id="r-cycle" type="number" min="1" data-k="cycle" value="' + (r.cycle || "") + '" placeholder="' + r.cycleAuto + '"> jours</div></div>'
+      + '<div class="rule"><label for="r-stag">Un deal stagne au-delà de</label><small>Multiple de la durée médiane de son étape, sans changement d’étape.</small><select id="r-stag" data-k="stagMult">' + [[1.5, "1,5 fois la durée médiane"], [2, "2 fois la durée médiane (défaut)"], [3, "3 fois la durée médiane"]].map(function (x) { return o(x[0], x[1], x[0] === r.stagMult); }).join("") + "</select></div>"
+      + '<div class="rule"><label for="r-fixed">Offres à prix fixe</label><small>Ces montants ne seront pas lus comme des valeurs saisies par défaut. Séparez-les par une virgule.</small><input id="r-fixed" type="text" inputmode="numeric" data-k="fixedAmounts" value="' + r.fixedAmounts.join(", ") + '" placeholder="ex. 10000, 4900"></div>'
+      + '<div class="rule"><label>Lecture des raisons de perte</label><small>« Sans suite » ou « Autre » ne disent pas pourquoi vous perdez : par défaut, elles sont lues comme un problème de saisie.</small>' + M.reasons.map(function (x) { return '<div class="rr"><span>' + esc(x.name) + ' <span class="n">' + x.n + '</span></span><select data-reason="' + esc(x.name) + '" aria-label="Lecture de ' + esc(x.name) + '">' + CL.map(function (k) { return o(k[0], k[1], k[0] === x.cls); }).join("") + "</select></div>"; }).join("") + "</div>"
+      + '<div class="r-end"><button class="link" id="resetRules" type="button">Revenir aux règles par défaut</button></div>';
+    $("closeRules").onclick = closeRules; $("resetRules").onclick = function () { S.cfg = { reasons: {} }; recompute(); };
+  }
+  function recompute() { S.M = E.analyze(S.anon, S.cfg); renderReport(); renderRules(); observe(); }
+  function openRules() { renderRules(); $("rules").classList.add("on"); $("scrim").classList.add("on"); }
+  function closeRules() { $("rules").classList.remove("on"); $("scrim").classList.remove("on"); }
+  $("openRules").onclick = openRules; $("scrim").onclick = closeRules;
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeRules(); });
+  $("rules").addEventListener("change", function (e) {
+    var t = e.target, c = S.cfg;
+    if (t.dataset.reason) c.reasons[t.dataset.reason] = t.value;
+    else if (t.dataset.k === "fixedAmounts") c.fixedAmounts = t.value.split(/[;,\s]+/).map(Number).filter(function (n) { return n > 0; });
+    else if (t.dataset.k) c[t.dataset.k] = t.value === "" ? null : (t.dataset.k === "pipeline" ? t.value : +t.value);
+    recompute();
+  });
+  $("form").addEventListener("submit", function (e) { e.preventDefault(); e.target.innerHTML = "<p>C’est noté. Le premier rapport part la veille de votre prochaine review.</p>"; });
+
+  // reveal on scroll, tooltip, local names
+  function observe() {
+    if (!("IntersectionObserver" in window)) return [].forEach.call(document.querySelectorAll(".rv"), function (el) { el.classList.add("in"); });
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
+    [].forEach.call(document.querySelectorAll(".rv:not(.in)"), function (el) { io.observe(el); });
+  }
+  var tip = $("tip");
+  document.addEventListener("mousemove", function (e) {
+    var t = e.target.closest && e.target.closest("[data-tip]");
+    if (!t || !t.dataset.tip) { tip.style.opacity = 0; return; }
+    var txt = t.dataset.tip;
+    if (t.dataset.who) { var r = S.M.reps.filter(function (x) { return x.hash === t.dataset.who; })[0]; txt = txt.replace("{who}", $("names").checked && S.anon.vault[t.dataset.who] ? S.anon.vault[t.dataset.who] : r ? r.code : "Commercial"); }
+    tip.textContent = txt; tip.style.opacity = 1;
+    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10) + "px"; tip.style.top = (e.clientY + 16) + "px";
+  });
+})();
+</script>
+</body>
+</html>
