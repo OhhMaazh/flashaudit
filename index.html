@@ -32,6 +32,7 @@ button,select,input{font:inherit;color:inherit}
 .drop{display:grid;grid-template-columns:7fr 4fr;gap:88px;padding:64px 0 96px;align-items:start}
 .drop h1{font-weight:700;font-size:clamp(36px,4.5vw,62px);line-height:1.03;letter-spacing:-.035em}
 .drop h1 span{color:var(--ink-2)}
+.back{margin-top:28px;font-size:16px;font-weight:600;border-left:2px solid var(--red);padding-left:14px;max-width:56ch}.back:empty{display:none}.back+.zone{margin-top:24px}
 .zone{margin-top:44px;border:1.5px dashed var(--ink);padding:40px 36px;display:grid;gap:16px;justify-items:start;transition:background .2s,border-color .2s}
 .zone.over{background:#fff;border-style:solid;border-color:var(--red)}
 .zone strong{font-size:22px;font-weight:650;letter-spacing:-.015em}
@@ -310,6 +311,7 @@ html{scroll-behavior:smooth}
   <div class="drop">
     <div>
       <h1>Déposez l’export de vos deals. <span>L’audit de votre funnel sort en deux minutes.</span></h1>
+      <p class="back" id="backNote"></p>
       <div class="zone" id="zone">
         <strong>Glissez votre fichier CSV ici</strong>
         <p>Un export de deals depuis HubSpot, Pipedrive, Salesforce ou un tableur. Les colonnes sont reconnues automatiquement.</p>
@@ -384,9 +386,9 @@ html{scroll-behavior:smooth}
 <aside class="rules" id="rules" aria-label="Règles métier"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261111141149 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261111141149"></script>
-<script src="./engine.js?v=20261111141149"></script>
+<!-- ?v=20261111141413 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261111141413"></script>
+<script src="./engine.js?v=20261111141413"></script>
 <script>
 (function () {
   var E = window.BIF, F = E.fmt, NB = " ", S = {};
@@ -414,6 +416,8 @@ html{scroll-behavior:smooth}
   }
   // hashing needs a secure context (https or localhost)
   if (!window.isSecureContext) zoneMsg("Connexion non sécurisée : l’anonymisation exige https. Rouvrez cette page à l’adresse https://" + location.host + location.pathname);
+  function refreshBack() { var all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {} var last = all[all.length - 1]; $("backNote").textContent = last ? "Bon retour. Dernier export analysé : données au " + F.date(last.date) + ". Déposez celui de cette semaine pour voir ce qui a bougé depuis." : ""; }
+  refreshBack();
   $("pick").onclick = function () { $("file").click(); };
   $("file").onchange = function (e) { readFile(e.target.files[0]); };
   var sampleName = (new URLSearchParams(location.search).get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
@@ -423,7 +427,7 @@ html{scroll-behavior:smooth}
   ["dragenter", "dragover"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.add("over"); }); });
   ["dragleave", "drop"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.remove("over"); }); });
   z.addEventListener("drop", function (e) { readFile(e.dataTransfer.files[0]); });
-  [].forEach.call(document.querySelectorAll("[data-restart]"), function (b) { b.onclick = function () { $("file").value = ""; view("drop"); }; });
+  [].forEach.call(document.querySelectorAll("[data-restart]"), function (b) { b.onclick = function () { $("file").value = ""; refreshBack(); view("drop"); }; });
 
   // ---------- 2. mapping ----------
   function renderMap() {
@@ -596,7 +600,7 @@ html{scroll-behavior:smooth}
     $("good").innerHTML = M.good.map(row).join("");
     $("steps").innerHTML = M.top.slice().sort(function (x, y) { return (x.horizon === "quick" ? 0 : 1) - (y.horizon === "quick" ? 0 : 1); }).slice(0, 3).map(function (f) { return "<li><span>" + esc(f.reco) + "</span><small>" + (f.horizon === "quick" ? "Quick win" : "Structurel") + " · " + f.id + "</small></li>"; }).join("");
     $("lockSub").textContent = M.locked.length + " contrôles verrouillés";
-    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates, la fiabilité du forecast et « ce qui a bougé » se mesurent entre deux observations."], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return '<li><span class="n">' + l.id + "</span><span>" + l.label + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
+    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates et la fiabilité du forecast se mesurent d’un export à l’autre, et deviennent solides au quatrième." + (S.snaps ? " En mémoire : " + S.snaps + " sur 4." : "")], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return '<li><span class="n">' + l.id + "</span><span>" + l.label + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
     var rsum = rulesSummary();
     $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + '. <span class="noprint">' : 'Calculé avec les règles par défaut. <span class="noprint">Tous les business ne se ressemblent pas\u00a0: ') + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "répondez à quelques questions pour l’adapter au vôtre") + "</button></span>";
     $("vRulesBtn").onclick = rsum.length ? openRules : function () { $("ask").scrollIntoView({ behavior: "smooth" }); };
