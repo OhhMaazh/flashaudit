@@ -138,6 +138,9 @@
     // several pipelines in one export: analyse the largest one unless told otherwise ("*" = all together)
     var pipeNames = Object.keys(pipes).sort(function (a, b) { return pipes[b].length - pipes[a].length; }), pipeUsed = cfg.pipeline === "*" ? null : (cfg.pipeline && pipes[cfg.pipeline] ? cfg.pipeline : (pipeNames.length > 1 ? pipeNames[0] : null));
     if (pipeUsed) deals = pipes[pipeUsed];
+    var distinct = function (key) { return Object.keys(groupBy(deals.filter(function (d) { return d[key]; }), function (d) { return d[key]; })); }, values = { source: distinct("source"), segment: distinct("segment") };
+    var excl = cfg.exclude || [];
+    if (excl.length) deals = deals.filter(function (d) { return !excl.some(function (x) { return norm(d[x.key]) === norm(x.value); }); });
     // keep only the stage columns the analysed deals actually went through
     var keep = []; for (var s0 = 0; s0 < S; s0++) if (deals.some(function (d) { return d.entered[s0]; })) keep.push(s0);
     var stageNames = keep.map(function (k) { return anon.stageNames[k]; }); S = keep.length; level = S ? "N2" : "N1";
@@ -242,11 +245,12 @@
     add("D2", "Close date dépassée", low(d2, 5, 15), fmt.pct(d2), "< 5 % · 5–15 % · > 15 % des deals ouverts", open.length, fmt.pct(d2) + " des deals ouverts ont une close date déjà passée (" + fmt.eur(sum(past, amt)) + ").", { impact: sum(past, amt), reco: "Alerte automatique à J−7 ; close date passée interdite par workflow.", horizon: "quick", group: 1, chart: "close" });
     if (deals.some(function (d) { return d.lastAct; })) { var idleDays = basket < 1e4 ? 14 : 30, idle = open.filter(function (d) { return !d.lastAct || (snap - d.lastAct) / DAY > idleDays; }), d5 = pc(idle.length, open.length); add("D5", "Deals sans activité", low(d5, 15, 30), fmt.pct(d5), "< 15 % · 15–30 % · > 30 % des deals ouverts", open.length, fmt.pct(d5) + " des deals ouverts n’ont eu aucune activité depuis " + idleDays + " jours (" + fmt.eur(sum(idle, amt)) + ").", { cause: "Activités non enregistrées dans le CRM, ou deals abandonnés sans être fermés.", impact: sum(idle, amt), reco: "Vérifier d’abord l’enregistrement des activités (e-mail et agenda reliés au CRM) ; puis fermeture automatique après 60 jours sans activité.", horizon: "quick", group: 4.5 }); }
     var withAmt = deals.filter(function (d) { return d.amount > 0; }), freq = groupBy(withAmt.filter(function (d) { return fixed.indexOf(d.amount) < 0; }), function (d) { return d.amount; }), modeV = Object.keys(freq).sort(function (a, b) { return freq[b].length - freq[a].length; })[0], d6 = modeV ? pc(freq[modeV].length, withAmt.length) : null;
+    var freqAll = groupBy(withAmt, function (d) { return d.amount; }), modeAll = Object.keys(freqAll).sort(function (a, b) { return freqAll[b].length - freqAll[a].length; })[0], modeAllShare = modeAll ? pc(freqAll[modeAll].length, withAmt.length) : 0;
     var phOpen = open.filter(function (d) { return d.amount === +modeV; });
     add("D6", "Montants par défaut", d6 == null ? "na" : d6 > 30 ? "r" : d6 >= 10 ? "o" : "g", fmt.pct(d6), "> 30 % sur une même valeur = rouge", withAmt.length, fmt.pct(d6) + " des deals portent exactement le même montant : " + fmt.int(+modeV) + NB + "€.", { detail: "Une valeur par défaut, pas une estimation : " + fmt.eur(sum(phOpen, amt)) + " du pipeline ouvert reposent dessus.", impact: sum(phOpen, amt), cause: "Valeur par défaut du CRM, ou montant saisi seulement au moment du closing.", reco: "Montant estimé obligatoire dès la qualification ; valeur par défaut interdite.", horizon: "quick", group: 4.5, chart: "amounts", mode: +modeV });
     var comp = groupBy(open.filter(function (d) { return d.company; }), function (d) { return d.company; }), compK = Object.keys(comp), d7 = pc(compK.filter(function (k) { return comp[k].length > 1; }).length, compK.length);
     add("D7", "Doublons par entreprise", low(d7, 3, 10), d7 == null ? "—" : fmt.pct(d7, 1), "< 3 % · 3–10 % · > 10 %", compK.length, d7 == null ? "" : fmt.pct(d7, 1) + " des entreprises ont plusieurs deals ouverts.", { reco: "Règle d’unicité et attribution de compte.", horizon: "quick", group: 4.5 });
-    var classOf = function (name) { if (rc[name]) return rc[name]; var n = norm(name); return !n || /^(vide|autre|autres|other|sans suite|n a|na|inconnu|unknown|divers)$/.test(n) ? "vague" : /(budget|report|no decision|sans decision|statu quo|abandon|timing|plus de besoin|pas de besoin|silence|sans reponse)/.test(n) ? "nd" : /(concurr|competit)/.test(n) ? "comp" : /(prix|price|tarif|cher)/.test(n) ? "price" : "other"; };
+    var defClass = function (name) { var n = norm(name); return !n || /^(vide|autre|autres|other|sans suite|n a|na|inconnu|unknown|divers)$/.test(n) ? "vague" : /(budget|report|no decision|sans decision|statu quo|abandon|timing|plus de besoin|pas de besoin|silence|sans reponse)/.test(n) ? "nd" : /(concurr|competit)/.test(n) ? "comp" : /(prix|price|tarif|cher)/.test(n) ? "price" : "other"; }, classOf = function (name) { return rc[name] || defClass(name); };
     var reasons = groupBy(lost, function (d) { return d.reason || "(vide)"; });
     M.reasons = Object.keys(reasons).map(function (k) { return { name: k, n: reasons[k].length, eur: sum(reasons[k], amt), cls: classOf(k) }; }).sort(function (a, b) { return b.n - a.n; });
     var rs = function (c) { return M.reasons.filter(function (x) { return x.cls === c; }); }, rn = function (a) { return sum(a, function (x) { return x.n; }); }, re = function (a) { return sum(a, function (x) { return x.eur; }); };
@@ -260,7 +264,7 @@
 
     // --- H forecast discipline ---
     var eom = function (t) { return new Date(t + DAY).getUTCDate() === 1; }, withClose = open.filter(function (d) { return d.close; }), h3 = pc(withClose.filter(function (d) { return eom(d.close); }).length, withClose.length);
-    add("H3", "Close dates en fin de mois", low(h3, 20, 40), fmt.pct(h3), "< 20 % · 20–40 % · > 40 %", withClose.length, fmt.pct(h3) + " des close dates tombent le dernier jour du mois.", { reco: "Une close date = un événement côté client ; sinon « à qualifier ».", horizon: "quick", group: 4, chart: "close" });
+    add("H3", "Close dates en fin de mois", cfg.eomOk ? (h3 == null ? "na" : "g") : low(h3, 20, 40), fmt.pct(h3), "< 20 % · 20–40 % · > 40 %", withClose.length, fmt.pct(h3) + " des close dates tombent le dernier jour du mois" + (cfg.eomOk ? ", ce qui correspond à votre règle de démarrage ou de facturation." : "."), { reco: "Une close date = un événement côté client ; sinon « à qualifier ».", horizon: "quick", group: 4, chart: "close" });
     var last5 = function (t) { var d = new Date(t), n = 0, x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)); while (x.getTime() > t) { var w = x.getUTCDay(); if (w && w < 6) n++; x = new Date(x.getTime() - DAY); } return n < 5; };
     var h2 = pc(won.filter(function (d) { return d.closed && last5(d.closed); }).length, won.length);
     add("H2", "Hockey stick", low(h2, 35, 50), fmt.pct(h2), "< 35 % · 35–50 % · > 50 %", won.length, fmt.pct(h2) + " des deals gagnés se signent dans les cinq derniers jours ouvrés du mois.", { reco: "Découpler la politique de remise du calendrier.", group: 4 });
@@ -315,11 +319,59 @@
     M.amountBins = []; for (var a2 = 0; a2 <= 30; a2++) M.amountBins.push({ k: a2, n: 0 });
     withAmt.forEach(function (d) { M.amountBins[Math.min(30, Math.floor(d.amount / 1000))].n++; });
     M.openStages = stages.map(function (st, i) { var a = open.filter(function (d) { return d.cur === i; }); return { name: st, n: a.length, eur: sum(a, amt) }; });
-    M.rules = { qualStage: Math.min(qs, Math.max(S - 1, 0)), stagMult: mult, wrMin: wrMin, wrMax: wrMax, cycle: +cfg.cycle || null, cycleAuto: autoDays, fixedAmounts: fixed, pipeline: pipeUsed, pipelines: pipeNames.map(function (k) { return { name: k, n: pipes[k].length }; }) };
+    // questions asked from what this very file contains (answers set business rules)
+    var Q = [];
+    if (pipeNames.length > 1) Q.push({ id: "pipeline", check: "A5", text: "Votre export contient " + pipeNames.length + " pipelines. Lequel faut-il analyser ?", why: "Mélanger deux pipelines fausse toutes les moyennes. Par défaut, le plus volumineux est analysé.", options: pipeNames.slice(0, 3).map(function (pn) { return { label: pn + " · " + pipes[pn].length + " deals", set: { pipeline: pn } }; }).concat([{ label: "Tous ensemble", set: { pipeline: "*" } }]) });
+    M.reasons.forEach(function (x) { var sh = pc(x.n, lost.length); if (x.name !== "(vide)" && defClass(x.name) === "vague" && sh >= 10) { var a = { reasons: {} }, b = { reasons: {} }; a.reasons[x.name] = "nd"; b.reasons[x.name] = "vague"; Q.push({ id: "reason:" + x.name, check: "D8", text: fmt.pct(sh) + " de vos pertes sont classées « " + x.name + " ». Chez vous, que veut dire cette valeur ?", why: "Selon la réponse, c’est un problème de saisie ou une vraie perte sans décision de l’acheteur.", options: [{ label: "Le prospect ne donne plus suite", set: a }, { label: "Une case par défaut, on ne sait pas", set: b }] }); } });
+    if (modeAllShare >= 10) Q.push({ id: "fixed", check: "D6", text: fmt.pct(modeAllShare) + " de vos deals sont à exactement " + fmt.int(+modeAll) + NB + "€. Est-ce le prix d’une offre à prix fixe ?", why: "Si oui, ce montant est légitime. Sinon, c’est une valeur saisie par défaut.", options: [{ label: "Oui, un prix catalogue", set: { addFixed: +modeAll } }, { label: "Non, une valeur par défaut", set: { removeFixed: +modeAll } }] });
+    if (h3 != null && h3 >= 20) Q.push({ id: "eom", check: "H3", text: fmt.pct(h3) + " de vos close dates tombent le dernier jour du mois. Est-ce une règle chez vous ?", why: "Un démarrage ou une facturation en début de mois l’explique. Sinon, ce sont des dates mises par défaut.", options: [{ label: "Oui, c’est voulu", set: { eomOk: true } }, { label: "Non, des dates par défaut", set: { eomOk: false } }] });
+    if (k4 != null && k4 > 0.75 * autoDays) Q.push({ id: "cycle", check: "C1", text: "Votre cycle de vente médian est de " + fmt.days(k4) + ". Quel cycle visez-vous ?", why: "Sans réponse, la référence est celle de votre panier médian : " + autoDays + " jours.", options: [[30, "Un mois"], [60, "Deux mois"], [90, "Trois mois"], [180, "Six mois ou plus"]].map(function (o) { return { label: o[1], set: { cycle: o[0] } }; }) });
+    if (k2 != null) Q.push({ id: "motion", check: "B2", text: "Votre win rate est de " + fmt.pct(k2) + ". D’où viennent surtout vos deals ?", why: "La fourchette attendue change : 30–45 % sur des demandes entrantes, 10–20 % en prospection à froid.", options: [{ label: "Demandes entrantes", set: { wrMin: 30, wrMax: 45 } }, { label: "Prospection à froid", set: { wrMin: 10, wrMax: 20 } }, { label: "Un mélange", set: { wrMin: 17, wrMax: 30 } }] });
+    if (S >= 3) Q.push({ id: "qual", check: "B2", text: "À partir de quelle étape un deal est-il vraiment qualifié chez vous ?", why: "Le win rate se calcule sur les deals ayant atteint cette étape.", options: stages.slice(0, Math.min(4, S)).map(function (st, i) { return { label: st, set: { qualStage: i } }; }) });
+    M.questions = Q; M.values = values;
+    M.rules = { eomOk: !!cfg.eomOk, exclude: excl, qualStage: Math.min(qs, Math.max(S - 1, 0)), stagMult: mult, wrMin: wrMin, wrMax: wrMax, cycle: +cfg.cycle || null, cycleAuto: autoDays, fixedAmounts: fixed, pipeline: pipeUsed, pipelines: pipeNames.map(function (k) { return { name: k, n: pipes[k].length }; }) };
     M.meta = { rows: deals.length, open: open.length, won: won.length, lost: lost.length, months: Math.round((snap - Math.min.apply(null, deals.map(function (d) { return d.created; }))) / DAY / 30.4), reps: codes.length, cohort: cohort.length, executed: M.checks.filter(function (c) { return c.status !== "na" && !c.pattern; }).length };
     return M;
   }
 
-  var api = { parseCSV: parseCSV, proposeMapping: proposeMapping, fieldLabel: fieldLabel, isPiiField: isPiiField, FIELDS: FIELDS, REQUIRED: REQUIRED, anonymize: anonymize, analyze: analyze, fmt: fmt };
+  // ---------- 5. business rules: apply a patch, read free text ----------
+  var CLS = { vague: "valeur fourre-tout", nd: "sans décision de l’acheteur", comp: "concurrence", price: "prix", other: "autre motif précis" };
+  function applyRule(cfg, set) {
+    for (var k in set) {
+      if (k === "reasons") { cfg.reasons = cfg.reasons || {}; for (var r in set.reasons) cfg.reasons[r] = set.reasons[r]; }
+      else if (k === "addFixed") cfg.fixedAmounts = (cfg.fixedAmounts || []).filter(function (v) { return v !== set.addFixed; }).concat([set.addFixed]);
+      else if (k === "removeFixed") cfg.fixedAmounts = (cfg.fixedAmounts || []).filter(function (v) { return v !== set.removeFixed; });
+      else if (k === "addExclude") cfg.exclude = (cfg.exclude || []).filter(function (x) { return !(x.key === set.addExclude.key && x.value === set.addExclude.value); }).concat([set.addExclude]);
+      else cfg[k] = set[k];
+    }
+    return cfg;
+  }
+  // Deterministic reading of a free-text note: what is recognised becomes a rule, the rest is kept as a note
+  // with no effect on the numbers. No LLM: nothing leaves the browser.
+  function interpret(text, M) {
+    var out = { understood: [], notes: [] };
+    String(text || "").split(/[\n;!?]+|\.(?=\s|$)/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (o) {
+      var n = norm(o), m, hit = [], many = /(surtout|principalement|essentiellement|majorit|uniquement|que de|que du|100)/.test(n);
+      if ((m = n.match(/cycle[a-z ]*?(\d+)\s*(jours?|j|semaines?|mois)\b/))) { var d = +m[1] * (/^s/.test(m[2]) ? 7 : /^m/.test(m[2]) ? 30 : 1); hit.push({ label: "Cycle de vente attendu : " + d + " jours", set: { cycle: d } }); }
+      if ((m = n.match(/(?:win rate|taux de (?:closing|conversion|transformation|signature|reussite))[a-z ]*?(\d{1,2})(?:\s*(?:a|et)\s*(\d{1,2}))?/))) { var a = +m[1], b = m[2] ? +m[2] : a + 5; if (!m[2]) a = Math.max(1, a - 5); hit.push({ label: "Win rate attendu : " + a + " à " + b + NB + "%", set: { wrMin: a, wrMax: b } }); }
+      else if (many && /(inbound|entrant)/.test(n)) hit.push({ label: "Deals surtout entrants : win rate attendu 30 à 45" + NB + "%", set: { wrMin: 30, wrMax: 45 } });
+      else if (many && /(outbound|prospection a froid|cold)/.test(n)) hit.push({ label: "Deals surtout en prospection à froid : win rate attendu 10 à 20" + NB + "%", set: { wrMin: 10, wrMax: 20 } });
+      if (/(prix fixe|forfait|offre|tarif|abonnement|licence|pack)/.test(n) && (m = o.match(/(\d[\d\s\u00a0.,]*)\s*(k€|k\b|€|euros?)/i))) { var v = parseFloat(m[1].replace(/[\s\u00a0]/g, "").replace(",", ".")) * (/k/i.test(m[2]) ? 1000 : 1); if (v > 0) hit.push({ label: "Offre à prix fixe : " + fmt.int(v) + NB + "€", set: { addFixed: v } }); }
+      if ((m = n.match(/stagn[a-z ]*?(\d+(?: \d)?)\s*(?:x|fois)/))) { var mu = parseFloat(m[1].replace(" ", ".")); if (mu >= 1 && mu <= 6) hit.push({ label: "Stagnation au-delà de " + String(mu).replace(".", ",") + " fois la durée médiane", set: { stagMult: mu } }); }
+      if (/(fin de mois|dernier jour du mois|debut de mois|1er du mois|premier du mois)/.test(n) && /(factur|demarr|contrat|normal|voulu|regle|toujours)/.test(n)) hit.push({ label: "Close dates de fin de mois : assumées", set: { eomOk: true } });
+      if (/qualifi/.test(n)) M.stages.forEach(function (st, i) { if (n.indexOf(norm(st)) >= 0) hit.push({ label: "Deal qualifié à partir de " + st, set: { qualStage: i } }); });
+      M.reasons.forEach(function (r) {
+        var rn = norm(r.name); if (r.name === "(vide)" || n.indexOf(rn) < 0) return; var rest = n.replace(rn, " ");
+        var cls = /(ne repond|plus de nouvelle|plus de reponse|silence|fantome|ghost|sans decision|pas de decision|ne donne plus|abandonne)/.test(rest) ? "nd" : /concurren/.test(rest) ? "comp" : /(trop cher|prix|tarif)/.test(rest) ? "price" : /(fourre tout|par defaut|on ne sait pas|ne veut rien dire)/.test(rest) ? "vague" : null;
+        if (cls) { var set = { reasons: {} }; set.reasons[r.name] = cls; hit.push({ label: "« " + r.name + " » lu comme : " + CLS[cls], set: set }); }
+      });
+      if (/(ignor|exclu|tenir compte|tenez pas compte|sans compter|hors |retir|enlev)/.test(n)) ["source", "segment"].forEach(function (key) { (M.values[key] || []).forEach(function (val) { if (norm(val).length > 1 && (" " + n + " ").indexOf(" " + norm(val)) >= 0) hit.push({ label: "Deals exclus : " + key + " « " + val + " »", set: { addExclude: { key: key, value: val } } }); }); });
+      else if (M.rules.pipelines.length > 1) M.rules.pipelines.forEach(function (pp) { if (n.indexOf(norm(pp.name)) >= 0) hit.push({ label: "Pipeline analysé : " + pp.name, set: { pipeline: pp.name } }); });
+      if (hit.length) hit.forEach(function (h) { h.source = o; out.understood.push(h); }); else out.notes.push(o);
+    });
+    return out;
+  }
+
+  var api = { applyRule: applyRule, interpret: interpret, parseCSV: parseCSV, proposeMapping: proposeMapping, fieldLabel: fieldLabel, isPiiField: isPiiField, FIELDS: FIELDS, REQUIRED: REQUIRED, anonymize: anonymize, analyze: analyze, fmt: fmt };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.BIF = api;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -92,7 +92,8 @@ button,select,input{font:inherit;color:inherit}
 .mx-r{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:center}
 .mx-r>span{font-size:13px;color:var(--slab-2)}
 .mx-c{display:flex;flex-wrap:wrap;gap:5px}
-.cell{width:36px;height:26px;display:grid;place-items:center;font:500 10.5px "Geist Mono",monospace;text-decoration:none;border:1px solid var(--slab-line);color:#8C877A;opacity:0;animation:pop .35s var(--ease) forwards;animation-delay:calc(var(--k)*22ms + 250ms)}
+.cell{width:36px;height:26px;display:grid;place-items:center;font:500 10.5px "Geist Mono",monospace;text-decoration:none;border:1px solid var(--slab-line);color:#8C877A}
+.mx.play .cell{animation:pop .35s var(--ease) backwards;animation-delay:calc(var(--k)*22ms + 250ms)}
 .cell.g{box-shadow:inset 0 -3px 0 var(--green)}
 .cell.o{background:var(--hatch);border-color:var(--amber);color:#F2F0E8}
 .cell.r{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
@@ -223,16 +224,30 @@ html{scroll-behavior:smooth}
 .pair{display:flex;gap:10px;align-items:center;font-size:15px}.rule .pair input{width:76px}
 .rr{display:grid;grid-template-columns:1fr 200px;gap:12px;align-items:center;font-size:14px;padding:4px 0}.rr .n{color:var(--ink-2);font-size:12.5px;margin-left:4px}
 .r-end{padding-top:22px;border-top:1px solid var(--line)}
+#ask{padding-top:56px}h2 .link{font-size:14px;font-weight:400}
+.qs{display:grid;grid-template-columns:repeat(3,1fr)}
+.qb{padding:22px 28px 24px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}.qb:nth-child(3n+1){border-left:0;padding-left:0}
+.qb b{display:block;font-size:16.5px;font-weight:650;line-height:1.3;letter-spacing:-.01em;margin-top:8px}
+.qb small{display:block;color:var(--ink-2);font-size:13.5px;margin:6px 0 13px;line-height:1.4}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{background:none;border:1px solid var(--ink);padding:7px 12px;font-size:14px;cursor:pointer;transition:background .15s,color .15s}
+.opt:hover{background:var(--band)}.opt.on{background:var(--ink);color:var(--bg)}
+.askmore{padding-top:12px}.askmore .link{font-size:14px}.askmore:has(button:empty){display:none}
+.ctx{padding-top:26px}.ctx label{display:block;font-weight:650;font-size:15px;margin-bottom:8px}
+.ctx-row{display:flex;gap:14px;align-items:stretch}
+.ctx textarea{flex:1;background:none;border:1px solid var(--ink);padding:11px 13px;font:inherit;font-size:15px;resize:vertical;border-radius:0;min-height:52px}
+.ctx textarea::placeholder{color:var(--ink-2)}
+#ctxOut{margin-top:12px;font-size:14.5px}#ctxOut p{padding:7px 0;border-top:1px solid var(--line)}#ctxOut b{font-weight:650}
 #tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#F2F0E8;font-size:13px;line-height:1.4;padding:8px 11px;max-width:300px;opacity:0;transition:opacity .12s}
 .rv{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
 .rv.in{opacity:1;transform:none}
 .rv:not(.in) .hb-t i,.rv:not(.in) .fr-b i,.rv:not(.in) .fr-l i,.rv:not(.in) .seg i{transform:scaleX(0)}
 .rv:not(.in) .stack i{transform:scaleY(0)}
-@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv,.cell{opacity:1!important;transform:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv{opacity:1!important;transform:none!important}}
 @media (max-width:980px){
   .wrap{padding:0 20px}.drop,.verdict,.find,.two,.locks,.cta,.help{grid-template-columns:1fr;gap:36px}.drop{padding-top:36px}
   .grid{grid-template-columns:1fr}.fig,.fig+.fig{padding:26px 0;border-left:0}.fig h3{min-height:0}
-  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
+  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.qs{grid-template-columns:1fr}.qb,.qb:nth-child(3n+1){padding:20px 0;border-left:0}.ctx-row{flex-direction:column}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
   .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
   .fr{grid-template-columns:1fr 56px 56px;gap:6px 10px}.fr-b{grid-column:1/-1;order:9}.fr span:nth-child(5),.fr-l,.fr.head span:nth-child(2){display:none}
   .ar{grid-template-columns:56px 1fr 96px}.ar span:nth-child(4),.ar span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
@@ -301,6 +316,8 @@ html{scroll-behavior:smooth}
     <nav class="sum" id="sum" aria-label="Sommaire des constats"></nav>
   </div></header>
   <div class="wrap">
+    <section id="ask"><h2><b id="askTitle"></b><button class="link" id="askRules" type="button">Toutes les règles métier</button></h2><div class="qs" id="qs"></div><p class="askmore"><button class="link" id="askMore" type="button"></button></p>
+      <div class="ctx"><label for="ctxText">Autre chose à savoir sur votre business ?</label><div class="ctx-row"><textarea id="ctxText" rows="2" placeholder="Ex. Notre cycle de vente est de 90 jours. On vend un forfait à 4 900 €. Ignorez les deals partenaires."></textarea><button class="btn" id="ctxGo" type="button">Prendre en compte</button></div><div id="ctxOut"></div></div></section>
     <section><h2>Ce que l’audit a trouvé <span id="topSub"></span></h2><div id="top"></div></section>
     <section><h2>Le funnel, étape par étape <span id="funnelSub"></span></h2><div class="rv" id="funnel"></div></section>
     <section><h2>Le reste de l’analyse <label class="names"><input type="checkbox" id="names"> Afficher les noms des commerciaux (ils sont restés dans ce navigateur)</label></h2><div class="grid" id="grid"></div></section>
@@ -381,7 +398,7 @@ html{scroll-behavior:smooth}
       .then(function () { return E.anonymize(S.parsed, S.cols, salt); })
       .then(function (a) { S.anon = a; var ex = Object.keys(a.vault)[0]; return line("Anonymisation dans ce navigateur", F.int(a.hashedValues) + " valeurs hachées (SHA-256 + sel) dans " + a.piiColumns.length + " colonnes" + (ex ? " · « " + esc(a.vault[ex]) + " » devient " + ex : "")); })
       .then(function () { return ignored.length ? line("Colonnes ignorées", ignored.map(function (c) { return esc(c.source); }).join(", ") + " : jamais lues") : null; })
-      .then(function () { S.cfg = { reasons: {} }; S.M = E.analyze(S.anon, S.cfg); return line("Niveau " + S.M.level + " détecté", S.M.level === "N2" ? "Dates d’entrée par étape présentes : conversion et durée par étape calculables" : "Pas d’historique d’étapes : conversion par étape non calculable"); })
+      .then(function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; S.allQ = false; S.shown = false; S.M = E.analyze(S.anon, S.cfg); return line("Niveau " + S.M.level + " détecté", S.M.level === "N2" ? "Dates d’entrée par étape présentes : conversion et durée par étape calculables" : "Pas d’historique d’étapes : conversion par étape non calculable"); })
       .then(function () { return line(S.M.meta.executed + " contrôles exécutés", S.M.locked.length + " autres demandent un historique hebdomadaire ou du contexte"); })
       .then(function () { return line("Rapport prêt"); })
       .then(function () { renderReport(); view("report"); observe(); })
@@ -431,9 +448,16 @@ html{scroll-behavior:smooth}
     var all = M.checks.filter(function (c) { return !c.pattern; }).concat(M.locked), k = 0;
     $("mxTitle").textContent = M.meta.executed + " contrôles exécutés sur ce fichier, " + M.locked.length + " verrouillés";
     $("mx").innerHTML = Object.keys(FAM).map(function (f) { var cs = all.filter(function (c) { return c.fam === f; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; }); return cs.length ? '<div class="mx-r"><span>' + FAM[f] + '</span><div class="mx-c">' + cs.map(function (c) { return '<span class="cell ' + c.status + '" style="--k:' + (k++) + '" data-tip="' + esc(c.id + " · " + c.label + (c.status === "lock" ? " — " + c.text : " — " + (c.value || "") + (c.thr ? " · seuils : " + c.thr : "") + (M.absorbed[c.id] ? " · regroupé dans " + M.absorbed[c.id] : ""))) + '">' + c.id + "</span>"; }).join("") + "</div></div>" : ""; }).join("");
+    $("mx").classList.toggle("play", !S.shown); S.shown = true;
     $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' rouges</span><span><i class="o"></i>' + count("o") + ' oranges</span><span><i class="g"></i>' + count("g") + ' verts</span><span><i class="lock"></i>' + M.locked.length + " verrouillés</span>";
 
     $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + " · " + f.id + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
+    // questions raised by this very file + free-text context
+    var qs = M.questions, shown = S.allQ ? qs : qs.slice(0, 3), ans = S.cfg.answers;
+    $("askTitle").textContent = qs.length ? qs.length + " question" + (qs.length > 1 ? "s" : "") + " que ce fichier nous amène à vous poser" : "Adaptez l’audit à votre business";
+    $("qs").innerHTML = shown.map(function (q) { var i = qs.indexOf(q); return '<div class="qb"><span class="chip n"><i class="mk ' + ((by[q.check] || {}).status || "") + '"></i>' + q.check + "</span><b>" + esc(q.text) + "</b><small>" + esc(q.why) + '</small><div class="opts">' + q.options.map(function (o, j) { return '<button class="opt' + (ans[q.id] === j ? " on" : "") + '" type="button" data-q="' + i + '" data-o="' + j + '">' + esc(o.label) + "</button>"; }).join("") + "</div></div>"; }).join("");
+    $("askMore").textContent = qs.length > 3 ? (S.allQ ? "Voir moins de questions" : "Voir les " + (qs.length - 3) + " autres questions") : "";
+    $("ctxOut").innerHTML = S.ctx.understood.map(function (u) { return "<p><b>Pris en compte.</b> " + esc(u.label) + ' <span class="q">· «\u00a0' + esc(u.source) + "\u00a0»</span></p>"; }).join("") + S.ctx.notes.map(function (t) { return "<p><b>Noté, sans effet sur les calculs.</b> «\u00a0" + esc(t) + '\u00a0» <span class="q">· à préciser de vive voix</span></p>'; }).join("");
     // findings with their proof
     $("topSub").textContent = M.top.length + " constats, par ordre de priorité · seuils du référentiel";
     $("top").innerHTML = M.top.map(function (f, i) {
@@ -471,12 +495,16 @@ html{scroll-behavior:smooth}
     $("lockSub").textContent = M.locked.length + " contrôles verrouillés";
     $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates, la fiabilité du forecast et « ce qui a bougé » se mesurent entre deux observations."], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return '<li><span class="n">' + l.id + "</span><span>" + l.label + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
     var rsum = rulesSummary();
-    $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + ". " : "Calculé avec les règles par défaut. Tous les business ne se ressemblent pas : ") + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "adaptez les règles au vôtre") + "</button>";
-    $("vRulesBtn").onclick = openRules;
+    $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + ". " : "Calculé avec les règles par défaut. Tous les business ne se ressemblent pas : ") + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "répondez à quelques questions pour l’adapter au vôtre") + "</button>";
+    $("vRulesBtn").onclick = rsum.length ? openRules : function () { $("ask").scrollIntoView({ behavior: "smooth" }); };
     $("openRules").textContent = "Règles métier" + (rsum.length ? " · " + rsum.length + " adaptée" + (rsum.length > 1 ? "s" : "") : "");
     $("foot").innerHTML = "<span>Règles métier : " + (rsum.length ? esc(rsum.join(" · ")) : "valeurs par défaut") + "</span><span>Définitions v1, gelées · seuils du référentiel v0.1</span><span>Moteur déterministe : aucun chiffre n’est produit par un LLM</span><span>Données au " + F.date(M.snap) + "</span><span>Prototype : tout est calculé dans ce navigateur, rien n’est envoyé</span>";
   }
-  $("debrief").onclick = function () { this.outerHTML = "<p><b>Demande notée.</b> Vous recevrez une proposition de créneau par e-mail.</p>"; };
+  $("debrief").onclick = function () { this.outerHTML = "<p><b>Prototype en test.</b> Cette demande n’est pas encore transmise.</p>"; };
+  $("qs").addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (!b) return; var q = S.M.questions[+b.dataset.q]; S.cfg.answers[q.id] = +b.dataset.o; E.applyRule(S.cfg, q.options[+b.dataset.o].set); recompute(); });
+  $("askMore").onclick = function () { S.allQ = !S.allQ; renderReport(); observe(); };
+  $("askRules").onclick = function () { openRules(); };
+  $("ctxGo").onclick = function () { var r = E.interpret($("ctxText").value, S.M); if (!r.understood.length && !r.notes.length) return; r.understood.forEach(function (u) { E.applyRule(S.cfg, u.set); }); S.ctx.understood = S.ctx.understood.concat(r.understood); S.ctx.notes = S.ctx.notes.concat(r.notes); $("ctxText").value = ""; recompute(); };
 
   // ---------- business rules: adjusted after the first result, report recomputed live ----------
   function rulesSummary() {
@@ -488,6 +516,8 @@ html{scroll-behavior:smooth}
     if (c.stagMult && +c.stagMult !== 2) o.push("stagnation à " + String(c.stagMult).replace(".", ",") + "×");
     if (c.fixedAmounts && c.fixedAmounts.length) o.push(c.fixedAmounts.length + " montant" + (c.fixedAmounts.length > 1 ? "s" : "") + " à prix fixe");
     if (n) o.push(n + " raison" + (n > 1 ? "s" : "") + " de perte reclassée" + (n > 1 ? "s" : ""));
+    if (c.eomOk) o.push("close dates de fin de mois assumées");
+    if (c.exclude && c.exclude.length) o.push(c.exclude.map(function (x) { return x.key + " «\u00a0" + x.value + "\u00a0» exclu" + (x.key === "source" ? "e" : ""); }).join(", "));
     return o;
   }
   function renderRules() {
@@ -502,7 +532,7 @@ html{scroll-behavior:smooth}
       + '<div class="rule"><label for="r-fixed">Offres à prix fixe</label><small>Ces montants ne seront pas lus comme des valeurs saisies par défaut. Séparez-les par une virgule.</small><input id="r-fixed" type="text" inputmode="numeric" data-k="fixedAmounts" value="' + r.fixedAmounts.join(", ") + '" placeholder="ex. 10000, 4900"></div>'
       + '<div class="rule"><label>Lecture des raisons de perte</label><small>« Sans suite » ou « Autre » ne disent pas pourquoi vous perdez : par défaut, elles sont lues comme un problème de saisie.</small>' + M.reasons.map(function (x) { return '<div class="rr"><span>' + esc(x.name) + ' <span class="n">' + x.n + '</span></span><select data-reason="' + esc(x.name) + '" aria-label="Lecture de ' + esc(x.name) + '">' + CL.map(function (k) { return o(k[0], k[1], k[0] === x.cls); }).join("") + "</select></div>"; }).join("") + "</div>"
       + '<div class="r-end"><button class="link" id="resetRules" type="button">Revenir aux règles par défaut</button></div>';
-    $("closeRules").onclick = closeRules; $("resetRules").onclick = function () { S.cfg = { reasons: {} }; recompute(); };
+    $("closeRules").onclick = closeRules; $("resetRules").onclick = function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; recompute(); };
   }
   function recompute() { S.M = E.analyze(S.anon, S.cfg); renderReport(); renderRules(); observe(); }
   function openRules() { renderRules(); $("rules").classList.add("on"); $("scrim").classList.add("on"); }
@@ -516,7 +546,7 @@ html{scroll-behavior:smooth}
     else if (t.dataset.k) c[t.dataset.k] = t.value === "" ? null : (t.dataset.k === "pipeline" ? t.value : +t.value);
     recompute();
   });
-  $("form").addEventListener("submit", function (e) { e.preventDefault(); e.target.innerHTML = "<p>C’est noté. Le premier rapport part la veille de votre prochaine review.</p>"; });
+  $("form").addEventListener("submit", function (e) { e.preventDefault(); e.target.innerHTML = "<p>Prototype en test : l’envoi hebdomadaire n’est pas encore actif.</p>"; });
 
   // reveal on scroll, tooltip, local names
   function observe() {
