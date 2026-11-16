@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="description" content="Déposez l’export de vos deals : l’audit de votre funnel de vente sort en deux minutes. Les données identifiantes sont hachées dans votre navigateur.">
+<meta name="description" content="Déposez l’export de vos deals : l’audit de votre funnel de vente sort en deux minutes. Les noms de vos clients et de vos commerciaux sont masqués avant toute analyse.">
 <title>Flash Sales Funnel Audit</title>
 <!-- Working prototype: drop a CRM export → columns recognised → identifying values hashed in this browser → report computed by engine.js. Nothing is sent anywhere. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,8 +42,7 @@ button,select,input{font:inherit;color:inherit}
 .assure li::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ink);margin-right:12px;vertical-align:1px}
 .scope{border-top:2px solid var(--ink);padding-top:14px;margin-top:8px}
 .scope h2{font-size:15px;font-weight:650;margin-bottom:6px}
-.scope li{display:grid;grid-template-columns:20px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px;list-style:none}
-.scope li span:first-child{color:var(--ink-2)}
+.scope li{padding:10px 0;border-bottom:1px solid var(--line);font-size:15.5px;list-style:none}
 .scope p{margin-top:14px;font-size:14px;color:var(--ink-2)}
 
 /* ---- 2. mapping ---- */
@@ -83,26 +82,25 @@ button,select,input{font:inherit;color:inherit}
 .verdict h1 em,.find h3 em{font-style:normal;color:var(--red)}
 .verdict h1 em{color:#FF6A4A}
 .v-detail{margin-top:22px;font-size:17px;line-height:1.5;color:#D8D5CA;max-width:50ch}
+.v-act{margin-top:22px;border:1px solid #F2F0E8;padding:14px 18px 16px;font-size:17.5px;font-weight:600;line-height:1.35;color:#F2F0E8;max-width:50ch}.v-act b{display:block;font-size:13px;font-weight:500;color:var(--slab-2);margin-bottom:3px}.v-act:empty{display:none}
 .v-kpis{margin-top:40px;display:grid;grid-template-columns:repeat(3,auto);gap:44px;justify-content:start}
 .v-kpis div{border-top:1px solid var(--slab-line);padding-top:12px}
 .v-kpis .n{display:block;font-size:34px;letter-spacing:-.05em;line-height:1.1}
 .v-kpis span{font-size:13.5px;color:var(--slab-2);display:block}
 .v-kpis small{font-size:13px;color:#FF8A70}
 /* check matrix: red is loud, amber hatched, green quiet, locked dashed — never colour alone */
-.mx{display:grid;gap:7px;margin-top:16px}
-.mx-r{display:grid;grid-template-columns:104px 1fr;gap:12px;align-items:center}
-.mx-r>span{font-size:13px;color:var(--slab-2)}
-.mx-c{display:flex;flex-wrap:wrap;gap:5px}
-.cell{width:36px;height:26px;display:grid;place-items:center;font:500 10.5px "Geist Mono",monospace;text-decoration:none;border:1px solid var(--slab-line);color:#8C877A}
+.mx{display:grid;margin-top:14px;border-top:1px solid var(--slab-line)}
+.mx-r{display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--slab-line)}
+.mx-r>span{font-size:14.5px;color:#F2F0E8}.mx-r>b{font-size:13.5px;font-weight:600;white-space:nowrap}.mx-r>b.r{color:#FF6A4A}.mx-r>b.o{color:var(--amber)}.mx-r>b.g{color:var(--slab-2);font-weight:400}
+.mx-c{display:flex;flex-wrap:wrap;gap:4px}
+.cell{display:block;width:17px;height:17px;border:1px solid var(--slab-line)}
 .mx.play .cell{animation:pop .35s var(--ease) backwards;animation-delay:calc(var(--k)*22ms + 250ms)}
 .cell.g{box-shadow:inset 0 -3px 0 var(--green)}
-.cell.o{background:var(--hatch);border-color:var(--amber);color:#F2F0E8}
-.cell.r{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
-.cell.lock{border-style:dashed;color:#6B675C}
-.cell.na{color:#6B675C}
+.cell.o{background:var(--hatch);border-color:var(--amber)}
+.cell.r{background:var(--red);border-color:var(--red)}
 .cell:hover{outline:1px solid #F2F0E8}
 @keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1}}
-.mx-leg{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--slab-2)}
+.mx-leg{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--slab-2)}.mx-leg p{flex-basis:100%;margin-top:4px}
 .mx-leg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border:1px solid var(--slab-line)}
 .mx-leg .r{background:var(--red);border-color:var(--red)}.mx-leg .o{background:var(--hatch);border-color:var(--amber)}.mx-leg .g{box-shadow:inset 0 -3px 0 var(--green)}.mx-leg .lock{border-style:dashed}
 
@@ -112,11 +110,11 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 
 /* findings: analysis on the left, the chart that proves it on the right */
 .find{display:grid;grid-template-columns:5fr 7fr;gap:72px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start}
-.f-id{font-size:13px;color:var(--ink-2)}.f-id span{margin-left:10px}
+.f-id{font-size:13.5px;color:var(--ink-2)}
 .find h3{margin-top:10px;font-size:27px;font-weight:700;line-height:1.14;letter-spacing:-.025em}
 .find p{margin-top:12px;color:var(--ink-2);font-size:15.5px;max-width:46ch}
-.find .reco{color:var(--ink);padding-left:14px;border-left:2px solid var(--ink)}
-.find .reco b{display:block;font-size:13px;font-weight:650}
+.find .act{margin-top:20px;background:var(--ink);color:var(--bg);padding:16px 20px 18px;font-size:18px;font-weight:600;line-height:1.32;letter-spacing:-.012em;max-width:46ch}
+.find .act b{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-bottom:4px;letter-spacing:0}
 .f-meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:4px 20px;font-size:13px;color:var(--ink-2)}
 .f-meta b{color:var(--ink);font-weight:650}
 .cap{margin-top:14px;font-size:13px;color:var(--ink-2)}
@@ -179,16 +177,16 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .fig .hb-r{grid-template-columns:112px 1fr 52px}
 .fig h3 em{font-style:normal}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:72px}
-.rowl{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
+.rowl{display:grid;grid-template-columns:14px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}.rowl .mk{margin-top:6px}
 .rowl small{display:block;color:var(--ink-2);font-size:13.5px}
 .steps{list-style:none;counter-reset:s}
-.steps li{counter-increment:s;display:grid;grid-template-columns:64px 1fr 150px;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);font-size:19px;line-height:1.4;font-weight:500;letter-spacing:-.01em}
+.steps li{counter-increment:s;display:grid;grid-template-columns:64px 1fr 210px;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);font-size:19px;line-height:1.4;font-weight:500;letter-spacing:-.01em}
 .steps li::before{content:"0" counter(s);font:400 15px "Geist Mono",monospace;color:var(--ink-2);padding-top:4px}
 .steps small{font-size:13px;color:var(--ink-2);font-weight:400;text-align:right;padding-top:5px}
 .locks{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:8px}
 .locks h3{font-size:15px;font-weight:650;padding:16px 0 4px}
 .locks p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
-.locks li{list-style:none;font-size:14.5px;padding:7px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:36px 1fr;gap:8px}
+.locks li{list-style:none;font-size:14.5px;padding:7px 0;border-top:1px solid var(--line)}
 .cta{margin-top:56px;background:var(--slab);color:#F2F0E8;padding:44px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
 .cta h3{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.08;max-width:18ch}
 .cta p{margin-top:10px;color:var(--slab-2);font-size:15px}
@@ -196,13 +194,13 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .cta input{background:none;border:0;border-bottom:1px solid #F2F0E8;padding:12px 0;width:260px;border-radius:0;color:#F2F0E8}
 .cta input::placeholder{color:var(--slab-2)}
 .cta .btn{background:#F2F0E8;color:var(--ink)}.cta .btn:hover{background:var(--red);color:#fff}
-footer{margin-top:72px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 28px}
+footer{margin-top:72px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 28px}footer .link{font-size:inherit}
 .names{font-size:13px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center;cursor:pointer}
 
 .v-kpis .n,.cmp .n,.facts .n{font-family:"Schibsted Grotesk",sans-serif;font-weight:700;letter-spacing:-.035em;word-spacing:0;font-variant-numeric:normal}
 .all summary{cursor:pointer;font-size:15px;font-weight:650;padding:14px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);list-style:none}.all summary::-webkit-details-marker{display:none}
 .all summary::after{content:"+";float:right;font-family:"Geist Mono",monospace}.all[open] summary::after{content:"−"}
-.arow{display:grid;grid-template-columns:64px 1.3fr 130px 2fr 70px;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.arow.head{font-size:13px;color:var(--ink-2)}.q{color:var(--ink-2)}.arow span:last-child{text-align:right}
+.arow{display:grid;grid-template-columns:14px 1.3fr 130px 2fr 70px;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.arow.head{font-size:13px;color:var(--ink-2)}.q{color:var(--ink-2)}.arow span:last-child{text-align:right}
 html{scroll-behavior:smooth}
 .sum{margin-top:48px;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--slab-line)}
 .sum a{padding:16px 18px 2px;text-decoration:none;color:inherit;border-right:1px solid var(--slab-line);transition:background .2s}.sum a:first-child{padding-left:0}.sum a:last-child{border-right:0}
@@ -280,7 +278,7 @@ html{scroll-behavior:smooth}
   .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.slides{grid-template-columns:1fr}.slide:first-child{grid-row:auto}.mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}.qs{grid-template-columns:1fr}.qb,.qb:nth-child(3n+1){padding:20px 0;border-left:0}.ctx-row{flex-direction:column}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
   .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
   .fr{grid-template-columns:1fr 56px 56px;gap:6px 10px}.fr-b{grid-column:1/-1;order:9}.fr span:nth-child(5),.fr-l,.fr.head span:nth-child(2){display:none}
-  .arow{grid-template-columns:56px 1fr 96px}.arow span:nth-child(4),.arow span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
+  .arow{grid-template-columns:14px 1fr 96px}.arow span:nth-child(4),.arow span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
   .cta{padding:32px 24px}.cta form{flex-direction:column}.cta input{width:100%}.top span.hide{display:none}
 }
 @page{size:A4;margin:11mm 10mm}
@@ -323,15 +321,15 @@ html{scroll-behavior:smooth}
         <p class="warn" id="zoneMsg" role="alert"></p>
       </div>
       <ul class="assure">
-        <li>Noms, e-mails et entreprises sont hachés dans ce navigateur, avant toute analyse.</li>
-        <li>Aucune question avant le résultat.</li>
-        <li>Chaque chiffre est calculé par un moteur déterministe, avec des définitions gelées.</li>
+        <li>Les noms de vos clients, de vos deals et de vos commerciaux sont masqués sur votre ordinateur, avant toute analyse. Nous ne les voyons jamais.</li>
+        <li>Aucun compte à créer, aucune question avant le résultat.</li>
+        <li>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA.</li>
       </ul>
     </div>
     <aside class="scope">
-      <h2>Ce que l’audit contrôle sur un seul export</h2>
+      <h2>Ce que vous saurez dans deux minutes</h2>
       <ul id="scope"></ul>
-      <p>Une trentaine de contrôles sur un seul export. D’autres se débloquent avec un export déposé chaque semaine.</p>
+      <p>Une trentaine de points vérifiés sur un seul export et, pour chaque problème, quoi faire. Avec un export par semaine, vous voyez aussi ce qui a bougé.</p>
     </aside>
   </div>
 </main>
@@ -340,11 +338,11 @@ html{scroll-behavior:smooth}
 <main id="v-map" class="wrap" hidden>
   <header class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><button class="link" data-restart type="button">Changer de fichier</button></header>
   <div class="map">
-    <h1>Voici ce que nous avons reconnu dans votre fichier.</h1>
-    <p class="lede">Vérifiez d’un coup d’œil. Les colonnes identifiantes sont hachées ici, dans votre navigateur : nous ne voyons jamais les noms.</p>
+    <h1 id="mapTitle"></h1>
+    <p class="lede" id="mapLede"></p>
     <div class="facts" id="facts"></div>
     <div id="maprows"></div>
-    <div class="go"><button class="btn" id="run" type="button">Anonymiser et lancer l’audit</button><span class="warn" id="mapwarn"></span></div>
+    <div class="go"><button class="btn" id="run" type="button">Lancer l’audit</button><span class="warn" id="mapwarn"></span></div>
   </div>
 </main>
 
@@ -358,7 +356,7 @@ html{scroll-behavior:smooth}
   <header class="slab"><div class="wrap">
     <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span class="hide" id="filefacts"></span><span class="acts"><button class="link" id="pdf" type="button">Exporter en PDF</button><button class="link" id="openRules" type="button">Règles métier</button><button class="link" data-restart type="button">Nouvel export</button></span></div>
     <div class="verdict">
-      <div><p class="eyebrow" id="vEyebrow"></p><h1 id="vTitle"></h1><p class="v-detail" id="vDetail"></p><div class="v-kpis" id="vKpis"></div><p class="v-rules" id="vRules"></p></div>
+      <div><p class="eyebrow" id="vEyebrow"></p><h1 id="vTitle"></h1><p class="v-detail" id="vDetail"></p><p class="v-act" id="vAct"></p><div class="v-kpis" id="vKpis"></div><p class="v-rules" id="vRules"></p></div>
       <div><p class="eyebrow" id="mxTitle"></p><div class="mx" id="mx"></div><div class="mx-leg" id="mxLeg"></div></div>
     </div>
     <nav class="sum" id="sum" aria-label="Sommaire des constats"></nav>
@@ -368,12 +366,12 @@ html{scroll-behavior:smooth}
     <section id="ask"><h2><b id="askTitle"></b><button class="link" id="askRules" type="button">Toutes les règles métier</button></h2><div class="qs" id="qs"></div><p class="askmore"><button class="link" id="askMore" type="button"></button></p>
       <div class="ctx"><label for="ctxText">Autre chose à savoir sur votre business ?</label><div class="ctx-row"><textarea id="ctxText" rows="2" placeholder="Ex. Notre cycle de vente est de 90 jours. On vend un forfait à 4 900 €. Ignorez les deals partenaires."></textarea><button class="btn" id="ctxGo" type="button">Prendre en compte</button></div><div id="ctxOut"></div></div></section>
     <section><h2>Ce que l’audit a trouvé <span id="topSub"></span></h2><div id="top"></div></section>
+    <section><h2>Par où commencer <span>trois priorités pour les 30 prochains jours</span></h2><ol class="steps" id="steps"></ol>
+      <div class="help"><div><h3>Vous savez quoi corriger. Reste le comment.</h3><p>Audit augmenté : trente minutes avec un consultant RevOps pour transformer ces constats en plan d’action priorisé, adapté à votre équipe et à votre CRM. 199 €, déduits de la première mission.</p></div><form id="debrief"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail pour le debrief"><button class="btn" type="submit">Réserver le debrief</button><small>Votre e-mail et le résumé de cet audit sont transmis pour vous recontacter. Aucune donnée de vos deals.</small></form></div></section>
     <section><h2>Le funnel, étape par étape <span id="funnelSub"></span></h2><div class="rv" id="funnel"></div></section>
-    <section><h2>Le reste de l’analyse <label class="names"><input type="checkbox" id="names"> Afficher les noms des commerciaux (ils sont restés dans ce navigateur)</label></h2><div class="grid" id="grid"></div></section>
+    <section><h2>Le reste de l’analyse <label class="names"><input type="checkbox" id="names"> Afficher les noms des commerciaux (ils n’ont pas quitté votre ordinateur)</label></h2><div class="grid" id="grid"></div></section>
     <section class="two"><div><h2>Autres points d’attention</h2><div id="others"></div></div><div><h2>Ce qui va bien</h2><div id="good"></div></div></section>
-    <section><details class="all"><summary>Voir le détail des <span id="allN"></span> contrôles exécutés, avec leurs seuils</summary><div id="all"></div></details></section>
-    <section><h2>Pistes d’amélioration pour les 30 prochains jours</h2><ol class="steps" id="steps"></ol>
-      <div class="help"><div><h3>Ces constats sont des pistes, pas encore un plan.</h3><p>Audit augmenté : trente minutes de debrief avec un consultant RevOps et un plan d’action priorisé, adapté à votre équipe. 199 €, déduits de la première mission.</p></div><form id="debrief"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail pour le debrief"><button class="btn" type="submit">Réserver le debrief</button><small>Votre e-mail et le résumé de cet audit sont transmis pour vous recontacter. Aucune donnée de vos deals.</small></form></div></section>
+    <section><details class="all"><summary>Voir le détail des <span id="allN"></span> points vérifiés, avec leurs seuils</summary><div id="all"></div></details></section>
     <section id="deck"><h2>Les slides pour votre review <span><button class="link" id="deckPdf" type="button">Exporter les slides en PDF</button></span></h2><div class="slides" id="slides"></div></section>
     <section><h2>Ce qu’un seul export ne permet pas de voir <span id="lockSub"></span></h2><p class="snapnote" id="snapNote"></p><div class="locks" id="locks"></div>
       <div class="cta"><div><h3>Recevez ces chiffres chaque semaine.</h3><p>La veille de votre review, par e-mail, sous forme de slide. Un mois offert, sans carte.</p></div>
@@ -386,9 +384,9 @@ html{scroll-behavior:smooth}
 <aside class="rules" id="rules" aria-label="Règles métier"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261111141413 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261111141413"></script>
-<script src="./engine.js?v=20261111141413"></script>
+<!-- ?v=20261116110604 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261116110604"></script>
+<script src="./engine.js?v=20261116110604"></script>
 <script>
 (function () {
   var E = window.BIF, F = E.fmt, NB = " ", S = {};
@@ -396,15 +394,18 @@ html{scroll-behavior:smooth}
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   var view = function (v) { ["drop", "map", "run", "report"].forEach(function (k) { $("v-" + k).hidden = k !== v; }); window.scrollTo(0, 0); };
-  var FAM = { A: "Structure", B: "Conversion", C: "Vélocité", D: "Données", E: "Équipe", F: "Organisation", G: "Méthode", H: "Forecast", I: "Mix et segments" };
-  $("scope").innerHTML = [["A", "Structure du pipeline", 5], ["B", "Volume et conversion", 6], ["C", "Vélocité", 4], ["D", "Fiabilité des données", 5], ["E", "Performance par commercial", 3], ["G", "Méthode de vente", 3], ["H", "Discipline de forecast", 2], ["I", "Mix et segments", 1]].map(function (f) { return '<li><span class="n">' + f[0] + "</span><span>" + f[1] + "</span><span></span></li>"; }).join("");
+  var FAM = { A: "Structure du pipeline", B: "Conversion", C: "Vitesse de vente", D: "Fiabilité du CRM", E: "Équipe commerciale", G: "Méthode de vente", H: "Prévisions", I: "Sources et segments" };
+  var QT = { pipeline: "Pipelines", reason: "Raisons de perte", fixed: "Montants", eom: "Dates de signature", cycle: "Cycle de vente", motion: "Origine des deals", qual: "Qualification" };
+  $("scope").innerHTML = ["Quelle part de votre pipeline est encore vivante ?", "À quelle étape perdez-vous vos deals, et pour quel montant ?", "Vos ventes sont-elles trop lentes, et où ça bloque ?", "Peut-on se fier aux données de votre CRM ?", "Qui a besoin d’aide dans l’équipe, et sur quelle étape ?", "Vos dates de signature sont-elles crédibles ?"].map(function (q) { return "<li>" + q + "</li>"; }).join("");
 
   // ---------- 1. file intake ----------
   var zoneMsg = function (t) { $("zoneMsg").textContent = t; };
+  function missingFields() { return E.REQUIRED.filter(function (r) { return !S.cols.some(function (c) { return c.field === r; }); }); }
   function load(name, text) {
     var parsed = E.parseCSV(text);
     if (parsed.header.length < 3 || !parsed.rows.length) return zoneMsg("Ce fichier est vide ou n’a pas pu être lu comme un tableau. Exportez vos deals au format CSV, avec une ligne d’en-têtes.");
-    zoneMsg(""); S.name = name; S.parsed = parsed; S.cols = E.proposeMapping(parsed); renderMap(); view("map");
+    zoneMsg(""); S.name = name; S.parsed = parsed; S.cols = E.proposeMapping(parsed);
+    if (missingFields().length) { renderMap(); view("map"); } else start();
   }
   function readFile(f) {
     if (!f) return;
@@ -422,7 +423,7 @@ html{scroll-behavior:smooth}
   $("file").onchange = function (e) { readFile(e.target.files[0]); };
   var sampleName = (new URLSearchParams(location.search).get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
   $("sample").onclick = function () { fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); }).catch(function () { zoneMsg("L’export d’exemple n’a pas pu être chargé."); }); };
-  if (new URLSearchParams(location.search).has("demo")) fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); $("run").click(); });
+  if (new URLSearchParams(location.search).has("demo")) fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); });
   var z = $("zone");
   ["dragenter", "dragover"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.add("over"); }); });
   ["dragleave", "drop"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.remove("over"); }); });
@@ -432,32 +433,35 @@ html{scroll-behavior:smooth}
   // ---------- 2. mapping ----------
   function renderMap() {
     var cols = S.cols, mapped = cols.filter(function (c) { return c.field; }), pii = mapped.filter(function (c) { return c.pii && c.field !== "stage_entered"; }), stages = cols.filter(function (c) { return c.field === "stage_entered"; });
-    $("facts").innerHTML = [[F.int(S.parsed.rows.length), "lignes lues"], [mapped.length + " / " + cols.length, "colonnes reconnues"], [pii.length, "colonnes identifiantes, hachées ici"], [stages.length ? "N2" : "N1", stages.length ? "historique des étapes présent" : "photo sans historique d’étapes"]].map(function (f) { return '<div><span class="n">' + f[0] + "</span><span>" + f[1] + "</span></div>"; }).join("");
+    $("facts").innerHTML = [[F.int(S.parsed.rows.length), "deals lus"], [mapped.length + " / " + cols.length, "colonnes reconnues"], [pii.length, "colonnes de noms, masquées avant analyse"], [stages.length ? "Oui" : "Non", "dates de passage par étape"]].map(function (f) { return '<div><span class="n">' + f[0] + "</span><span>" + f[1] + "</span></div>"; }).join("");
     var opts = [["", "Ignorer cette colonne"]].concat(E.FIELDS.map(function (f) { return [f[0], f[1]]; })).concat([["stage_entered", "Date d’entrée dans une étape"]]);
     $("maprows").innerHTML = '<div class="mr head"><span>Colonne de votre fichier</span><span>Exemple</span><span>Reconnue comme</span><span>Traitement</span></div>' + cols.map(function (c, i) {
       var hashed = c.field && c.pii && c.field !== "stage_entered";
       return '<div class="mr' + (hashed ? " pii" : "") + (c.field ? "" : " off") + '"><span>' + esc(c.source) + '</span><span class="ex">' + esc(c.sample[0] || "—") + '</span><select data-i="' + i + '" aria-label="Champ pour ' + esc(c.source) + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + ((c.field || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") +
-        '</select><span class="tg' + (hashed ? " hash" : "") + '">' + (hashed ? "Haché dans ce navigateur" : c.field ? "Conservé" : "Ignoré, jamais lu") + "</span></div>";
+        '</select><span class="tg' + (hashed ? " hash" : "") + '">' + (hashed ? "Masqué avant analyse" : c.field ? "Utilisé" : "Ignoré") + "</span></div>";
     }).join("");
     [].forEach.call($("maprows").querySelectorAll("select"), function (s) { s.onchange = function () { var c = S.cols[+s.dataset.i]; c.field = s.value || null; c.pii = E.isPiiField(c.field); if (c.field === "stage_entered" && !c.stage) c.stage = c.source; renderMap(); }; });
     var missing = E.REQUIRED.filter(function (r) { return !mapped.some(function (c) { return c.field === r; }); });
     $("mapwarn").textContent = missing.length ? "Il manque : " + missing.map(E.fieldLabel).join(", ") + "." : "";
+    $("mapTitle").textContent = missing.length ? "Il nous manque une information pour lancer l’audit." : "Les colonnes reconnues dans votre fichier.";
+    $("mapLede").textContent = (missing.length ? "Indiquez quelle colonne de votre fichier correspond à : " + missing.map(E.fieldLabel).join(", ").toLowerCase() + "." : "Corrigez une colonne si besoin, puis relancez l’audit.") + " Les noms de clients, de deals et de commerciaux sont masqués sur votre ordinateur : nous ne les voyons jamais.";
     $("run").disabled = !!missing.length;
   }
 
   // ---------- 3. anonymise + analyse ----------
-  $("run").onclick = function () {
+  $("run").onclick = start;
+  function start() {
     view("run"); $("log").innerHTML = "";
     var salt = store.get("fsfa-salt") || Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
     store.set("fsfa-salt", salt);
     var line = function (t, sub) { return new Promise(function (ok) { $("log").insertAdjacentHTML("beforeend", "<li><span>" + t + (sub ? "<small>" + sub + "</small>" : "") + "</span></li>"); setTimeout(ok, 420); }); };
     var ignored = S.cols.filter(function (c) { return !c.field; });
-    line("Lecture du fichier", F.int(S.parsed.rows.length) + " lignes, " + S.cols.length + " colonnes")
+    line("Lecture du fichier", F.int(S.parsed.rows.length) + " deals, " + S.cols.filter(function (c) { return c.field; }).length + " colonnes reconnues sur " + S.cols.length)
       .then(function () { return E.anonymize(S.parsed, S.cols, salt); })
-      .then(function (a) { S.anon = a; var ex = Object.keys(a.vault)[0]; return line("Anonymisation dans ce navigateur", F.int(a.hashedValues) + " valeurs hachées (SHA-256 + sel) dans " + a.piiColumns.length + " colonnes" + (ex ? " · « " + esc(a.vault[ex]) + " » devient " + ex : "")); })
-      .then(function () { return ignored.length ? line("Colonnes ignorées", ignored.map(function (c) { return esc(c.source); }).join(", ") + " : jamais lues") : null; })
-      .then(function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; S.allQ = false; S.shown = false; S.M = E.analyze(S.anon, S.cfg); compareSnapshots(); return line("Niveau " + S.M.level + " détecté", S.M.level === "N2" ? "Dates d’entrée par étape présentes : conversion et durée par étape calculables" : "Pas d’historique d’étapes : conversion par étape non calculable"); })
-      .then(function () { return line(S.M.meta.executed + " contrôles exécutés", S.M.locked.length + " autres demandent un historique hebdomadaire ou du contexte"); })
+      .then(function (a) { S.anon = a; var ex = Object.keys(a.vault)[0]; return line("Noms masqués sur votre ordinateur", F.int(a.hashedValues) + " noms de deals, d’entreprises et de commerciaux remplacés par un code" + (ex ? " · «\u00a0" + esc(a.vault[ex]) + "\u00a0» devient " + ex : "")); })
+      .then(function () { return ignored.length ? line("Colonnes non utilisées", ignored.map(function (c) { return esc(c.source); }).join(", ")) : null; })
+      .then(function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; S.allQ = false; S.shown = false; S.M = E.analyze(S.anon, S.cfg); compareSnapshots(); return S.M.level === "N2" ? line("Historique des étapes trouvé", "Conversion et durée calculées étape par étape") : line("Pas d’historique des étapes dans ce fichier", "Le funnel étape par étape n’est pas calculable, le reste de l’audit l’est"); })
+      .then(function () { return line(S.M.meta.executed + " points vérifiés", S.M.locked.length + " autres demandent un export par semaine ou un peu de contexte"); })
       .then(function () { return S.mv ? line("Comparaison avec l’export du " + F.date(S.mv.from), "Deals créés, gagnés, perdus, close dates repoussées, montants modifiés") : null; })
       .then(function () { return line("Rapport prêt"); })
       .then(function () { renderReport(); view("report"); observe(); })
@@ -479,20 +483,20 @@ html{scroll-behavior:smooth}
   }
 
   // ---------- slides: the deliverable taken to the review ----------
-  function slideKpis(M) { var by = {}; M.checks.forEach(function (c) { by[c.id] = c; }); var past = M.checks.filter(function (c) { return c.id === "D2"; })[0]; return { open: M.kpi.openEur, k2: M.kpi.k2, k4: M.kpi.k4, bad: M.pipe.open ? M.pipe.union / M.pipe.open * 100 : null, past: past ? parseFloat(String(past.value).replace(",", ".")) : null }; }
+  function slideKpis(M) { var by = {}; M.checks.forEach(function (c) { by[c.id] = c; }); var past = M.checks.filter(function (c) { return c.id === "D2"; })[0]; return { open: M.kpi.openEur, k2: M.kpi.k2, k4: M.kpi.k4, bad: M.pipe.open ? M.pipe.union / M.pipe.open * 100 : null, past: past && past.status !== "na" ? parseFloat(String(past.value).replace(",", ".")) : null }; }
   function renderSlides(M) {
     var k = slideKpis(M), p = S.prevKpi, mv = S.mv;
     var delta = function (cur, old, unit, upGood, fmtv) { if (p == null || old == null || cur == null) return '<span class="d">premier export</span>'; var d = cur - old; if (Math.abs(d) < (unit === "€" ? 500 : 0.05)) return '<span class="d">stable</span>'; var good = (d > 0) === upGood; return '<span class="d ' + (good ? "good" : "bad") + '">' + (d > 0 ? "▲ +" : "▼ −") + fmtv(Math.abs(d)) + "</span>"; };
     var pts = function (v) { return v.toFixed(1).replace(".", ",") + NB + "pt" + (v >= 2 ? "s" : ""); }, dj = function (v) { return Math.round(v) + NB + "j"; };
     var cells = [[F.eur(k.open), "Pipeline ouvert", delta(k.open, p && p.open, "€", true, F.eur)], [k.k2 != null ? F.pct(k.k2) : "—", "Win rate", delta(k.k2, p && p.k2, "pt", true, pts)], [k.k4 != null ? F.days(k.k4) : "—", "Cycle de vente médian", delta(k.k4, p && p.k4, "j", false, dj)], [k.bad != null ? F.pct(k.bad) : "—", "Pipeline inactif ou périmé", delta(k.bad, p && p.bad, "pt", false, pts)], [k.past != null ? F.pct(k.past) : "—", "Close dates dépassées", delta(k.past, p && p.past, "pt", false, pts)]];
-    var foot = "<footer><span>Définitions v1, gelées · données au " + F.date(M.snap) + " · " + F.int(M.meta.rows) + " deals</span><span>Flash Sales Funnel Audit</span></footer>";
+    var foot = "<footer><span>Données au " + F.date(M.snap) + " · " + F.int(M.meta.rows) + " deals</span><span>Flash Sales Funnel Audit</span></footer>";
     var sub = S.prevDate ? "évolution depuis l’export du " + F.date(S.prevDate) : "données au " + F.date(M.snap);
     var s1 = '<div class="slide"><header><b>Pipeline commercial : les cinq chiffres</b><span>' + sub + '</span></header><div class="s-body">' + (M.top[0] ? '<p class="s-lead">' + hl(M.top[0].text) + "</p>" : "") + '<div class="s-kpis">' + cells.map(function (c) { return '<div><span class="v">' + c[0] + '</span><span class="l">' + c[1] + "</span>" + c[2] + "</div>"; }).join("") + "</div></div>" + foot + "</div>";
     var s2 = "";
     if (mv) { var se = function (a) { var t = 0; a.forEach(function (x) { t += (x.d || x)[3]; }); return t; }, st = function (n, l, sm, bad) { return "<div" + (bad ? ' class="bad"' : "") + "><b>" + n + "</b><span> " + l + "</span><small>" + sm + "</small></div>"; };
       s2 = '<div class="slide"><header><b>Ce qui a bougé</b><span>depuis le ' + F.date(mv.from) + '</span></header><div class="s-body"><div class="s-mv">' + st(mv.created.length, "deals créés", F.eur(se(mv.created))) + st(mv.won.length, "gagnés", F.eur(se(mv.won))) + st(mv.lost.length, "perdus", F.eur(se(mv.lost))) + st(mv.pushed.length, "close dates repoussées", F.eur(se(mv.pushed)), mv.pushed.length > 0) + st(mv.amount.length, "montants modifiés", "") + st(mv.gone.length + mv.regressed.length, "disparus ou en recul", "", mv.gone.length + mv.regressed.length > 0) + "</div></div>" + foot + "</div>"; }
     var al = M.top.filter(function (f) { return f.status === "r"; }).slice(0, 3);
-    var s3 = '<div class="slide"><header><b>' + (al.length ? "Alertes" : "Aucune alerte") + "</b><span>" + al.length + " contrôle" + (al.length > 1 ? "s" : "") + ' en rouge</span></header><div class="s-body"><div class="s-al">' + al.map(function (f) { return "<div><b>" + esc(String(f.value).split(" vs ")[0]) + "</b><span>" + esc(f.text) + "<small>" + esc(f.reco) + "</small></span></div>"; }).join("") + "</div></div>" + foot + "</div>";
+    var s3 = '<div class="slide"><header><b>' + (al.length ? "À corriger en priorité" : "Rien à corriger en priorité") + "</b><span>" + al.length + " point" + (al.length > 1 ? "s" : "") + ' en rouge</span></header><div class="s-body"><div class="s-al">' + al.map(function (f) { return "<div><b>" + esc(String(f.value).split(" vs ")[0]) + "</b><span>" + esc(f.text) + "<small>" + esc(f.act || f.reco) + "</small></span></div>"; }).join("") + "</div></div>" + foot + "</div>";
     $("slides").innerHTML = s1 + s2 + s3;
   }
 
@@ -519,7 +523,7 @@ html{scroll-behavior:smooth}
       return '<p class="c-title">Pipeline ouvert, en montant · ' + F.eur(p.open) + " · " + p.n + ' deals</p><div class="seg">' + parts.map(function (x, k) { return '<i class="' + x[2] + '" style="flex:' + Math.max(x[1], 1) + ";--i:" + k + '" data-tip="' + x[0] + " : " + F.eur(x[1]) + " (" + F.pct(x[1] / p.open * 100) + ')"></i>'; }).join("") + '</div><div class="leg">' + parts.map(function (x) { return '<div><i class="' + x[2] + '"></i><span>' + x[0] + '</span><span class="n">' + F.eur(x[1]) + "</span></div>"; }).join("") +
         '</div><div class="cmp"><div><span class="n">' + F.eur(p.open) + '</span>pipeline affiché</div><span class="ar">→</span><div><span class="n">' + F.eur(ok) + "</span>pipeline réellement actif</div></div>";
     }
-    if (f.chart === "loss") return '<p class="c-title">Deals perdus, selon la dernière étape atteinte · cohorte de ' + F.int(M.meta.cohort) + " deals</p>" + hbars(M.funnel.map(function (s, i) { return { l: s.name, v: s.lost, f: F.int(s.lost) + " · " + F.eur(s.lostEur), cls: i >= Sx - 2 ? "hl" : "", tip: s.name + " : " + s.lost + " deals perdus, " + F.eur(s.lostEur) }; }));
+    if (f.chart === "loss") return '<p class="c-title">Deals perdus, selon la dernière étape atteinte · sur ' + F.int(M.meta.cohort) + " deals</p>" + hbars(M.funnel.map(function (s, i) { return { l: s.name, v: s.lost, f: F.int(s.lost) + " · " + F.eur(s.lostEur), cls: i >= Sx - 2 ? "hl" : "", tip: s.name + " : " + s.lost + " deals perdus, " + F.eur(s.lostEur) }; }));
     if (f.chart === "reasons") { var tot = M.reasons.reduce(function (t, r) { return t + r.n; }, 0); return '<p class="c-title">Raisons de perte déclarées · ' + F.int(tot) + " deals perdus</p>" + hbars(M.reasons.map(function (r) { return { l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: r.cls === (f.id === "D8" ? "vague" : "nd") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }; })) + '<p class="cap">En rouge : ' + (f.id === "D8" ? "les valeurs qui ne disent pas pourquoi le deal est perdu." : "les pertes sans décision de l’acheteur.") + " Cette lecture s’adapte dans les règles métier.</p>"; }
     if (f.chart === "amounts") { var mk = Math.floor(f.mode / 1000); return '<p class="c-title">Nombre de deals par tranche de 1 000 € de montant</p>' + cols(M.amountBins.map(function (b) { return { v: b.n, l: b.k === 30 ? "30+" : b.k % 5 ? "" : b.k + NB + "k", cls: b.k === mk ? "hl" : "", tip: (b.k === 30 ? "30 000 € et plus" : F.int(b.k * 1000) + " à " + F.int(b.k * 1000 + 999) + NB + "€") + " : " + b.n + " deals" }; }), 150) + '<p class="cap">Le pic isolé à ' + F.int(f.mode) + NB + "€ n’a aucune raison statistique d’exister : c’est une valeur saisie par défaut.</p>"; }
     if (f.chart === "reps" && M.blocked) { var s = M.blocked.stage; return '<p class="c-title">Conversion de l’étape ' + esc(M.stages[s]) + " vers la suivante · un point par commercial</p>" + dots(M.reps.filter(function (r) { return r.stageConv[s]; }).map(function (r) { return { v: r.stageConv[s].conv, f: F.pct(r.stageConv[s].conv), hl: r.hash === M.blocked.hash, who: r.hash, tip: F.pct(r.stageConv[s].conv) + " sur " + r.stageConv[s].n + " deals" }; }), M.funnel[s].conv, "équipe " + F.pct(M.funnel[s].conv)) + '<p class="cap">Les autres commerciaux sont groupés autour de l’équipe : l’écart est individuel et localisé à une étape.</p>'; }
@@ -530,59 +534,58 @@ html{scroll-behavior:smooth}
   function renderReport() {
     var M = S.M, by = {}, a = S.anon; M.checks.forEach(function (c) { by[c.id] = c; });
     var count = function (st) { return M.checks.filter(function (c) { return c.status === st && !c.pattern; }).length; }, top = M.top[0];
-    $("filefacts").textContent = S.name + " · " + F.int(M.meta.rows) + " deals sur " + M.meta.months + " mois · " + (M.rules.pipelines.length > 1 && M.rules.pipeline ? "pipeline " + M.rules.pipeline + " · " : "") + "niveau " + M.level + " · " + F.int(a.hashedValues) + " valeurs hachées dans ce navigateur";
-    if (top) { $("vEyebrow").textContent = "Constat nº 1 sur " + M.findings.length + " · " + top.id + (top.impact ? " · " + F.eur(top.impact) + " concernés" : ""); $("vTitle").innerHTML = hl(top.text); $("vDetail").textContent = top.detail || top.reco; }
-    else { $("vEyebrow").textContent = "Aucun contrôle hors du vert"; $("vTitle").textContent = "Le funnel est sain sur tous les contrôles exécutés."; $("vDetail").textContent = ""; }
-    $("vKpis").innerHTML = [[M.kpi.k2 != null ? F.pct(M.kpi.k2) : "—", "Win rate · n" + NB + "=" + NB + F.int(M.kpi.k2n), "fourchette attendue " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%", false], [M.kpi.k4 != null ? F.days(M.kpi.k4) : "—", "Cycle de vente médian", "panier médian " + F.eur(M.kpi.basket), false], [F.eur(M.kpi.openEur), "Pipeline ouvert · " + M.meta.open + " deals", by.P1 ? "dont " + F.eur(M.pipe.union) + " inactifs ou périmés" : "", !!by.P1]]
+    $("filefacts").textContent = S.name + " · " + F.int(M.meta.rows) + " deals sur " + M.meta.months + " mois · " + (M.rules.pipelines.length > 1 && M.rules.pipeline ? "pipeline " + M.rules.pipeline + " · " : "") + F.int(a.hashedValues) + " noms masqués";
+    if (top) { $("vEyebrow").textContent = "Constat nº 1 sur " + M.findings.length + (top.impact ? " · " + F.eur(top.impact) + " concernés" : ""); $("vTitle").innerHTML = hl(top.text); $("vDetail").textContent = top.detail || ""; $("vAct").innerHTML = top.act ? "<b>À faire en premier</b>" + esc(top.act) : ""; }
+    else { $("vEyebrow").textContent = "Aucun point à corriger"; $("vTitle").textContent = "Votre funnel est sain sur tous les points vérifiés."; $("vDetail").textContent = ""; $("vAct").innerHTML = ""; }
+    $("vKpis").innerHTML = [[M.kpi.k2 != null ? F.pct(M.kpi.k2) : "—", "Win rate · sur " + F.int(M.kpi.k2n) + " deals qualifiés", "fourchette attendue " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%", false], [M.kpi.k4 != null ? F.days(M.kpi.k4) : "—", "Cycle de vente médian", "panier médian " + F.eur(M.kpi.basket), false], [F.eur(M.kpi.openEur), "Pipeline ouvert · " + M.meta.open + " deals", by.P1 ? "dont " + F.eur(M.pipe.union) + " inactifs ou périmés" : "", !!by.P1]]
       .map(function (k) { return '<div><span class="n">' + k[0] + "</span><span>" + k[1] + "</span>" + (k[3] ? "<small>" + k[2] + "</small>" : "<span>" + k[2] + "</span>") + "</div>"; }).join("");
-    // check matrix
-    var all = M.checks.filter(function (c) { return !c.pattern; }).concat(M.locked), k = 0;
-    $("mxTitle").textContent = M.meta.executed + " contrôles exécutés sur ce fichier, " + M.locked.length + " verrouillés";
-    $("mx").innerHTML = Object.keys(FAM).map(function (f) { var cs = all.filter(function (c) { return c.fam === f; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; }); return cs.length ? '<div class="mx-r"><span>' + FAM[f] + '</span><div class="mx-c">' + cs.map(function (c) { return '<span class="cell ' + c.status + '" style="--k:' + (k++) + '" data-tip="' + esc(c.id + " · " + c.label + (c.status === "lock" ? " — " + c.text : " — " + (c.value || "") + (c.thr ? " · seuils : " + c.thr : "") + (M.absorbed[c.id] ? " · regroupé dans " + M.absorbed[c.id] : ""))) + '">' + c.id + "</span>"; }).join("") + "</div></div>" : ""; }).join("");
+    // health by theme: one square per point checked, worst first, no codes
+    var pts = M.checks.filter(function (c) { return !c.pattern && c.status !== "na"; }), k = 0, ord = { r: 0, o: 1, g: 2 }, plural = function (n, w) { return n + " " + w + (n > 1 ? "s" : ""); };
+    $("mxTitle").textContent = pts.length + " points vérifiés dans votre pipeline";
+    $("mx").innerHTML = Object.keys(FAM).map(function (f) { var cs = pts.filter(function (c) { return c.fam === f; }).sort(function (x, y) { return ord[x.status] - ord[y.status]; }); if (!cs.length) return ""; var nr = cs.filter(function (c) { return c.status === "r"; }).length, no = cs.filter(function (c) { return c.status === "o"; }).length; return '<div class="mx-r"><span>' + FAM[f] + '</span><div class="mx-c">' + cs.map(function (c) { return '<i class="cell ' + c.status + '" style="--k:' + (k++) + '" data-tip="' + esc(c.label + " : " + c.value) + '"></i>'; }).join("") + '</div><b class="' + (nr ? "r" : no ? "o" : "g") + '">' + (nr ? nr + " à corriger" : no ? no + " à surveiller" : "Sain") + "</b></div>"; }).join("");
     $("mx").classList.toggle("play", !S.shown); S.shown = true;
-    $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' rouges</span><span><i class="o"></i>' + count("o") + ' oranges</span><span><i class="g"></i>' + count("g") + ' verts</span><span><i class="lock"></i>' + M.locked.length + " verrouillés</span>";
+    $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' à corriger</span><span><i class="o"></i>' + count("o") + ' à surveiller</span><span><i class="g"></i>' + plural(count("g"), "sain") + "</span>" + (M.locked.length ? "<p>" + plural(M.locked.length, "autre") + " point" + (M.locked.length > 1 ? "s" : "") + " se " + (M.locked.length > 1 ? "vérifient" : "vérifie") + " avec un export par semaine ou un peu de contexte.</p>" : "");
 
-    $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + " · " + f.id + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
+    $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
     renderSlides(M);
     // week-over-week movements (only when a previous export of the same pipeline is remembered)
     var mv = S.mv; $("moves").hidden = !mv;
     if (mv) {
       var se = function (arr, f) { var t = 0; arr.forEach(function (x) { t += f(x); }); return t; }, amtOf = function (x) { return (x.d || x)[3]; }, codeOf = function (h) { var r = M.reps.filter(function (x) { return x.hash === h; })[0]; return r ? r.code : "—"; };
       var stat = function (n, label, sub, bad) { return '<div class="mv' + (bad ? " bad" : "") + '"><b>' + n + "</b><span>" + label + "</span><small>" + sub + "</small></div>"; }, dAmt = se(mv.amount, function (x) { return x.d[3] - x.old; });
-      $("movesSub").textContent = "depuis l’export du " + F.date(mv.from) + " · " + Math.round((mv.to - mv.from) / 864e5) + " jours · comparaison faite dans ce navigateur";
+      $("movesSub").textContent = "depuis l’export du " + F.date(mv.from) + " · " + Math.round((mv.to - mv.from) / 864e5) + " jours";
       $("mvs").innerHTML = stat(mv.created.length, "deals créés", F.eur(se(mv.created, amtOf))) + stat(mv.won.length, "gagnés", F.eur(se(mv.won, amtOf))) + stat(mv.lost.length, "perdus", F.eur(se(mv.lost, amtOf))) + stat(mv.pushed.length, "close dates repoussées", F.eur(se(mv.pushed, amtOf)) + " · " + F.pct(mv.slippage, 1) + " des deals ouverts", mv.pushed.length > 0) + stat(mv.amount.length, "montants modifiés", (dAmt >= 0 ? "+" : "−") + F.eur(Math.abs(dAmt))) + stat(mv.gone.length + mv.regressed.length, "disparus ou en recul", mv.gone.length + " disparu" + (mv.gone.length > 1 ? "s" : "") + " · " + mv.regressed.length + " retour" + (mv.regressed.length > 1 ? "s" : "") + " en arrière", mv.gone.length + mv.regressed.length > 0);
       var big = mv.pushed.slice().sort(function (x, y) { return y.d[3] - x.d[3]; }).slice(0, 6);
       $("mvPushed").innerHTML = '<p class="c-title">Close dates repoussées, les plus gros montants</p>' + (big.length ? '<div class="pr head"><span>Deal</span><span>Commercial</span><span class="r">Montant</span><span class="r">Report</span><span>Ancienne → nouvelle date</span></div>' + big.map(function (x) { return '<div class="pr"><span class="n">' + esc(x.d[0]) + "</span><span>" + codeOf(x.d[5]) + '</span><span class="n r">' + F.eur(x.d[3]) + '</span><span class="n r">+' + x.days + NB + 'j</span><span class="n">' + F.date(x.old).replace(/\u00a0\d{4}$/, "") + " → " + F.date(x.d[4]) + "</span></div>"; }).join("") : '<p class="cap">Aucune close date repoussée.</p>');
       var du = mv.due, parts = [["Gagnés", du.won, "k0"], ["Perdus", du.lost, "kL"], ["Repoussés", du.pushed, "k3"], ["Toujours ouverts, date dépassée", du.open + du.gone, "k1"]];
       $("mvDue").innerHTML = '<p class="c-title">Les ' + du.n + " deals qui devaient se signer sur la période</p>" + (du.n ? '<div class="seg">' + parts.filter(function (x) { return x[1]; }).map(function (x) { return '<i class="' + x[2] + '" style="flex:' + x[1] + '" data-tip="' + x[0] + " : " + x[1] + '"></i>'; }).join("") + '</div><div class="leg">' + parts.map(function (x) { return '<div><i class="' + x[2] + '"></i><span>' + x[0] + '</span><span class="n">' + x[1] + "</span></div>"; }).join("") + "</div>" : '<p class="cap">Aucun deal n’avait de close date sur la période.</p>') + '<p class="cap">Prévu contre réalisé : c’est le début de la mesure de fiabilité du forecast, solide à partir de quatre exports.</p>';
     }
-    $("snapNote").innerHTML = M.snapshot ? "Cet export est mémorisé dans ce navigateur, sous forme anonymisée (" + S.snaps + " en mémoire). Déposez le suivant dans une semaine : ce qui a bougé s’affichera en tête de rapport. " + (S.name === "export-hubspot-exemple.csv" ? '<button class="link" id="week2" type="button">Voir la suite avec l’exemple de la semaine suivante</button> · ' : "") + '<button class="link" id="forget" type="button">Oublier l’historique</button>' : "Sans identifiant de deal unique dans l’export, la comparaison d’une semaine à l’autre n’est pas possible.";
+    $("snapNote").innerHTML = M.snapshot ? "Cet export est gardé en mémoire sur votre ordinateur, sans les noms (" + S.snaps + " en mémoire). Déposez le suivant dans une semaine : ce qui a bougé s’affichera en tête de rapport. " + (S.name === "export-hubspot-exemple.csv" ? '<button class="link" id="week2" type="button">Voir la suite avec l’exemple de la semaine suivante</button> · ' : "") + '<button class="link" id="forget" type="button">Oublier l’historique</button>' : "Sans identifiant de deal unique dans l’export, la comparaison d’une semaine à l’autre n’est pas possible.";
     if ($("forget")) $("forget").onclick = function () { store.set("fsfa-snaps", "[]"); S.mv = null; S.snaps = 0; renderReport(); observe(); };
     if ($("week2")) $("week2").onclick = function () { fetch("./data/export-hubspot-exemple-semaine-2.csv").then(function (r) { return r.text(); }).then(function (t) { load("export-hubspot-exemple-semaine-2.csv", t); }); };
     // questions raised by this very file + free-text context
     var qs = M.questions, shown = S.allQ ? qs : qs.slice(0, 3), ans = S.cfg.answers;
     $("askTitle").textContent = qs.length ? qs.length + " question" + (qs.length > 1 ? "s" : "") + " que ce fichier nous amène à vous poser" : "Adaptez l’audit à votre business";
-    $("qs").innerHTML = shown.map(function (q) { var i = qs.indexOf(q); return '<div class="qb"><span class="chip n"><i class="mk ' + ((by[q.check] || {}).status || "") + '"></i>' + q.check + "</span><b>" + esc(q.text) + "</b><small>" + esc(q.why) + '</small><div class="opts">' + q.options.map(function (o, j) { return '<button class="opt' + (ans[q.id] === j ? " on" : "") + '" type="button" data-q="' + i + '" data-o="' + j + '">' + esc(o.label) + "</button>"; }).join("") + "</div></div>"; }).join("");
+    $("qs").innerHTML = shown.map(function (q) { var i = qs.indexOf(q); return '<div class="qb"><span class="chip"><i class="mk ' + ((by[q.check] || {}).status || "") + '"></i>' + (QT[q.id.split(":")[0]] || "") + "</span><b>" + esc(q.text) + "</b><small>" + esc(q.why) + '</small><div class="opts">' + q.options.map(function (o, j) { return '<button class="opt' + (ans[q.id] === j ? " on" : "") + '" type="button" data-q="' + i + '" data-o="' + j + '">' + esc(o.label) + "</button>"; }).join("") + "</div></div>"; }).join("");
     $("askMore").textContent = qs.length > 3 ? (S.allQ ? "Voir moins de questions" : "Voir les " + (qs.length - 3) + " autres questions") : "";
     $("ctxOut").innerHTML = S.ctx.understood.map(function (u) { return "<p><b>Pris en compte.</b> " + esc(u.label) + ' <span class="q">· «\u00a0' + esc(u.source) + "\u00a0»</span></p>"; }).join("") + S.ctx.notes.map(function (t) { return "<p><b>Noté, sans effet sur les calculs.</b> «\u00a0" + esc(t) + '\u00a0» <span class="q">· à préciser de vive voix</span></p>'; }).join("");
     // findings with their proof
-    $("topSub").textContent = M.top.length + " constats, par ordre de priorité · seuils du référentiel";
+    $("topSub").textContent = plural(M.top.length, "constat") + ", par ordre de priorité";
     $("top").innerHTML = M.top.map(function (f, i) {
-      var abs = (f.absorbs || []).filter(function (x) { return M.absorbed[x] === f.id; });
-      return '<article class="find rv" id="f' + i + '"><div><div class="f-id n">0' + (i + 1) + " · " + f.id + (abs.length ? "<span>regroupe " + abs.join(", ") + "</span>" : "") + "</div><h3>" + hl(f.text) + "</h3>" + (f.detail ? "<p>" + esc(f.detail) + "</p>" : "") + (f.cause ? '<p class="why"><b>Cause probable</b>' + esc(f.cause) + "</p>" : "") + '<p class="reco"><b>Piste d’amélioration</b>' + esc(f.reco) + "</p>" + (f.potential ? '<p class="pot"><b>Potentiel</b>' + esc(f.potential) + "</p>" : "") + '<div class="f-meta">' + (f.impact ? "<span><b>" + F.eur(f.impact) + "</b> concernés</span>" : "") + "<span>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Structurel · 1 à 3 mois") + "</span><span>" + (f.indicative ? "Indicatif" : "Confiance solide") + " · n" + NB + "=" + NB + F.int(f.n) + "</span></div></div><div>" + chartFor(f, M) + "</div></article>";
+      return '<article class="find rv" id="f' + i + '"><div><div class="f-id"><span class="n">0' + (i + 1) + "</span> · " + esc(f.label) + "</div><h3>" + hl(f.text) + "</h3>" + (f.detail ? "<p>" + esc(f.detail) + "</p>" : "") + (f.act ? '<p class="act"><b>À faire</b>' + esc(f.act) + "</p>" : "") + (f.cause ? '<p class="why"><b>Pourquoi ça arrive, le plus souvent</b>' + esc(f.cause) + "</p>" : "") + (f.potential ? '<p class="pot"><b>Ce que ça peut rapporter</b>' + esc(f.potential) + "</p>" : "") + '<div class="f-meta">' + (f.impact ? "<span><b>" + F.eur(f.impact) + "</b> concernés</span>" : "") + "<span>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Chantier de fond · 1 à 3 mois") + "</span><span>" + (f.indicative ? "Indicatif : seulement " + F.int(f.n) + " deals" : "Calculé sur " + F.int(f.n) + " deals") + "</span></div></div><div>" + chartFor(f, M) + "</div></article>";
     }).join("");
 
     // funnel ledger
     var fm = M.funnel.length ? M.funnel[0].reached : 1, lm = Math.max.apply(null, M.funnel.map(function (f) { return f.lostEur; })) || 1;
-    $("funnelSub").textContent = "cohorte de création · " + F.int(M.meta.cohort) + " deals créés depuis plus de quatre mois";
+    $("funnelSub").textContent = "sur les " + F.int(M.meta.cohort) + " deals créés il y a plus de quatre mois";
     $("funnel").innerHTML = M.funnel.length ? '<div class="fr head"><span>Étape</span><span>Deals ayant atteint l’étape</span><span class="r">Deals</span><span class="r">Passent</span><span class="r">Durée</span><span>Montants perdus à cette étape</span></div>' + M.funnel.map(function (f, i) {
       return '<div class="fr' + (f.name === M.leak ? " leak" : "") + '" data-tip="' + esc(f.name + " : " + f.reached + " deals, " + f.next + " passent à la suite, " + f.lost + " perdus ici") + '"><span>' + esc(f.name) + '</span><span class="fr-b"><i style="width:' + (f.reached / fm * 100).toFixed(1) + "%;--i:" + i + '"></i></span><span class="n r">' + F.int(f.reached) + '</span><span class="n r">' + F.pct(f.conv) + '</span><span class="n r">' + (f.days != null ? F.days(f.days) : "—") + '</span><span class="fr-l"><i style="width:' + (f.lostEur / lm * 62).toFixed(1) + "%;--i:" + i + '"></i><em class="n">' + F.eur(f.lostEur) + "</em></span></div>";
     }).join("") + '<div class="fr end"><span>Gagné</span><span class="fr-b"><i style="width:' + (M.funnel[M.funnel.length - 1].next / fm * 100).toFixed(1) + '%;--i:6"></i></span><span class="n r">' + F.int(M.funnel[M.funnel.length - 1].next) + "</span><span></span><span></span><span></span></div>" : '<p class="c-title">Pipeline ouvert, par étape actuelle</p>' + hbars(M.openStages.map(function (x) { return { l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink", tip: x.name + " : " + x.n + " deals ouverts, " + F.eur(x.eur) }; })) + '<p class="cap">Votre export ne contient pas les dates d’entrée par étape : la conversion et la durée par étape ne peuvent pas être calculées. Ajoutez ces colonnes à l’export (dans HubSpot : « Date d’entrée dans la phase… ») pour obtenir le funnel complet.</p>';
-    if (!M.funnel.length) $("funnelSub").textContent = "niveau N1 · photo du pipeline, sans historique d’étapes";
+    if (!M.funnel.length) $("funnelSub").textContent = "photo du pipeline, sans historique des étapes";
 
     // secondary figures
     var k4 = M.kpi.k4, REF = { inbound: [30, 45], outbound: [10, 20], partenaire: [25, 40], referral: [25, 40] }, figs = [];
-    var fig = function (c, chart, cap) { if (c && c.status !== "na") figs.push('<figure class="fig rv"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><h3>" + hl(c.text) + "</h3>" + chart + '<figcaption class="cap">' + cap + "</figcaption></figure>"); };
+    var fig = function (c, chart, cap) { if (c && c.status !== "na") figs.push('<figure class="fig rv"><span class="chip"><i class="mk ' + c.status + '"></i>' + esc(c.label) + "</span><h3>" + hl(c.text) + "</h3>" + chart + '<figcaption class="cap">' + cap + "</figcaption></figure>"); };
     fig(by.C4, cols(M.ageBins.map(function (b, i) { return { v: b.n, l: i === 8 ? "240+" : String(b.from), cls: k4 && b.from >= 2 * k4 ? "hl" : "ink", tip: b.n + " deals ouverts, " + F.eur(b.eur) }; })), "Deals ouverts par âge, en jours. En rouge : au-delà de deux cycles gagnants.");
     fig(by.D2, cols(M.closeMonths.map(function (m) { return { v: m.future, v2: m.past, l: m.label, cls: "ink" + (m.current ? " hl" : ""), tip: (m.past + m.future) + " deals attendus, dont " + m.eom + " au dernier jour du mois" }; })), "Deals ouverts par mois de close date. En rouge : dates déjà passées." + (by.H3 ? " " + by.H3.text : ""));
     fig(by.B4, cols(M.monthly.map(function (m) { return { v: m.created, l: m.label, cls: m.partial ? "dim" : "ink", tip: m.created + " deals créés, " + m.won + " gagnés" }; })), "Deals créés par mois sur quinze mois. Le mois en cours est partiel.");
@@ -594,18 +597,19 @@ html{scroll-behavior:smooth}
 
     var ex = M.checks.filter(function (c) { return !c.pattern; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; });
     $("allN").textContent = ex.length;
-    $("all").innerHTML = '<div class="arow head"><span>Contrôle</span><span></span><span>Valeur</span><span>Seuils du référentiel</span><span>Échantillon</span></div>' + ex.map(function (c) { return '<div class="arow"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><span>" + esc(c.label) + (M.absorbed[c.id] ? ' <span class="q">· regroupé dans ' + M.absorbed[c.id] + "</span>" : "") + '</span><span class="n">' + esc(c.value || "—") + '</span><span class="q">' + esc(c.thr || "") + '</span><span class="n q">' + (c.n != null ? F.int(c.n) : "—") + "</span></div>"; }).join("");
-    var row = function (c) { return '<div class="rowl"><span class="chip n"><i class="mk ' + c.status + '"></i>' + c.id + "</span><span>" + esc(c.text) + "<small>" + (c.status === "g" ? "Seuils : " + esc(c.thr) : esc(c.reco || "")) + "</small></span></div>"; };
+    $("all").innerHTML = '<div class="arow head"><span></span><span>Point vérifié</span><span>Valeur</span><span>Seuils</span><span>Deals</span></div>' + ex.map(function (c) { return '<div class="arow"><i class="mk ' + c.status + '"></i><span>' + esc(c.label) + (M.absorbed[c.id] && by[M.absorbed[c.id]] ? ' <span class="q">· regroupé dans «\u00a0' + esc(by[M.absorbed[c.id]].label) + "\u00a0»</span>" : "") + '</span><span class="n">' + esc(c.value || "—") + '</span><span class="q">' + esc(c.thr || "") + '</span><span class="n q">' + (c.n != null ? F.int(c.n) : "—") + "</span></div>"; }).join("");
+    var row = function (c) { var a = c.status === "g" ? "" : c.act || c.reco || ""; return '<div class="rowl"><i class="mk ' + c.status + '"></i><span>' + esc(c.text) + (a ? "<small>À faire : " + esc(a) + "</small>" : "") + "</span></div>"; };
     $("others").innerHTML = M.others.map(row).join("") || '<p class="cap">Rien d’autre hors du vert.</p>';
     $("good").innerHTML = M.good.map(row).join("");
-    $("steps").innerHTML = M.top.slice().sort(function (x, y) { return (x.horizon === "quick" ? 0 : 1) - (y.horizon === "quick" ? 0 : 1); }).slice(0, 3).map(function (f) { return "<li><span>" + esc(f.reco) + "</span><small>" + (f.horizon === "quick" ? "Quick win" : "Structurel") + " · " + f.id + "</small></li>"; }).join("");
-    $("lockSub").textContent = M.locked.length + " contrôles verrouillés";
-    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates et la fiabilité du forecast se mesurent d’un export à l’autre, et deviennent solides au quatrième." + (S.snaps ? " En mémoire : " + S.snaps + " sur 4." : "")], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return '<li><span class="n">' + l.id + "</span><span>" + l.label + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
+    $("steps").innerHTML = M.top.slice().sort(function (x, y) { return (x.horizon === "quick" ? 0 : 1) - (y.horizon === "quick" ? 0 : 1); }).slice(0, 3).map(function (f) { return "<li><span>" + esc(f.act || f.reco) + "</span><small>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Chantier de fond · 1 à 3 mois") + "</small></li>"; }).join("");
+    $("lockSub").textContent = plural(M.locked.length, "point") + " de plus";
+    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates et la fiabilité du forecast se mesurent d’un export à l’autre, et deviennent solides au quatrième." + (S.snaps ? " En mémoire : " + S.snaps + " sur 4." : "")], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return "<li>" + l.label + "</li>"; }).join("") + "</ul></div>"; }).join("");
     var rsum = rulesSummary();
     $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + '. <span class="noprint">' : 'Calculé avec les règles par défaut. <span class="noprint">Tous les business ne se ressemblent pas\u00a0: ') + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "répondez à quelques questions pour l’adapter au vôtre") + "</button></span>";
     $("vRulesBtn").onclick = rsum.length ? openRules : function () { $("ask").scrollIntoView({ behavior: "smooth" }); };
     $("openRules").textContent = "Règles métier" + (rsum.length ? " · " + rsum.length + " adaptée" + (rsum.length > 1 ? "s" : "") : "");
-    $("foot").innerHTML = "<span>Règles métier : " + (rsum.length ? esc(rsum.join(" · ")) : "valeurs par défaut") + "</span><span>Définitions v1, gelées · seuils du référentiel v0.1</span><span>Moteur déterministe : aucun chiffre n’est produit par un LLM</span><span>Données au " + F.date(M.snap) + "</span><span>Vos deals ne quittent pas ce navigateur : tout y est calculé</span>";
+    $("foot").innerHTML = "<span>Règles métier : " + (rsum.length ? esc(rsum.join(" · ")) : "valeurs par défaut") + "</span><span>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA</span><span>Données au " + F.date(M.snap) + "</span><span>Vos deals ne quittent pas votre ordinateur : tout y est calculé</span>" + '<span class="noprint"><button class="link" id="seeCols" type="button">Vérifier les colonnes reconnues</button></span>';
+    $("seeCols").onclick = function () { renderMap(); view("map"); };
   }
   // ---------- leads: e-mail + audit summary (aggregates only, never deal data) ----------
   var CFG = window.FSFA_CONFIG || {};
