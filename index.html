@@ -4,129 +4,193 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="description" content="Déposez l’export de vos deals : l’audit de votre funnel de vente sort en deux minutes. Les noms de vos clients et de vos commerciaux sont masqués avant toute analyse.">
+<meta name="description" content="Déposez le fichier de vos deals : en deux minutes, ce que votre pipeline vaut vraiment, où vous perdez, et trois décisions pour lundi. L’outil vous demande vos règles au lieu de les deviner.">
 <title>Flash Sales Funnel Audit</title>
-<!-- Working prototype: drop a CRM export → columns recognised → identifying values hashed in this browser → report computed by engine.js. Nothing is sent anywhere. -->
+<!-- Drop a CRM export → the tool states what it understood of the business and asks to be corrected → verdict, three chapters, one slide.
+     Everything is computed in this browser by engine.js; identifying values are hashed before analysis. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F6F5F1;--ink:#15140F;--ink-2:#5F5B51;--line:#DCD9CF;--mark:#2A2823;--mute:#CBC7BB;--band:#E4E0D3;
-  --red:#CF3A1E;--amber:#E0A91B;--green:#16875C;--slab:#15140F;--slab-2:#A6A193;--slab-line:#37342D;
-  --hatch:repeating-linear-gradient(135deg,var(--amber) 0 2px,transparent 2px 5px);--ease:cubic-bezier(.16,1,.3,1)}
+  --red:#CF3A1E;--red-2:#E58A76;--red-3:#8F2611;--amber:#E0A91B;--green:#16875C;--slab:#15140F;--slab-2:#A6A193;--slab-line:#37342D;--cream:#F2F0E8;--hot:#FF6A4A;
+  --a:var(--mark);--n:var(--mute);--hatch:repeating-linear-gradient(135deg,var(--amber) 0 2px,transparent 2px 5px);--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Schibsted Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .n{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em;word-spacing:-.28em}
 .wrap{max-width:1280px;margin:0 auto;padding:0 40px}
-button,select,input{font:inherit;color:inherit}
+button,select,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
 [hidden]{display:none!important}
-.top{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0;font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0;font-size:14px}.top>span,.top>button{white-space:nowrap}
 .brand{font-weight:800;letter-spacing:.12em;font-size:13px;white-space:nowrap;flex:none}
 .top .hide{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
-.btn{background:var(--ink);color:var(--bg);border:0;padding:13px 22px;font-weight:650;font-size:15px;cursor:pointer;transition:background .2s var(--ease),transform .1s}
+.acts{display:flex;gap:22px;flex:none;white-space:nowrap}
+.btn{background:var(--ink);color:var(--bg);border:0;padding:13px 22px;font-weight:650;font-size:15px;cursor:pointer;transition:background .2s var(--ease),color .2s,transform .1s}
 .btn:hover{background:var(--red)}.btn:active{transform:translateY(1px)}.btn[disabled]{opacity:.35;cursor:not-allowed;background:var(--ink)}
-.link{background:none;border:0;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;cursor:pointer;font-size:15px}
+.btn.inv{background:var(--cream);color:var(--ink)}.btn.inv:hover{background:var(--hot);color:#fff}
+.btn.ghost{background:none;border:1px solid var(--cream);color:var(--cream)}.btn.ghost:hover{background:var(--cream);color:var(--ink)}
+.link{background:none;border:0;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;cursor:pointer;font-size:15px;text-align:left}
+.warn{color:var(--red);font-size:14.5px;font-weight:600}
+.cap{margin-top:12px;font-size:13px;color:var(--ink-2)}
+.c-title{font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.q{color:var(--ink-2)}
+.eyebrow{font-size:13px;color:var(--slab-2)}
+.slab{background:var(--slab);color:var(--cream);--a:#EAE7DC;--n:#4D493F}
+.slab .top{border-bottom:1px solid var(--slab-line);color:var(--slab-2)}
+.slab .brand,.slab .link{color:var(--cream)}
+.slab .cap{color:var(--slab-2)}
 
-/* ---- 1. drop ---- */
-.drop{display:grid;grid-template-columns:7fr 4fr;gap:88px;padding:64px 0 96px;align-items:start}
-.drop h1{font-weight:700;font-size:clamp(36px,4.5vw,62px);line-height:1.03;letter-spacing:-.035em}
+/* ---- the pipeline, deal by deal: one sliver per open deal, width = amount ---- */
+.strip{display:flex;gap:1px;height:64px}
+.strip.dense{gap:0}
+.strip i{display:block;flex:1 0 1px;min-width:1px;background:var(--n);transition:background-color .55s var(--ease),opacity .3s;transform-origin:bottom}
+.strip i.a{background:var(--a)}.strip i.s{background:var(--red)}.strip i.b{background:var(--red-3)}.strip i.p{background:var(--red-2)}
+.strip i.h{background:var(--amber)}.strip i.dim{opacity:.2}
+.strip i:hover{opacity:1;outline:2px solid var(--hot);outline-offset:1px;position:relative;z-index:1}
+.strip.build i{animation:grow .7s var(--ease) backwards;animation-delay:calc(var(--i)*900ms)}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.sleg{display:flex;justify-content:space-between;gap:10px 28px;margin-top:12px;font-size:14px;flex-wrap:wrap}
+.sleg b{font-weight:650}.sleg i{display:inline-block;width:10px;height:10px;margin:0 6px 0 10px}.sleg span>i:first-child{margin-left:0}
+.sleg .la{background:var(--a)}.sleg .ls{background:var(--red)}.sleg .lb{background:var(--red-3)}.sleg .lp{background:var(--red-2)}
+
+/* ---- 1. home ---- */
+.drop{display:grid;grid-template-columns:6fr 5fr;gap:72px;padding:44px 0 88px;align-items:start}
+.drop h1{font-weight:700;font-size:clamp(36px,4.7vw,66px);line-height:1.01;letter-spacing:-.04em}
 .drop h1 span{color:var(--ink-2)}
-.back{margin-top:28px;font-size:16px;font-weight:600;border-left:2px solid var(--red);padding-left:14px;max-width:56ch}.back:empty{display:none}.back+.zone{margin-top:24px}
-.zone{margin-top:44px;border:1.5px dashed var(--ink);padding:40px 36px;display:grid;gap:16px;justify-items:start;transition:background .2s,border-color .2s}
+.lede{margin-top:22px;font-size:18px;line-height:1.5;color:var(--ink-2);max-width:50ch}
+.back{margin-top:24px;font-size:16px;font-weight:600;border-left:2px solid var(--red);padding-left:14px;max-width:56ch}.back:empty{display:none}
+.zone{margin-top:32px;border:1.5px dashed var(--ink);padding:34px 32px;display:grid;gap:14px;justify-items:start;transition:background .2s,border-color .2s}
 .zone.over{background:#fff;border-style:solid;border-color:var(--red)}
 .zone strong{font-size:22px;font-weight:650;letter-spacing:-.015em}
 .zone p{color:var(--ink-2);font-size:15px;max-width:52ch}.zone p.warn{color:var(--red)}.zone p.warn:empty{display:none}
 .zone div{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.assure{margin-top:26px;display:grid;gap:8px;font-size:15px;list-style:none}
-.assure li::before{content:"";display:inline-block;width:7px;height:7px;background:var(--ink);margin-right:12px;vertical-align:1px}
-.scope{border-top:2px solid var(--ink);padding-top:14px;margin-top:8px}
-.scope h2{font-size:15px;font-weight:650;margin-bottom:6px}
-.scope li{padding:10px 0;border-bottom:1px solid var(--line);font-size:15.5px;list-style:none}
-.scope p{margin-top:14px;font-size:14px;color:var(--ink-2)}
+.assure{margin-top:18px;font-size:14.5px;color:var(--ink-2);max-width:58ch}
+.nofile{margin-top:10px;font-size:14.5px;color:var(--ink-2)}.nofile .link{font-size:14.5px;color:var(--ink)}
+.ex{padding:26px 28px 6px;opacity:.5;transition:opacity .6s}.ex.on{opacity:1}
+.ex h2{display:block;border:0;padding:0;font-size:clamp(24px,2.5vw,36px);font-weight:700;letter-spacing:-.032em;line-height:1.06;margin:12px 0 22px;max-width:17ch}
+.ex h2 em,.vd h1 em{font-style:normal;color:var(--hot)}
+.ex .strip{height:48px}.ex .strip i.h{box-shadow:0 -7px 0 var(--amber),0 7px 0 var(--amber)}
+.ex-cap{margin-top:14px;font-size:13.5px;min-height:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-cap:not(:empty)::before{content:"";display:inline-block;width:8px;height:8px;background:var(--amber);margin-right:8px}
+.ex .ans{margin-top:22px}.ex .ans a{grid-template-columns:1fr;gap:2px;padding:11px 0}.ex .ans a::after{display:none}.ex .ans b{font-size:15.5px}.ex .ans a span:first-child{font-size:13.5px}.ex .ans a:last-child{border-bottom:0}
+.exq{margin-top:16px;border:1.5px solid var(--ink);padding:20px 24px 22px}.exq:empty{display:none}
+.exq small{display:block;font-size:13px;color:var(--ink-2)}.exq b{display:block;font-size:18px;font-weight:650;line-height:1.28;letter-spacing:-.012em;margin:8px 0 14px}
+.exq .opt{cursor:default}
 
-/* ---- 2. mapping ---- */
+/* ---- 2. columns (only shown when a required column is missing, or on demand) ---- */
 .map{padding:48px 0 96px;max-width:1040px}
 .map h1{font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1.12;max-width:22ch}
-.map .lede{margin-top:12px;color:var(--ink-2);max-width:64ch}
+.map .lede{font-size:16px;margin-top:12px;max-width:64ch}
 .facts{display:flex;gap:36px;margin:32px 0 26px;flex-wrap:wrap}
 .facts div{border-top:2px solid var(--ink);padding-top:10px;min-width:150px}
-.facts .n{display:block;font-size:30px;letter-spacing:-.04em;line-height:1.1}
+.facts .n{display:block;font:700 30px/1.1 "Schibsted Grotesk",sans-serif;letter-spacing:-.035em;word-spacing:0}
 .facts span{font-size:14px;color:var(--ink-2)}
 .mr{display:grid;grid-template-columns:1.25fr 1.35fr 1.1fr 170px;gap:22px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
 .mr.head{font-size:13px;color:var(--ink-2);border-bottom:2px solid var(--ink)}
 .mr select{background:none;border:0;border-bottom:1px solid var(--ink);padding:5px 0;width:100%;border-radius:0;cursor:pointer}
-.mr .ex{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mr.pii .ex{text-decoration:line-through;text-decoration-color:var(--red)}
+.mr .ex2{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mr.off{color:var(--ink-2)}
 .tg{font-size:13px}.tg.hash{color:var(--red);font-weight:650}
 .go{margin-top:30px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
-.warn{color:var(--red);font-size:14.5px;font-weight:600}
 
-/* ---- 3. run ---- */
-.run{padding:120px 0;max-width:720px}
-.run h1{font-size:34px;font-weight:700;letter-spacing:-.025em;margin-bottom:28px}
-.run li{list-style:none;padding:12px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:26px 1fr;font-size:15.5px;animation:rise .5s var(--ease) both}
-.run li::before{content:"";width:8px;height:8px;background:var(--ink);margin-top:8px}
-.run li small{display:block;color:var(--ink-2);font-size:13.5px}
-@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+/* ---- 3. the interview: the tool checks what it understood before judging ---- */
+.talk{min-height:100vh;padding-bottom:72px}
+.t-meta{padding:26px 0 16px;font-size:15px;color:var(--slab-2)}.t-meta b{color:var(--cream);font-weight:600}.t-meta .link{font-size:14px;color:var(--slab-2);margin-left:10px}
+.t-body{display:grid;grid-template-columns:7fr 5fr;gap:64px;padding-top:48px;align-items:start}
+.t-body.intro>*{animation:rise .7s var(--ease) 1s both}
+.t-step{font-size:13.5px;color:var(--slab-2);display:flex;gap:12px;align-items:center}
+.pdots{display:inline-flex;gap:5px}.pdots i{width:20px;height:3px;background:var(--slab-line)}.pdots i.on{background:var(--cream)}
+.t-q{margin-top:16px;font-size:clamp(28px,3.4vw,48px);font-weight:700;line-height:1.07;letter-spacing:-.034em;max-width:21ch}
+.t-why{margin-top:16px;font-size:16px;color:#D8D5CA;max-width:54ch}
+.t-opts{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
+.topt{background:none;border:1px solid var(--cream);color:var(--cream);padding:14px 20px;font-size:17px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s,color .15s,border-color .15s}
+.topt small{display:block;font-size:13px;font-weight:400;color:var(--slab-2);margin-top:2px}
+.topt:hover,.topt.on{background:var(--cream);color:var(--ink)}.topt:hover small,.topt.on small{color:var(--ink-2)}
+.topt.tog.on{background:var(--red);border-color:var(--red);color:#fff;text-decoration:line-through}.topt.tog.on small{color:#fff}
+.topt.go{border-style:dashed}
+.t-note{margin-top:22px;font-size:17px;font-weight:600;color:var(--hot);min-height:26px;max-width:54ch}
+.t-foot{margin-top:6px;font-size:13.5px;color:var(--slab-2)}
+.t-side .big{font-size:clamp(44px,5.2vw,80px);font-weight:700;letter-spacing:-.05em;line-height:.95;white-space:nowrap}
+.t-side .lbl{color:var(--slab-2);font-size:15px;margin-top:10px;max-width:36ch}
+.t-ev{background:var(--bg);color:var(--ink);padding:22px 24px 24px;--a:var(--mark);--n:var(--mute)}
 
-/* ---- 4. report: dark verdict slab ---- */
-.slab{background:var(--slab);color:#F2F0E8;padding-bottom:56px}
-.slab .top{border-bottom:1px solid var(--slab-line);color:var(--slab-2)}
-.slab .brand{color:#F2F0E8}
-.slab .link{color:#F2F0E8}
-.verdict{display:grid;grid-template-columns:7fr 5fr;gap:72px;padding-top:56px;align-items:start}
-.eyebrow{font-size:13px;color:var(--slab-2)}
-.verdict h1{margin-top:16px;font-weight:700;font-size:clamp(34px,4.2vw,60px);line-height:1.03;letter-spacing:-.035em;max-width:15ch}
-.verdict h1 em,.find h3 em{font-style:normal;color:var(--red)}
-.verdict h1 em{color:#FF6A4A}
-.v-detail{margin-top:22px;font-size:17px;line-height:1.5;color:#D8D5CA;max-width:50ch}
-.v-act{margin-top:22px;border:1px solid #F2F0E8;padding:14px 18px 16px;font-size:17.5px;font-weight:600;line-height:1.35;color:#F2F0E8;max-width:50ch}.v-act b{display:block;font-size:13px;font-weight:500;color:var(--slab-2);margin-bottom:3px}.v-act:empty{display:none}
-.v-kpis{margin-top:40px;display:grid;grid-template-columns:repeat(3,auto);gap:44px;justify-content:start}
-.v-kpis div{border-top:1px solid var(--slab-line);padding-top:12px}
-.v-kpis .n{display:block;font-size:34px;letter-spacing:-.05em;line-height:1.1}
-.v-kpis span{font-size:13.5px;color:var(--slab-2);display:block}
-.v-kpis small{font-size:13px;color:#FF8A70}
-/* check matrix: red is loud, amber hatched, green quiet, locked dashed — never colour alone */
-.mx{display:grid;margin-top:14px;border-top:1px solid var(--slab-line)}
-.mx-r{display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--slab-line)}
-.mx-r>span{font-size:14.5px;color:#F2F0E8}.mx-r>b{font-size:13.5px;font-weight:600;white-space:nowrap}.mx-r>b.r{color:#FF6A4A}.mx-r>b.o{color:var(--amber)}.mx-r>b.g{color:var(--slab-2);font-weight:400}
-.mx-c{display:flex;flex-wrap:wrap;gap:4px}
-.cell{display:block;width:17px;height:17px;border:1px solid var(--slab-line)}
-.mx.play .cell{animation:pop .35s var(--ease) backwards;animation-delay:calc(var(--k)*22ms + 250ms)}
-.cell.g{box-shadow:inset 0 -3px 0 var(--green)}
-.cell.o{background:var(--hatch);border-color:var(--amber)}
-.cell.r{background:var(--red);border-color:var(--red)}
-.cell:hover{outline:1px solid #F2F0E8}
-@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1}}
-.mx-leg{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--slab-2)}.mx-leg p{flex-basis:100%;margin-top:4px}
-.mx-leg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border:1px solid var(--slab-line)}
-.mx-leg .r{background:var(--red);border-color:var(--red)}.mx-leg .o{background:var(--hatch);border-color:var(--amber)}.mx-leg .g{box-shadow:inset 0 -3px 0 var(--green)}.mx-leg .lock{border-style:dashed}
+/* ---- 4. report: verdict ---- */
+.vd{padding:52px 0 60px}
+.vd h1{margin-top:14px;font-weight:700;font-size:clamp(36px,5.2vw,80px);line-height:.99;letter-spacing:-.042em;max-width:17ch}
+.v-bet{margin-top:22px;font-size:18px;font-weight:600}.v-bet:empty{display:none}
+.v-prev{margin-top:6px;font-size:15px;color:var(--slab-2)}.v-prev:empty{display:none}
+.v-strip{margin-top:38px}.v-strip .strip{height:76px}
+.v-sub{margin-top:28px;font-size:17px;line-height:1.5;color:#D8D5CA;max-width:70ch}
+.vbtns{margin-top:26px;display:flex;gap:12px 14px;flex-wrap:wrap;align-items:center}.vbtns .link{font-size:14px;color:var(--slab-2);margin-left:8px}
+.ans{margin-top:48px;border-top:1px solid var(--slab-line)}
+.ans a{display:grid;grid-template-columns:260px 1fr auto;gap:20px;padding:15px 0;border-bottom:1px solid var(--slab-line);text-decoration:none;color:inherit;align-items:baseline}
+.ans a span:first-child{color:var(--slab-2);font-size:15px}
+.ans a b{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.ans .r b{color:var(--hot)}.ans .o b{color:var(--amber)}
+.ans a::after{content:"→";color:var(--slab-2);transition:transform .2s,color .2s}.ans a:hover::after{transform:translateX(4px);color:var(--cream)}
+.ans p{padding:15px 0 0;font-size:15px;color:var(--slab-2)}.ans p b{color:#6FCFA5;font-weight:600}
 
-section{padding-top:88px}
+/* ---- business rules: assumed until the user confirms or corrects ---- */
+.rbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.rbar .wrap{display:flex;gap:10px 20px;align-items:center;justify-content:space-between;padding-top:11px;padding-bottom:11px;font-size:14px;flex-wrap:wrap}
+.rbar b{font-weight:650}.rbar .link{font-size:14px;font-weight:600}
+.tag{display:inline-block;font-size:12.5px;font-weight:600;padding:1px 8px;border:1px solid var(--ink);margin-right:8px;white-space:nowrap}
+.tag.sup{border:1px dashed #A37A0B;color:#7A5B06}.tag.ok{background:var(--ink);color:var(--bg)}
+.tw{margin-top:16px;padding:13px 16px 14px;border:1px solid var(--line);font-size:15px;line-height:1.45}
+.tw.sup{border:1px dashed #A37A0B}
+.tw .link{font-size:14px;margin-left:6px}
+.tw-q{font-weight:650;margin-top:8px}.tw-why{color:var(--ink-2);font-size:13.5px;margin-top:3px}
+.opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.opt{background:none;border:1px solid var(--ink);padding:7px 12px;font-size:14px;cursor:pointer;transition:background .15s,color .15s}
+.opt small{font-size:12.5px;color:var(--ink-2);margin-left:7px}
+.opt:hover{background:var(--band)}.opt.on{background:var(--ink);color:var(--bg)}.opt.on small{color:var(--mute)}
+.opt.tog.on{background:var(--red);border-color:var(--red);color:#fff;text-decoration:line-through}.opt.tog.on small{color:#fff}
+.slab .tw{border-color:var(--slab-line);max-width:860px}.slab .tw.sup{border-color:#8A6D1A}.slab .tag.sup{border-color:var(--amber);color:var(--amber)}.slab .tag.ok{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+.slab .opt{border-color:var(--cream);color:var(--cream)}.slab .opt small{color:var(--slab-2)}.slab .opt:hover{background:var(--slab-line)}.slab .opt.on{background:var(--cream);color:var(--ink)}
+
+/* ---- chapters and blocks ---- */
+section{padding-top:88px;scroll-margin-top:50px}
 h2{font-size:15px;font-weight:650;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:20px;align-items:baseline}
 h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
-
-/* findings: analysis on the left, the chart that proves it on the right */
-.find{display:grid;grid-template-columns:5fr 7fr;gap:72px;padding:40px 0;border-bottom:1px solid var(--line);align-items:start}
-.f-id{font-size:13.5px;color:var(--ink-2)}
-.find h3{margin-top:10px;font-size:27px;font-weight:700;line-height:1.14;letter-spacing:-.025em}
-.find p{margin-top:12px;color:var(--ink-2);font-size:15.5px;max-width:46ch}
-.find .act{margin-top:20px;background:var(--ink);color:var(--bg);padding:16px 20px 18px;font-size:18px;font-weight:600;line-height:1.32;letter-spacing:-.012em;max-width:46ch}
-.find .act b{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-bottom:4px;letter-spacing:0}
-.f-meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:4px 20px;font-size:13px;color:var(--ink-2)}
-.f-meta b{color:var(--ink);font-weight:650}
-.cap{margin-top:14px;font-size:13px;color:var(--ink-2)}
-.c-title{font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.chap-h{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:end;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.chap-h h2{border:0;padding:0;display:block;font-size:clamp(30px,3.5vw,50px);font-weight:700;letter-spacing:-.037em;line-height:1.02}
+.chap-h h2 small{display:block;font-size:14px;font-weight:400;color:var(--ink-2);letter-spacing:0;margin-bottom:12px}
+.chap-h p{font-size:19px;font-weight:600;line-height:1.3;letter-spacing:-.012em}.chap-h p.r{color:var(--red)}.chap-h p.o{color:#80600A}.chap-h p.g{color:var(--green)}
+.blk{display:grid;grid-template-columns:5fr 7fr;gap:72px;padding:44px 0;border-bottom:1px solid var(--line);align-items:start;scroll-margin-top:60px}
+.blk h3{font-size:28px;font-weight:700;line-height:1.12;letter-spacing:-.027em}
+.blk h3 em{font-style:normal;color:var(--red)}.blk.g h3,.blk.g h3 em{color:var(--green)}
+.blk .sub{margin-top:12px;color:var(--ink-2);font-size:16px;max-width:48ch}.blk .body{margin-top:12px;font-size:16px;max-width:48ch}
+.dec{margin-top:22px;background:var(--ink);color:var(--bg);padding:16px 20px 18px;font-size:18px;font-weight:600;line-height:1.32;letter-spacing:-.012em;max-width:48ch}
+.dec b{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-bottom:4px}
+.kv{margin-top:18px;display:grid;gap:12px;max-width:48ch}.kv:empty{display:none}
+.kv dt{font-size:13px;font-weight:650}.kv dd{font-size:15.5px;color:var(--ink-2)}
+.raph{margin-top:18px;font-size:15.5px;font-weight:600}
+.halves{display:grid;grid-template-columns:1fr 1fr;gap:72px;padding:44px 0;border-bottom:1px solid var(--line)}
+.halves .blk{display:block;padding:0;border:0}.halves .blk h3{font-size:22px}.halves .blk-r{margin-top:22px}
+.blk-full{padding:36px 0 44px;border-bottom:1px solid var(--line)}
+.dr{display:grid;grid-template-columns:1.7fr 90px 1fr .9fr 1.6fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px;align-items:baseline}
+.dr.head{font-size:13px;color:var(--ink-2);border-bottom:2px solid var(--ink)}.dr .r{text-align:right}
+.lbar{display:flex;gap:10px 22px;flex-wrap:wrap;align-items:center;padding-top:16px;font-size:14.5px}.lbar .link{font-size:14.5px;font-weight:600}
+.names{font-size:13px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+.rb{display:grid;gap:9px}.rbx{margin-top:30px}
+.rb-r{display:grid;grid-template-columns:132px 1fr 170px;gap:14px;align-items:center;font-size:14px}
+.rb-t{display:flex;height:14px;gap:1px}.rb-t i{display:block;background:var(--mark)}.rb-t i.s{background:var(--red)}
+.rb-v{text-align:right;font-size:13.5px;color:var(--ink-2)}.rb-v b{color:var(--red);font-weight:600}
+.jr{display:grid;grid-template-columns:128px 1fr 118px 46px 92px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.jr.head{font-size:13px;color:var(--ink-2);padding:0 0 8px}.jr .r{text-align:right}
+.jr-t{display:flex;height:16px}.jr-t i{display:block;background:var(--mark);transform-origin:left;transition:transform 1s var(--ease) calc(var(--i)*70ms)}.jr-t i.x{background:var(--mute)}
+.jr.hl .jr-t i.x{background:var(--red)}.jr.hl>span:first-child,.jr.hl .lost{font-weight:650;color:var(--red)}
+.jnote{margin-top:10px;font-size:13.5px;color:var(--red);font-weight:600}
+.holds{margin-top:20px;font-size:15px}.holds b{color:var(--green);font-weight:650}
 
 /* chart primitives */
 .hb{display:grid;gap:9px}
 .hb-r{display:grid;grid-template-columns:132px 1fr 132px;gap:14px;align-items:center;font-size:14px}
 .hb-t{position:relative;height:12px}
 .hb-t i{position:absolute;inset:0 auto 0 0;background:var(--mute);border-radius:0 3px 3px 0;transform-origin:left;transition:transform .9s var(--ease) calc(var(--i)*60ms)}
-.hb-r.hl .hb-t i{background:var(--red)}.hb-r.ink .hb-t i{background:var(--mark)}
-.hb-r.hl .hb-l{font-weight:650}
+.hb-r.hl .hb-t i{background:var(--red)}.hb-r.ink .hb-t i{background:var(--mark)}.hb-r.hl .hb-l{font-weight:650}
 .hb-t .bd{position:absolute;top:-4px;bottom:-4px;background:var(--band);border-left:1px solid var(--ink-2);border-right:1px solid var(--ink-2);z-index:-1}
 .hb-v{text-align:right;font-size:13.5px}
 .cols{display:flex;gap:3px;align-items:flex-end}
@@ -134,18 +198,11 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .stack{height:var(--h);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;border-bottom:1px solid var(--ink)}
 .stack i{display:block;background:var(--mute);border-radius:3px 3px 0 0;transform-origin:bottom;transition:transform .9s var(--ease) calc(var(--i)*30ms)}
 .stack i.b2,.col.hl .stack i{background:var(--red)}.col.ink .stack i:not(.b2){background:var(--mark)}.col.dim .stack i{opacity:.45}
-.col span{display:block;height:16px;margin-top:5px;white-space:nowrap}
-.col.hl span{color:var(--ink);font-weight:650}
-.seg{display:flex;gap:2px;height:44px}
-.seg i{display:block;min-width:2px;transform-origin:left;transition:transform .9s var(--ease) calc(var(--i)*90ms)}
-.k0{background:var(--mark)}.k1{background:var(--hatch);outline:1px solid var(--amber);outline-offset:-1px}.k2{background:#E58A76}.k3{background:var(--red)}
+.col span{display:block;height:16px;margin-top:5px;white-space:nowrap}.col.hl span{color:var(--ink);font-weight:650}
+.seg{display:flex;gap:2px;height:44px}.seg i{display:block;min-width:2px}
+.k0{background:var(--mark)}.k3{background:var(--red)}.kL{background:var(--mute)}.k1{background:var(--hatch);outline:1px solid var(--amber);outline-offset:-1px}
 .leg{margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px 28px;font-size:14px}
-.leg div{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center}
-.leg i{width:12px;height:12px}
-.cmp{margin-top:24px;display:flex;gap:26px;align-items:center;font-size:14px;color:var(--ink-2)}
-.cmp .n{display:block;font-size:30px;letter-spacing:-.05em;color:var(--ink);line-height:1.15}
-.cmp div:last-child .n{color:var(--red)}
-.cmp .ar{font-size:22px;color:var(--ink)}
+.leg div{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center}.leg i{width:12px;height:12px}
 .dots{position:relative;height:74px;margin:26px 8px 0}
 .d-ax{position:absolute;left:0;right:0;top:36px;height:1px;background:var(--ink)}
 .dot{position:absolute;top:30px;width:13px;height:13px;margin-left:-6.5px;border-radius:50%;background:var(--mute);box-shadow:0 0 0 2px var(--bg)}
@@ -154,187 +211,137 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .d-ref{position:absolute;top:16px;height:40px;border-left:1px dashed var(--ink)}
 .d-ref b{position:absolute;top:-22px;left:-1px;transform:translateX(-50%);font-size:13px;font-weight:500;white-space:nowrap;color:var(--ink-2)}
 .d-sc{position:absolute;left:0;right:0;top:46px;display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2)}
-
-/* funnel ledger */
-.fr{display:grid;grid-template-columns:150px 1fr 70px 78px 78px 1fr;gap:18px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
-.fr.head{font-size:13px;color:var(--ink-2);padding:14px 0 8px}
-.fr .r{text-align:right}
-.fr-b,.fr-l{height:12px;position:relative}
-.fr-b i,.fr-l i{position:absolute;inset:0 auto 0 0;background:var(--mark);border-radius:0 3px 3px 0;transform-origin:left;transition:transform 1s var(--ease) calc(var(--i)*70ms)}
-.fr-l i{background:var(--mute)}
-.fr-l em{position:absolute;right:0;top:-5px;font-style:normal;font-size:13.5px}
-.fr.leak{font-weight:650}.fr.leak .fr-l i,.fr.leak .fr-b i{background:var(--red)}.fr.leak span:first-child{color:var(--red)}
-.fr.end{border-bottom:2px solid var(--ink)}
-
-.grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
-.fig{padding:30px 32px 34px 0;border-top:1px solid var(--line)}
-.fig+.fig{padding-left:32px;border-left:1px solid var(--line)}
-.fig:nth-child(3n+1){padding-left:0;border-left:0}.fig:nth-child(3n){padding-right:0}
-.fig h3{font-size:18px;font-weight:650;line-height:1.25;letter-spacing:-.012em;margin:8px 0 22px;min-height:68px}
-.chip{font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px}
-.mk{display:inline-block;width:10px;height:10px;border:1px solid var(--ink-2)}
+.mk{display:inline-block;width:10px;height:10px;border:1px solid var(--ink-2);flex:none}
 .mk.r{background:var(--red);border-color:var(--red)}.mk.o{background:var(--hatch);border-color:var(--amber)}.mk.g{background:var(--green);border-color:var(--green)}
-.fig .hb-r{grid-template-columns:112px 1fr 52px}
-.fig h3 em{font-style:normal}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:72px}
+
+/* ---- the Monday slide, the offer, the weekly report ---- */
+.slide{margin-top:28px;aspect-ratio:16/9;container-type:inline-size;background:var(--slab);color:var(--cream);--a:#EAE7DC;--n:#4D493F;display:grid;grid-template-rows:auto 1fr auto auto;overflow:hidden;max-width:1080px}
+.slide header{padding:4.4cqw 5cqw 0;font-size:1.5cqw;color:var(--slab-2)}
+.slide h3{font-size:4.5cqw;font-weight:700;letter-spacing:-.037em;line-height:1.04;margin-top:1.3cqw;color:var(--cream);max-width:19em}
+.slide ol{list-style:none;counter-reset:d;padding:0 5cqw;display:grid;gap:1.9cqw;align-content:center}
+.slide li{counter-increment:d;display:grid;grid-template-columns:3.6cqw 1fr;font-size:2.1cqw;line-height:1.3;font-weight:500;max-width:40em}
+.slide li::before{content:counter(d);font-weight:700;color:var(--hot)}
+.slide .strip{height:2.6cqw;margin:0 5cqw 2.6cqw}
+.slide footer{padding:1.5cqw 5cqw;border-top:1px solid var(--slab-line);font-size:1.25cqw;color:var(--slab-2);display:flex;justify-content:space-between}
+.offer{display:grid;grid-template-columns:7fr 5fr;gap:72px;align-items:start}
+.offer h3{font-size:clamp(30px,3.6vw,50px);font-weight:700;letter-spacing:-.037em;line-height:1.02;max-width:16ch}
+.offer p{margin-top:16px;color:var(--ink-2);font-size:16.5px;max-width:56ch}
+.offer ol{margin-top:14px;list-style:none;counter-reset:a;max-width:60ch}
+.offer li{counter-increment:a;display:grid;grid-template-columns:34px 1fr;padding:13px 0;border-top:1px solid var(--line);font-size:17px;font-weight:500;line-height:1.35}
+.offer li::before{content:counter(a);font:400 14px "Geist Mono",monospace;color:var(--ink-2);padding-top:4px}
+.card{border:2px solid var(--ink);padding:26px 28px}
+.card form{display:grid;gap:14px}
+.card input,.card textarea{background:none;border:0;border-bottom:1px solid var(--ink);padding:10px 0;border-radius:0;width:100%;resize:vertical}
+.card small{font-size:12.5px;color:var(--ink-2)}.card .subj{font-size:15px;font-weight:650}.card>p{margin-top:14px}.card .link{font-size:14px}
+.fmsg{font-size:13.5px}
+.cta{background:var(--slab);color:var(--cream);padding:44px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
+.cta h3{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.08;max-width:18ch}
+.cta p{margin-top:10px;color:var(--slab-2);font-size:15px;max-width:60ch}
+.cta form{display:flex;gap:12px;flex-wrap:wrap;max-width:440px}
+.cta input{background:none;border:0;border-bottom:1px solid var(--cream);padding:12px 0;width:260px;border-radius:0;color:var(--cream)}
+.cta input::placeholder{color:var(--slab-2)}
+.cta .btn{background:var(--cream);color:var(--ink)}.cta .btn:hover{background:var(--red);color:#fff}
+.snapnote{font-size:14px;color:var(--ink-2);padding:14px 0 0;max-width:90ch}.snapnote .link{font-size:14px;color:var(--ink)}
+
+/* ---- everything else, topic by topic ---- */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:20px 0 26px}
+.tab{background:none;border:1px solid var(--line);padding:8px 13px;font-size:14.5px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;transition:border-color .15s}
+.tab:hover{border-color:var(--ink)}.tab.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}.tab.on .mk.g{border-color:var(--bg)}
+.exp{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:start}
 .rowl{display:grid;grid-template-columns:14px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}.rowl .mk{margin-top:6px}
 .rowl small{display:block;color:var(--ink-2);font-size:13.5px}
-.steps{list-style:none;counter-reset:s}
-.steps li{counter-increment:s;display:grid;grid-template-columns:64px 1fr 210px;gap:14px;padding:22px 0;border-bottom:1px solid var(--line);font-size:19px;line-height:1.4;font-weight:500;letter-spacing:-.01em}
-.steps li::before{content:"0" counter(s);font:400 15px "Geist Mono",monospace;color:var(--ink-2);padding-top:4px}
-.steps small{font-size:13px;color:var(--ink-2);font-weight:400;text-align:right;padding-top:5px}
-.locks{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:8px}
-.locks h3{font-size:15px;font-weight:650;padding:16px 0 4px}
-.locks p{font-size:14px;color:var(--ink-2);margin-bottom:10px}
-.locks li{list-style:none;font-size:14.5px;padding:7px 0;border-top:1px solid var(--line)}
-.cta{margin-top:56px;background:var(--slab);color:#F2F0E8;padding:44px 48px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
-.cta h3{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.08;max-width:18ch}
-.cta p{margin-top:10px;color:var(--slab-2);font-size:15px}
-.cta form{display:flex;gap:12px;flex-wrap:wrap;max-width:440px}.fmsg{flex-basis:100%;grid-column:1/-1;font-size:13.5px}
-.cta input{background:none;border:0;border-bottom:1px solid #F2F0E8;padding:12px 0;width:260px;border-radius:0;color:#F2F0E8}
-.cta input::placeholder{color:var(--slab-2)}
-.cta .btn{background:#F2F0E8;color:var(--ink)}.cta .btn:hover{background:var(--red);color:#fff}
-footer{margin-top:72px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 28px}footer .link{font-size:inherit}
-.names{font-size:13px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+.fig{padding:0 0 34px}.fig+.fig{padding-top:30px;border-top:1px solid var(--line)}
+.fig .hb-r{grid-template-columns:120px 1fr 110px}
+#foot{margin-top:72px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 28px}#foot .link{font-size:inherit}
 
-.v-kpis .n,.cmp .n,.facts .n{font-family:"Schibsted Grotesk",sans-serif;font-weight:700;letter-spacing:-.035em;word-spacing:0;font-variant-numeric:normal}
-.all summary{cursor:pointer;font-size:15px;font-weight:650;padding:14px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);list-style:none}.all summary::-webkit-details-marker{display:none}
-.all summary::after{content:"+";float:right;font-family:"Geist Mono",monospace}.all[open] summary::after{content:"−"}
-.arow{display:grid;grid-template-columns:14px 1.3fr 130px 2fr 70px;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.arow.head{font-size:13px;color:var(--ink-2)}.q{color:var(--ink-2)}.arow span:last-child{text-align:right}
-html{scroll-behavior:smooth}
-.sum{margin-top:48px;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--slab-line)}
-.sum a{padding:16px 18px 2px;text-decoration:none;color:inherit;border-right:1px solid var(--slab-line);transition:background .2s}.sum a:first-child{padding-left:0}.sum a:last-child{border-right:0}
-.sum a:hover b{color:#FF6A4A}.sum .n{font-size:12.5px;color:var(--slab-2)}.sum b{display:block;font-size:24px;font-weight:700;letter-spacing:-.03em;margin:5px 0 3px;transition:color .2s}.sum span{font-size:13.5px;color:#D8D5CA;display:block;line-height:1.35}
-.acts{display:flex;gap:22px;flex:none;white-space:nowrap}
-.v-rules{margin-top:28px;font-size:14px;color:var(--slab-2);max-width:58ch}.v-rules .link{font-size:14px}
-.find .why{color:var(--ink)}.find .why b,.find .pot b{display:block;font-size:13px;font-weight:650}.find .pot{color:var(--ink)}
-.help{margin-top:36px;border:2px solid var(--ink);padding:30px 34px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
-.help form{display:grid;grid-template-columns:230px auto;gap:10px 12px;align-items:stretch}.help input{background:none;border:0;border-bottom:1px solid var(--ink);padding:10px 0;border-radius:0}.help small{grid-column:1/-1;font-size:12.5px;color:var(--ink-2);max-width:44ch}
-.help h3{font-size:22px;font-weight:700;letter-spacing:-.02em}.help p{margin-top:6px;color:var(--ink-2);font-size:15px;max-width:64ch}
-.scrim{position:fixed;inset:0;background:rgba(21,20,15,.4);z-index:39;opacity:0;pointer-events:none;transition:opacity .3s}.scrim.on{opacity:1;pointer-events:auto}
-.rules{position:fixed;top:0;right:0;bottom:0;width:470px;max-width:100vw;background:var(--bg);z-index:40;border-left:2px solid var(--ink);padding:24px 32px 48px;overflow-y:auto;transform:translateX(102%);visibility:hidden;transition:transform .46s var(--ease),visibility 0s .46s}
-.rules.on{transform:none;visibility:visible;transition-delay:0s}
-.r-top{display:flex;justify-content:space-between;align-items:baseline}
-.rules h2{border:0;padding:0;font-size:24px;font-weight:700;letter-spacing:-.02em;display:block}
-.r-lede{margin:10px 0 14px;color:var(--ink-2);font-size:14.5px}
-.rule{padding:18px 0;border-top:1px solid var(--line)}
-.rule label{display:block;font-weight:650;font-size:15px}
-.rule small{display:block;color:var(--ink-2);font-size:13.5px;margin:3px 0 10px;line-height:1.4}
-.rule select,.rule input{background:none;border:0;border-bottom:1px solid var(--ink);padding:6px 0;border-radius:0;width:100%}
-.pair{display:flex;gap:10px;align-items:center;font-size:15px}.rule .pair input{width:76px}
-.rr{display:grid;grid-template-columns:1fr 200px;gap:12px;align-items:center;font-size:14px;padding:4px 0}.rr .n{color:var(--ink-2);font-size:12.5px;margin-left:4px}
-.r-end{padding-top:22px;border-top:1px solid var(--line)}
+/* week-over-week */
 .mvs{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line)}
 .mv{padding:20px 16px 22px;border-left:1px solid var(--line)}.mv:first-child{border-left:0;padding-left:0}
 .mv b{display:block;font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1.1}.mv.bad b{color:var(--red)}
 .mv span{display:block;font-size:14px;margin-top:4px}.mv small{display:block;font-size:13px;color:var(--ink-2)}
 .mv2{padding-top:36px}
 .pr{display:grid;grid-template-columns:.9fr 1fr 64px 60px 2.1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}.pr.head{font-size:13px;color:var(--ink-2)}.pr .r{text-align:right}
-.kL{background:var(--mute)}
-.snapnote{font-size:14.5px;color:var(--ink-2);padding:16px 0 4px;max-width:86ch}.snapnote .link{font-size:14.5px;color:var(--ink)}
-.slides{display:grid;grid-template-columns:2fr 1fr;gap:20px;padding-top:28px}
-.slide{aspect-ratio:16/9;container-type:inline-size;background:#FBFAF7;border:1px solid var(--ink);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
-.slide:first-child{grid-row:span 2}
-.slide>header{display:flex;justify-content:space-between;align-items:baseline;padding:3.4cqw 4cqw 0;font-size:1.5cqw;color:var(--ink-2)}
-.slide>header b{font-size:2.9cqw;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
-.slide>footer{margin:0;padding:1.6cqw 4cqw;border-top:1px solid var(--line);font-size:1.25cqw;color:var(--ink-2);display:flex;justify-content:space-between;gap:2cqw}
-.s-body{padding:0 4cqw;display:grid;align-content:center}
-.s-lead{font-size:3.5cqw;font-weight:700;letter-spacing:-.03em;line-height:1.12;max-width:24em;margin-bottom:5cqw}.s-lead em{font-style:normal;color:var(--red)}
-.s-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4cqw}
-.s-kpis div{border-top:.22cqw solid var(--ink);padding-top:1.5cqw}
-.s-kpis .v{display:block;font-size:4.3cqw;font-weight:700;letter-spacing:-.04em;line-height:1.05;white-space:nowrap}
-.s-kpis .l{display:block;font-size:1.5cqw;margin-top:.9cqw;line-height:1.25}
-.s-kpis .d{display:block;font-size:1.4cqw;margin-top:.6cqw;color:var(--ink-2)}.d.good{color:var(--green)}.d.bad{color:var(--red)}
-.s-mv{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw 3cqw}
-.s-mv b{display:block;font-size:4.6cqw;font-weight:700;letter-spacing:-.04em;line-height:1}.s-mv .bad b{color:var(--red)}
-.s-mv span{font-size:1.9cqw}.s-mv small{display:block;font-size:1.5cqw;color:var(--ink-2)}
-.s-al{display:grid;gap:2.2cqw}
-.s-al div{display:grid;grid-template-columns:13cqw 1fr;gap:2.4cqw;align-items:baseline;border-top:1px solid var(--line);padding-top:1.8cqw}
-.s-al b{font-size:4.2cqw;font-weight:700;letter-spacing:-.04em;color:var(--red);white-space:nowrap}
-.s-al span{font-size:2.1cqw;font-weight:600;line-height:1.25}.s-al small{display:block;font-size:1.6cqw;font-weight:400;color:var(--ink-2);margin-top:.5cqw}
-#ask{padding-top:56px}h2 .link{font-size:14px;font-weight:400}
-.qs{display:grid;grid-template-columns:repeat(3,1fr)}
-.qb{padding:22px 28px 24px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}.qb:nth-child(3n+1){border-left:0;padding-left:0}
-.qb b{display:block;font-size:16.5px;font-weight:650;line-height:1.3;letter-spacing:-.01em;margin-top:8px}
-.qb small{display:block;color:var(--ink-2);font-size:13.5px;margin:6px 0 13px;line-height:1.4}
-.opts{display:flex;flex-wrap:wrap;gap:6px}
-.opt{background:none;border:1px solid var(--ink);padding:7px 12px;font-size:14px;cursor:pointer;transition:background .15s,color .15s}
-.opt:hover{background:var(--band)}.opt.on{background:var(--ink);color:var(--bg)}
-.askmore{padding-top:12px}.askmore .link{font-size:14px}.askmore:has(button:empty){display:none}
-.ctx{padding-top:26px}.ctx label{display:block;font-weight:650;font-size:15px;margin-bottom:8px}
-.ctx-row{display:flex;gap:14px;align-items:stretch}
-.ctx textarea{flex:1;background:none;border:1px solid var(--ink);padding:11px 13px;font:inherit;font-size:15px;resize:vertical;border-radius:0;min-height:52px}
-.ctx textarea::placeholder{color:var(--ink-2)}
-#ctxOut{margin-top:12px;font-size:14.5px}#ctxOut p{padding:7px 0;border-top:1px solid var(--line)}#ctxOut b{font-weight:650}
-#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:#F2F0E8;font-size:13px;line-height:1.4;padding:8px 11px;max-width:300px;opacity:0;transition:opacity .12s}
+
+/* the drawer: what the tool understood of the business */
+.scrim{position:fixed;inset:0;background:rgba(21,20,15,.4);z-index:39;opacity:0;pointer-events:none;transition:opacity .3s}.scrim.on{opacity:1;pointer-events:auto}
+.rules{position:fixed;top:0;right:0;bottom:0;width:540px;max-width:100vw;background:var(--bg);z-index:40;border-left:2px solid var(--ink);padding:24px 32px 56px;overflow-y:auto;transform:translateX(102%);visibility:hidden;transition:transform .46s var(--ease),visibility 0s .46s}
+.rules.on{transform:none;visibility:visible;transition-delay:0s}
+.r-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.rules h2{border:0;padding:0;font-size:26px;font-weight:700;letter-spacing:-.025em;line-height:1.1;display:block}
+.r-lede{margin:10px 0 14px;color:var(--ink-2);font-size:14.5px}
+.fi-g h3{font-size:13px;font-weight:650;color:var(--ink-2);padding:26px 0 0}.fi-g .tw{margin-top:10px}
+.r-end{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--cream);font-size:13px;line-height:1.4;padding:8px 11px;max-width:320px;opacity:0;transition:opacity .12s;border:1px solid var(--slab-line)}
 .rv{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
 .rv.in{opacity:1;transform:none}
-.rv:not(.in) .hb-t i,.rv:not(.in) .fr-b i,.rv:not(.in) .fr-l i,.rv:not(.in) .seg i{transform:scaleX(0)}
+.rv:not(.in) .hb-t i,.rv:not(.in) .jr-t i{transform:scaleX(0)}
 .rv:not(.in) .stack i{transform:scaleY(0)}
+.vd.intro>*{animation:rise .8s var(--ease) both}.vd.intro>:nth-child(2){animation-delay:.08s}.vd.intro>:nth-child(n+3){animation-delay:.25s}.vd.intro>:nth-child(n+6){animation-delay:1.5s}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv{opacity:1!important;transform:none!important}}
 @media screen and (max-width:980px){
-  .wrap{padding:0 20px}.drop,.verdict,.find,.two,.locks,.cta,.help{grid-template-columns:1fr;gap:36px}.drop{padding-top:36px}
-  .grid{grid-template-columns:1fr}.fig,.fig+.fig{padding:26px 0;border-left:0}.fig h3{min-height:0}
-  .v-kpis{grid-template-columns:1fr 1fr;gap:24px}.slides{grid-template-columns:1fr}.slide:first-child{grid-row:auto}.mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}.qs{grid-template-columns:1fr}.qb,.qb:nth-child(3n+1){padding:20px 0;border-left:0}.ctx-row{flex-direction:column}.sum{grid-template-columns:1fr 1fr}.sum a,.sum a:first-child{padding:14px 12px 10px 0;border-right:0;border-bottom:1px solid var(--slab-line)}.mx-r{grid-template-columns:1fr;gap:4px}
+  .wrap{padding:0 20px}.drop,.t-body,.chap-h,.blk,.halves,.offer,.exp,.two,.cta{grid-template-columns:1fr;gap:32px}.drop{padding-top:28px}
+  .chap-h{gap:12px;align-items:start}.ans a{grid-template-columns:1fr;gap:2px}.ans a::after{display:none}
+  .strip{height:48px}.v-strip .strip{height:56px}.t-body{padding-top:32px}.t-side .big{font-size:52px}
+  .dr{grid-template-columns:1fr 84px}.dr span:nth-child(n+3){display:none}.dr.head span:nth-child(n+3){display:none}
+  .jr{grid-template-columns:1fr 84px 84px;gap:6px 10px}.jr-t{grid-column:1/-1;order:9}.jr span:nth-child(4),.jr.head span:nth-child(2),.jr.head span:nth-child(4){display:none}
+  .rb-r{grid-template-columns:100px 1fr}.rb-v{grid-column:1/-1;text-align:left}.hb-r{grid-template-columns:96px 1fr 96px}
   .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
-  .fr{grid-template-columns:1fr 56px 56px;gap:6px 10px}.fr-b{grid-column:1/-1;order:9}.fr span:nth-child(5),.fr-l,.fr.head span:nth-child(2){display:none}
-  .arow{grid-template-columns:14px 1fr 96px}.arow span:nth-child(4),.arow span:nth-child(5){display:none}.hb-r{grid-template-columns:96px 1fr 96px}.steps li{grid-template-columns:36px 1fr}.steps small{grid-column:2;text-align:left}
-  .cta{padding:32px 24px}.cta form{flex-direction:column}.cta input{width:100%}.top span.hide{display:none}
+  .mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}
+  .cta{padding:32px 24px}.cta form{flex-direction:column}.cta input{width:100%}.top span.hide{display:none}section{padding-top:64px}.rules{padding:20px 20px 48px}
 }
 @page{size:A4;margin:11mm 10mm}
 @page deck{size:1280px 720px;margin:0}
 @media print{
   html{zoom:.6}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .acts,.cta,#tip,.scrim,.rules,#ask,.names,.help form{display:none!important}
-  .rv{opacity:1!important;transform:none!important}
-  .rv:not(.in) .hb-t i,.rv:not(.in) .fr-b i,.rv:not(.in) .fr-l i,.rv:not(.in) .seg i,.rv:not(.in) .stack i{transform:none!important}
-  .find,.fig,.fr,.rowl,.steps li,.help,.locks>div,.arow,.sum a{break-inside:avoid}
-  .cell{animation:none!important}.noprint{display:none!important}
-  h2{break-after:avoid}section{padding-top:60px}
-  .all summary::after{content:""}
-  html:not(.ps) #deck{display:none!important}
+  .acts,.rbar,.vbtns,.cta,#tip,.scrim,.rules,.card,.lbar,.tabs,.raph,.opts,.tw .link{display:none!important}
+  .rv{opacity:1!important;transform:none!important}.rv:not(.in) i{transform:none!important}
+  .blk,.halves,.slide,.rowl,.dr,.jr{break-inside:avoid}.strip i{animation:none!important}
   html.ps{zoom:1}
-  html.ps .slab,html.ps .wrap>section:not(#deck),html.ps .wrap>footer,html.ps #deck h2{display:none!important}
-  html.ps .wrap{max-width:none;padding:0}html.ps #deck{padding:0}html.ps .slides{display:block;padding:0}
-  html.ps .slide{page:deck;width:1280px;height:720px;aspect-ratio:auto;border:0;break-after:page;break-inside:avoid}
+  html.ps #v-report>:not(.wrap),html.ps #v-report>.wrap>:not(#monday),html.ps #monday>:not(.slide){display:none!important}
+  html.ps .wrap{max-width:none;padding:0}html.ps #monday{padding:0}html.ps .slide{page:deck;width:1280px;height:720px;max-width:none;margin:0;aspect-ratio:auto}
 }
 </style>
 </head>
 <body>
 
-<!-- 1. DROP -->
+<!-- 1. HOME -->
 <main id="v-drop" class="wrap">
   <header class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span>Gratuit, sans compte</span></header>
   <div class="drop">
     <div>
-      <h1>Déposez l’export de vos deals. <span>L’audit de votre funnel sort en deux minutes.</span></h1>
+      <h1>Votre CRM affiche un pipeline. <span>Combien est encore vivant ?</span></h1>
+      <p class="lede">Déposez le fichier de vos deals. Deux minutes plus tard : ce que votre pipeline vaut vraiment, où vous perdez vos deals, et trois décisions pour lundi.</p>
       <p class="back" id="backNote"></p>
       <div class="zone" id="zone">
-        <strong>Glissez votre fichier CSV ici</strong>
-        <p>Un export de deals depuis HubSpot, Pipedrive, Salesforce ou un tableur. Les colonnes sont reconnues automatiquement.</p>
+        <strong>Déposez ici le fichier de vos deals</strong>
+        <p>Un export HubSpot, Pipedrive ou Salesforce, au format CSV.</p>
         <div>
           <button class="btn" id="pick" type="button">Choisir un fichier</button>
-          <button class="link" id="sample" type="button">Essayer avec un export d’exemple</button>
+          <button class="link" id="sample" type="button">Voir d’abord un exemple</button>
           <input type="file" id="file" accept=".csv,text/csv" hidden>
         </div>
         <p class="warn" id="zoneMsg" role="alert"></p>
       </div>
-      <ul class="assure">
-        <li>Les noms de vos clients, de vos deals et de vos commerciaux sont masqués sur votre ordinateur, avant toute analyse. Nous ne les voyons jamais.</li>
-        <li>Aucun compte à créer, aucune question avant le résultat.</li>
-        <li>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA.</li>
-      </ul>
+      <p class="assure">Votre fichier ne quitte pas votre ordinateur : coupez le wifi, l’audit tourne quand même. Les noms de vos clients ne s’affichent que sur votre écran.</p>
+      <p class="nofile">Pas de fichier sous la main ? <button class="link" id="opsMsg" type="button">Copier la demande à envoyer à la personne qui gère votre CRM</button></p>
     </div>
-    <aside class="scope">
-      <h2>Ce que vous saurez dans deux minutes</h2>
-      <ul id="scope"></ul>
-      <p>Une trentaine de points vérifiés sur un seul export et, pour chaque problème, quoi faire. Avec un export par semaine, vous voyez aussi ce qui a bougé.</p>
+    <aside>
+      <div class="ex slab" id="ex">
+        <p class="eyebrow">Un exemple, calculé à l’instant sur des données fictives</p>
+        <h2 id="exTitle">Ce CRM affiche un pipeline. Voici ce qu’il en reste.</h2>
+        <div id="exStrip"><div class="strip"></div></div>
+        <p class="ex-cap" id="exCap"></p>
+        <div class="ans" id="exAns"></div>
+      </div>
+      <div class="exq" id="exQ"></div>
     </aside>
   </div>
 </main>
 
-<!-- 2. MAPPING + ANONYMISATION -->
+<!-- 2. COLUMNS -->
 <main id="v-map" class="wrap" hidden>
   <header class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><button class="link" data-restart type="button">Changer de fichier</button></header>
   <div class="map">
@@ -346,356 +353,425 @@ html{scroll-behavior:smooth}
   </div>
 </main>
 
-<!-- 3. RUN -->
-<main id="v-run" class="wrap" hidden>
-  <div class="run"><h1>Audit en cours</h1><ul id="log"></ul></div>
-</main>
+<!-- 3. INTERVIEW -->
+<div id="v-talk" class="slab talk" hidden><div class="wrap">
+  <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><button class="link" id="tSkip" type="button">Passer, voir le résultat</button></div>
+  <p class="t-meta" id="tMeta"></p>
+  <div id="tStrip"></div>
+  <div class="t-body" id="tBody"></div>
+</div></div>
 
 <!-- 4. REPORT -->
 <div id="v-report" hidden>
   <header class="slab"><div class="wrap">
-    <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span class="hide" id="filefacts"></span><span class="acts"><button class="link" id="pdf" type="button">Exporter en PDF</button><button class="link" id="openRules" type="button">Règles métier</button><button class="link" data-restart type="button">Nouvel export</button></span></div>
-    <div class="verdict">
-      <div><p class="eyebrow" id="vEyebrow"></p><h1 id="vTitle"></h1><p class="v-detail" id="vDetail"></p><p class="v-act" id="vAct"></p><div class="v-kpis" id="vKpis"></div><p class="v-rules" id="vRules"></p></div>
-      <div><p class="eyebrow" id="mxTitle"></p><div class="mx" id="mx"></div><div class="mx-leg" id="mxLeg"></div></div>
+    <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span class="hide" id="filefacts"></span><span class="acts"><button class="link" data-fiche type="button">Vos règles</button><button class="link" data-restart type="button">Nouveau fichier</button></span></div>
+    <div class="vd" id="vd">
+      <p class="eyebrow" id="vEyebrow"></p>
+      <h1 id="vTitle"></h1>
+      <div><p class="v-bet" id="vBet"></p><p class="v-prev" id="vPrev"></p></div>
+      <div class="v-strip" id="vStrip"></div>
+      <p class="v-sub" id="vSub"></p>
+      <div id="vRule"></div>
+      <div class="vbtns" id="vBtns"></div>
+      <div class="ans" id="vAns"></div>
     </div>
-    <nav class="sum" id="sum" aria-label="Sommaire des constats"></nav>
   </div></header>
+  <div class="rbar"><div class="wrap" id="rbar"></div></div>
   <div class="wrap">
     <section id="moves" hidden><h2>Ce qui a bougé <span id="movesSub"></span></h2><div class="mvs" id="mvs"></div><div class="two mv2"><div id="mvPushed"></div><div id="mvDue"></div></div></section>
-    <section id="ask"><h2><b id="askTitle"></b><button class="link" id="askRules" type="button">Toutes les règles métier</button></h2><div class="qs" id="qs"></div><p class="askmore"><button class="link" id="askMore" type="button"></button></p>
-      <div class="ctx"><label for="ctxText">Autre chose à savoir sur votre business ?</label><div class="ctx-row"><textarea id="ctxText" rows="2" placeholder="Ex. Notre cycle de vente est de 90 jours. On vend un forfait à 4 900 €. Ignorez les deals partenaires."></textarea><button class="btn" id="ctxGo" type="button">Prendre en compte</button></div><div id="ctxOut"></div></div></section>
-    <section><h2>Ce que l’audit a trouvé <span id="topSub"></span></h2><div id="top"></div></section>
-    <section><h2>Par où commencer <span>trois priorités pour les 30 prochains jours</span></h2><ol class="steps" id="steps"></ol>
-      <div class="help"><div><h3>Vous savez quoi corriger. Reste le comment.</h3><p>Audit augmenté : trente minutes avec un consultant RevOps pour transformer ces constats en plan d’action priorisé, adapté à votre équipe et à votre CRM. 199 €, déduits de la première mission.</p></div><form id="debrief"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail pour le debrief"><button class="btn" type="submit">Réserver le debrief</button><small>Votre e-mail et le résumé de cet audit sont transmis pour vous recontacter. Aucune donnée de vos deals.</small></form></div></section>
-    <section><h2>Le funnel, étape par étape <span id="funnelSub"></span></h2><div class="rv" id="funnel"></div></section>
-    <section><h2>Le reste de l’analyse <label class="names"><input type="checkbox" id="names"> Afficher les noms des commerciaux (ils n’ont pas quitté votre ordinateur)</label></h2><div class="grid" id="grid"></div></section>
-    <section class="two"><div><h2>Autres points d’attention</h2><div id="others"></div></div><div><h2>Ce qui va bien</h2><div id="good"></div></div></section>
-    <section><details class="all"><summary>Voir le détail des <span id="allN"></span> points vérifiés, avec leurs seuils</summary><div id="all"></div></details></section>
-    <section id="deck"><h2>Les slides pour votre review <span><button class="link" id="deckPdf" type="button">Exporter les slides en PDF</button></span></h2><div class="slides" id="slides"></div></section>
-    <section><h2>Ce qu’un seul export ne permet pas de voir <span id="lockSub"></span></h2><p class="snapnote" id="snapNote"></p><div class="locks" id="locks"></div>
-      <div class="cta"><div><h3>Recevez ces chiffres chaque semaine.</h3><p>La veille de votre review, par e-mail, sous forme de slide. Un mois offert, sans carte.</p></div>
-        <form id="form"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Adresse e-mail"><button class="btn" type="submit">Recevoir le rapport</button></form></div>
+    <div id="chapters"></div>
+    <section id="monday"><h2>Lundi matin, trois décisions <span>la diapositive est prête, écrite à votre place, sans aucun nom de commercial</span></h2><div class="slide" id="slide"></div><div class="lbar"><button class="link" id="slideCopy" type="button">Copier en texte pour l’équipe</button><button class="link" id="slidePdf" type="button">Enregistrer la diapositive en PDF</button></div></section>
+    <section id="raph"><div class="offer" id="offer"></div></section>
+    <section>
+      <div class="cta"><div><h3>Lundi prochain, ce chiffre aura bougé.</h3><p id="weekText"></p></div>
+        <form id="weekly"><input type="email" required placeholder="vous@entreprise.fr" aria-label="Votre e-mail professionnel"><button class="btn" type="submit">Recevoir mon rapport du lundi</button></form></div>
+      <p class="snapnote" id="snapNote"></p>
     </section>
+    <section id="explore"><h2>Tout le reste, sujet par sujet <span>pour vous, ou pour la personne qui gère votre CRM</span></h2><div class="tabs" id="tabs"></div><div class="exp" id="exp"></div></section>
     <footer id="foot"></footer>
   </div>
 </div>
 <div class="scrim" id="scrim"></div>
-<aside class="rules" id="rules" aria-label="Règles métier"></aside>
+<aside class="rules" id="fiche" aria-label="Ce que l’outil a compris de votre business"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261116110604 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261116110604"></script>
-<script src="./engine.js?v=20261116110604"></script>
+<!-- ?v=20261127125457 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261127125457"></script>
+<script src="./engine.js?v=20261127125457"></script>
 <script>
 (function () {
-  var E = window.BIF, F = E.fmt, NB = " ", S = {};
-  var $ = function (id) { return document.getElementById(id); };
-  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
-  var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-  var view = function (v) { ["drop", "map", "run", "report"].forEach(function (k) { $("v-" + k).hidden = k !== v; }); window.scrollTo(0, 0); };
-  var FAM = { A: "Structure du pipeline", B: "Conversion", C: "Vitesse de vente", D: "Fiabilité du CRM", E: "Équipe commerciale", G: "Méthode de vente", H: "Prévisions", I: "Sources et segments" };
-  var QT = { pipeline: "Pipelines", reason: "Raisons de perte", fixed: "Montants", eom: "Dates de signature", cycle: "Cycle de vente", motion: "Origine des deals", qual: "Qualification" };
-  $("scope").innerHTML = ["Quelle part de votre pipeline est encore vivante ?", "À quelle étape perdez-vous vos deals, et pour quel montant ?", "Vos ventes sont-elles trop lentes, et où ça bloque ?", "Peut-on se fier aux données de votre CRM ?", "Qui a besoin d’aide dans l’équipe, et sur quelle étape ?", "Vos dates de signature sont-elles crédibles ?"].map(function (q) { return "<li>" + q + "</li>"; }).join("");
+  "use strict";
+  const E = window.BIF, F = E.fmt, NB = " ", S = { edit: {}, view: "drop" }, CFG = window.FSFA_CONFIG || {};
+  const $ = id => document.getElementById(id);
+  const att = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // text shown on screen also gets French spacing: no line break before ? ! : ; or inside « »
+  const esc = s => att(s).replace(/ ([?!:;»])/g, "\u00a0$1").replace(/« /g, "«\u00a0");
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  const view = v => { S.view = v; ["drop", "map", "talk", "report"].forEach(k => { $("v-" + k).hidden = k !== v; }); window.scrollTo(0, 0); };
+  const hl = t => esc(t).replace(/(\d[\d ,]*(?: (?:%|M€|k€|€))?(?:\sdeals)?)/, "<em>$1</em>");
+  const name = h => (S.anon && S.anon.vault[h]) || "";
+  const rep = h => { const r = S.M.reps.find(x => x.hash === h); return S.names && name(h) ? name(h) : r ? r.code : "—"; };
+  const who = t => String(t).replace(/\{who:([0-9a-f]+)\}/g, (m, h) => name(h) || "Une personne");
+  const truth = id => S.M.truths.find(t => t.id === id);
+  const later = (fn, ms) => { S.busy = true; setTimeout(() => { S.busy = false; fn(); }, ms || 1100); };
+  const flash = (el, txt) => { const old = el.textContent; el.textContent = txt; setTimeout(() => { el.textContent = old; }, 1600); };
+  const copy = (txt, el) => { (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => flash(el, "Copié")).catch(() => flash(el, "Copie impossible dans ce navigateur")); };
+  const FAM = { A: "Structure du pipeline", B: "Conversion", C: "Vitesse de vente", D: "Fiabilité du CRM", E: "Équipe commerciale", G: "Méthode de vente", H: "Prévisions", I: "Sources et segments" }, ORD = { r: 0, o: 1, g: 2 };
+  const BETS = [["Presque tout", 92, "presque tout"], ["Les trois quarts", 75, "les trois quarts"], ["La moitié", 50, "la moitié"], ["Moins que ça", 35, "moins de la moitié"]];
+
+  // ---------- chart primitives ----------
+  const hbars = items => { const max = Math.max.apply(null, items.map(i => Math.max(i.v, i.band ? i.band[1] : 0))) || 1;
+    return `<div class="hb">${items.map((i, k) => `<div class="hb-r ${i.cls || ""}" style="--i:${k}" data-tip="${esc(i.tip || "")}"><span class="hb-l">${esc(i.l)}</span><span class="hb-t">${i.band ? `<b class="bd" style="left:${i.band[0] / max * 100}%;width:${(i.band[1] - i.band[0]) / max * 100}%"></b>` : ""}<i style="width:${(i.v / max * 100).toFixed(1)}%"></i></span><span class="hb-v n">${i.f}</span></div>`).join("")}</div>`; };
+  const cols = (items, h) => { const max = Math.max.apply(null, items.map(i => i.v + (i.v2 || 0))) || 1;
+    return `<div class="cols" style="--h:${h || 120}px">${items.map((i, k) => `<div class="col ${i.cls || ""}" style="--i:${k}" data-tip="${esc(i.tip || "")}"><div class="stack">${i.v2 ? `<i class="b2" style="height:${(i.v2 / max * 100).toFixed(1)}%"></i>` : ""}<i style="height:${(i.v / max * 100).toFixed(1)}%"></i></div><span>${i.l || ""}</span></div>`).join("")}</div>`; };
+  const dots = (items, ref, refLabel) => { const hi = Math.ceil((Math.max.apply(null, items.map(i => i.v).concat([ref])) + 8) / 10) * 10, x = v => (v / hi * 100).toFixed(1);
+    return `<div class="dots"><div class="d-ax"></div><span class="d-ref" style="left:${x(ref)}%"><b>${refLabel}</b></span>${items.map(i => `<i class="dot${i.hl ? " hl" : ""}" style="left:${x(i.v)}%" data-tip="${esc(i.tip)}">${i.hl ? `<b class="n">${i.f}</b>` : ""}</i>`).join("")}<div class="d-sc n"><span>0${NB}%</span><span>${hi}${NB}%</span></div></div>`; };
+
+  // ---------- the pipeline strip: one sliver per open deal, width = amount, ordered alive → at rest → overdue ----------
+  const STRIPS = {}; let stripSeq = 0;
+  function strip(M, o) {
+    o = o || {}; const deals = M.openDeals, n = deals.length, am = deals.map(d => d.amount).filter(Boolean).sort((a, b) => a - b), floor = (am[am.length >> 1] || 1) * 0.12, id = "s" + (++stripSeq);
+    STRIPS[id] = { deals: deals, vault: o.vault || (S.anon && S.anon.vault) || {}, n1: !M.funnel.length };
+    return `<div class="strip${n > 320 ? " dense" : ""}${o.build ? " build" : ""}" data-strip="${id}">${deals.map((d, i) => `<i class="${o.neutral ? "" : "asbp"[d.g]}" data-d="${i}" style="flex-grow:${Math.max(d.amount, floor).toFixed(0)};--i:${(i / n).toFixed(3)}"></i>`).join("")}</div>`;
+  }
+  // repaint the strips of the visible view. T previews an "at rest" rule in days (0 = the default rule); hl lights the deals a question is about
+  function paint(o) {
+    o = o || {};
+    document.querySelectorAll("#v-" + S.view + " .strip[data-strip]").forEach(el => { const st = STRIPS[el.dataset.strip]; if (!st) return;
+      [].forEach.call(el.children, (c, i) => { const d = st.deals[i]; let k;
+        if (o.neutral) k = ""; else if (o.T != null) { const sg = o.T === 0 ? d.def : d.rest != null && d.rest > o.T; k = sg && d.past ? "b" : sg ? "s" : d.past ? "p" : "a"; } else k = "asbp"[d.g];
+        if (o.hl) k += o.hl(d) ? " h" : " dim"; c.className = k; }); });
+  }
+  const sleg = M => { const p = M.pipe, st = M.story; return `<div class="sleg"><span><i class="la"></i><b>${F.eur(st.alive)}</b> · ${st.aliveN} deals qui avancent</span>${p.unionN ? `<span><b>${F.eur(p.union)}</b> · ${p.unionN} deals à l’arrêt : <i class="ls"></i>ne bougent plus ${F.eur(p.stagOnly)}<i class="lb"></i>les deux ${F.eur(p.both)}<i class="lp"></i>date de signature dépassée ${F.eur(p.pastOnly)}</span>` : ""}</div>`; };
+  function countTo(el, from, to, ms) { if (!el || window.matchMedia("(prefers-reduced-motion:reduce)").matches) return; const t0 = performance.now(), step = t => { const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = F.eur(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
 
   // ---------- 1. file intake ----------
-  var zoneMsg = function (t) { $("zoneMsg").textContent = t; };
-  function missingFields() { return E.REQUIRED.filter(function (r) { return !S.cols.some(function (c) { return c.field === r; }); }); }
-  function load(name, text) {
-    var parsed = E.parseCSV(text);
-    if (parsed.header.length < 3 || !parsed.rows.length) return zoneMsg("Ce fichier est vide ou n’a pas pu être lu comme un tableau. Exportez vos deals au format CSV, avec une ligne d’en-têtes.");
-    zoneMsg(""); S.name = name; S.parsed = parsed; S.cols = E.proposeMapping(parsed);
+  const zoneMsg = t => { $("zoneMsg").textContent = t; };
+  const missingFields = () => E.REQUIRED.filter(r => !S.cols.some(c => c.field === r));
+  function load(fileName, text, demo) {
+    const parsed = E.parseCSV(text);
+    if (parsed.header.length < 3 || !parsed.rows.length) return zoneMsg("Ce fichier ne ressemble pas à une liste de deals. Il faut un fichier CSV avec une ligne d’en-têtes et, par deal, au moins une date de création, une étape et un commercial.");
+    zoneMsg(""); S.name = fileName; S.parsed = parsed; S.cols = E.proposeMapping(parsed); S.isDemo = !!demo;
     if (missingFields().length) { renderMap(); view("map"); } else start();
   }
   function readFile(f) {
     if (!f) return;
     if (!/\.(csv|txt|tsv)$/i.test(f.name)) return zoneMsg("« " + f.name + " » n’est pas un fichier CSV. Dans Excel ou Google Sheets : Fichier, Enregistrer sous, format CSV.");
-    var r = new FileReader();
+    const r = new FileReader();
     // Excel on Windows often saves CSV as Windows-1252: fall back when the bytes are not valid UTF-8
-    r.onload = function () { var text; try { text = new TextDecoder("utf-8", { fatal: true }).decode(r.result); } catch (e) { text = new TextDecoder("windows-1252").decode(r.result); } load(f.name, text); };
+    r.onload = () => { let text; try { text = new TextDecoder("utf-8", { fatal: true }).decode(r.result); } catch (e) { text = new TextDecoder("windows-1252").decode(r.result); } load(f.name, text); };
     r.readAsArrayBuffer(f);
   }
-  // hashing needs a secure context (https or localhost)
-  if (!window.isSecureContext) zoneMsg("Connexion non sécurisée : l’anonymisation exige https. Rouvrez cette page à l’adresse https://" + location.host + location.pathname);
-  function refreshBack() { var all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {} var last = all[all.length - 1]; $("backNote").textContent = last ? "Bon retour. Dernier export analysé : données au " + F.date(last.date) + ". Déposez celui de cette semaine pour voir ce qui a bougé depuis." : ""; }
+  if (!window.isSecureContext) zoneMsg("Connexion non sécurisée : rouvrez cette page à l’adresse https://" + location.host + location.pathname);
+  function refreshBack() { let all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {} const last = all.filter(x => !x.demo && !/^export-hubspot-exemple/.test(x.file || "")).pop(); $("backNote").textContent = last ? "Bon retour. Dernier fichier analysé : données au " + F.date(last.date) + ". Déposez celui de cette semaine : je vous montre ce qui a bougé, avec les règles que vous m’avez apprises." : ""; }
   refreshBack();
-  $("pick").onclick = function () { $("file").click(); };
-  $("file").onchange = function (e) { readFile(e.target.files[0]); };
-  var sampleName = (new URLSearchParams(location.search).get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
-  $("sample").onclick = function () { fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); }).catch(function () { zoneMsg("L’export d’exemple n’a pas pu être chargé."); }); };
-  if (new URLSearchParams(location.search).has("demo")) fetch("./data/" + sampleName).then(function (r) { return r.text(); }).then(function (t) { load(sampleName, t); });
-  var z = $("zone");
-  ["dragenter", "dragover"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.add("over"); }); });
-  ["dragleave", "drop"].forEach(function (ev) { z.addEventListener(ev, function (e) { e.preventDefault(); z.classList.remove("over"); }); });
-  z.addEventListener("drop", function (e) { readFile(e.dataTransfer.files[0]); });
-  [].forEach.call(document.querySelectorAll("[data-restart]"), function (b) { b.onclick = function () { $("file").value = ""; refreshBack(); view("drop"); }; });
+  const params = new URLSearchParams(location.search), sampleName = (params.get("sample") || "export-hubspot-exemple.csv").replace(/[^\w.\-]/g, "");
+  let sampleText = null;
+  const getSample = () => sampleText ? Promise.resolve(sampleText) : fetch("./data/" + sampleName).then(r => { if (!r.ok) throw new Error("sample"); return r.text(); }).then(t => (sampleText = t));
+  const runSample = () => getSample().then(t => load(sampleName, t, true)).catch(() => zoneMsg("L’exemple n’a pas pu être chargé."));
+  $("pick").onclick = () => $("file").click();
+  $("file").onchange = e => readFile(e.target.files[0]);
+  $("sample").onclick = runSample;
+  $("ex").onclick = runSample; $("ex").style.cursor = "pointer";
+  $("opsMsg").onclick = e => copy("Bonjour, peux-tu m’exporter en CSV tous nos deals ouverts, gagnés et perdus des 12 derniers mois, avec pour chacun : étape, montant, date de création, date de clôture, propriétaire, raison de perte, et si possible les dates d’entrée dans chaque étape ? Merci.", e.target);
+  const z = $("zone");
+  ["dragenter", "dragover"].forEach(ev => z.addEventListener(ev, e => { e.preventDefault(); z.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => z.addEventListener(ev, e => { e.preventDefault(); z.classList.remove("over"); }));
+  z.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
+  // the example on the home page is computed live by the real engine
+  if (window.isSecureContext) getSample().then(t => { const p = E.parseCSV(t); return E.anonymize(p, E.proposeMapping(p), "demo"); }).then(a => {
+    const M = E.analyze(a, {}), v = M.story.verdict, t = M.truths.find(x => x.interview && x.ev === "reasons") || M.truths.find(x => x.interview);
+    $("exTitle").innerHTML = esc(v.title.replace("Votre CRM", "Ce CRM")).replace(esc(v.em), `<em>${esc(v.em)}</em>`);
+    $("exStrip").innerHTML = strip(M, { build: true, vault: a.vault });
+    $("exAns").innerHTML = M.story.answers.map(x => `<a class="${x.tone}"><span>${esc(x.q)}</span><b>${esc(x.a)}</b></a>`).join("");
+    if (t) $("exQ").innerHTML = `<small>L’outil ne devine pas votre métier : il vous le demande, sur vos chiffres.</small><b>${esc(t.ask)}</b><div class="opts">${t.options.slice(0, 3).map(o => `<span class="opt">${esc(o.label)}</span>`).join("")}</div>`;
+    $("ex").classList.add("on");
+    // the example stays alive: one stalled deal after another lights up in the strip, with its name
+    const hot = M.openDeals.map((d, i) => ({ d: d, i: i })).filter(x => x.d.g > 0).sort((x, y) => y.d.amount - x.d.amount).slice(0, 14); let k = 0;
+    const tick = () => { const el = $("exStrip").querySelector(".strip"); if (S.view !== "drop" || !hot.length || !el) return; const x = hot[k++ % hot.length];
+      [].forEach.call(el.querySelectorAll(".h"), c => c.classList.remove("h")); el.children[x.i].classList.add("h");
+      $("exCap").textContent = (a.vault[x.d.label] || "Deal") + " · " + F.eur(x.d.amount) + " · " + (x.d.g === 3 ? "devait signer le " + F.date(x.d.close) : x.d.rest + NB + "j sans changer d’étape"); };
+    setTimeout(tick, 1800); if (!window.matchMedia("(prefers-reduced-motion:reduce)").matches) setInterval(tick, 2400);
+    if (params.has("demo")) runSample();
+  }).catch(() => {});
 
-  // ---------- 2. mapping ----------
+  // ---------- 2. columns ----------
   function renderMap() {
-    var cols = S.cols, mapped = cols.filter(function (c) { return c.field; }), pii = mapped.filter(function (c) { return c.pii && c.field !== "stage_entered"; }), stages = cols.filter(function (c) { return c.field === "stage_entered"; });
-    $("facts").innerHTML = [[F.int(S.parsed.rows.length), "deals lus"], [mapped.length + " / " + cols.length, "colonnes reconnues"], [pii.length, "colonnes de noms, masquées avant analyse"], [stages.length ? "Oui" : "Non", "dates de passage par étape"]].map(function (f) { return '<div><span class="n">' + f[0] + "</span><span>" + f[1] + "</span></div>"; }).join("");
-    var opts = [["", "Ignorer cette colonne"]].concat(E.FIELDS.map(function (f) { return [f[0], f[1]]; })).concat([["stage_entered", "Date d’entrée dans une étape"]]);
-    $("maprows").innerHTML = '<div class="mr head"><span>Colonne de votre fichier</span><span>Exemple</span><span>Reconnue comme</span><span>Traitement</span></div>' + cols.map(function (c, i) {
-      var hashed = c.field && c.pii && c.field !== "stage_entered";
-      return '<div class="mr' + (hashed ? " pii" : "") + (c.field ? "" : " off") + '"><span>' + esc(c.source) + '</span><span class="ex">' + esc(c.sample[0] || "—") + '</span><select data-i="' + i + '" aria-label="Champ pour ' + esc(c.source) + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + ((c.field || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") +
-        '</select><span class="tg' + (hashed ? " hash" : "") + '">' + (hashed ? "Masqué avant analyse" : c.field ? "Utilisé" : "Ignoré") + "</span></div>";
-    }).join("");
-    [].forEach.call($("maprows").querySelectorAll("select"), function (s) { s.onchange = function () { var c = S.cols[+s.dataset.i]; c.field = s.value || null; c.pii = E.isPiiField(c.field); if (c.field === "stage_entered" && !c.stage) c.stage = c.source; renderMap(); }; });
-    var missing = E.REQUIRED.filter(function (r) { return !mapped.some(function (c) { return c.field === r; }); });
+    const cs = S.cols, mapped = cs.filter(c => c.field), pii = mapped.filter(c => c.pii && c.field !== "stage_entered"), stages = cs.filter(c => c.field === "stage_entered"), missing = missingFields();
+    $("mapTitle").textContent = missing.length ? "Il me manque une information pour lire votre fichier." : "Voici comment j’ai lu votre fichier.";
+    $("mapLede").textContent = (missing.length ? "Indiquez quelle colonne correspond à : " + missing.map(E.fieldLabel).join(", ").toLowerCase() + "." : "Corrigez une colonne si besoin, puis relancez.") + " Les noms de clients, de deals et de commerciaux sont masqués avant l’analyse et ne s’affichent que sur votre écran.";
+    $("facts").innerHTML = [[F.int(S.parsed.rows.length), "deals lus"], [mapped.length + " / " + cs.length, "colonnes reconnues"], [pii.length, "colonnes de noms, masquées"], [stages.length ? "Oui" : "Non", "dates de passage par étape"]].map(f => `<div><span class="n">${f[0]}</span><span>${f[1]}</span></div>`).join("");
+    const opts = [["", "Ne pas utiliser"]].concat(E.FIELDS.map(f => [f[0], f[1]])).concat([["stage_entered", "Date d’entrée dans une étape"]]);
+    $("maprows").innerHTML = `<div class="mr head"><span>Colonne de votre fichier</span><span>Exemple</span><span>Lue comme</span><span></span></div>` + cs.map((c, i) => { const hashed = c.field && c.pii && c.field !== "stage_entered";
+      return `<div class="mr${c.field ? "" : " off"}"><span>${esc(c.source)}</span><span class="ex2">${esc(c.sample[0] || "—")}</span><select data-i="${i}" aria-label="Champ pour ${esc(c.source)}">${opts.map(o => `<option value="${o[0]}"${(c.field || "") === o[0] ? " selected" : ""}>${o[1]}</option>`).join("")}</select><span class="tg${hashed ? " hash" : ""}">${hashed ? "Masqué avant analyse" : c.field ? "Utilisé" : "Non utilisé"}</span></div>`; }).join("");
+    [].forEach.call($("maprows").querySelectorAll("select"), s => { s.onchange = () => { const c = S.cols[+s.dataset.i]; c.field = s.value || null; c.pii = E.isPiiField(c.field); if (c.field === "stage_entered" && !c.stage) c.stage = c.source; renderMap(); }; });
     $("mapwarn").textContent = missing.length ? "Il manque : " + missing.map(E.fieldLabel).join(", ") + "." : "";
-    $("mapTitle").textContent = missing.length ? "Il nous manque une information pour lancer l’audit." : "Les colonnes reconnues dans votre fichier.";
-    $("mapLede").textContent = (missing.length ? "Indiquez quelle colonne de votre fichier correspond à : " + missing.map(E.fieldLabel).join(", ").toLowerCase() + "." : "Corrigez une colonne si besoin, puis relancez l’audit.") + " Les noms de clients, de deals et de commerciaux sont masqués sur votre ordinateur : nous ne les voyons jamais.";
     $("run").disabled = !!missing.length;
   }
-
-  // ---------- 3. anonymise + analyse ----------
   $("run").onclick = start;
-  function start() {
-    view("run"); $("log").innerHTML = "";
-    var salt = store.get("fsfa-salt") || Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(16)), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
-    store.set("fsfa-salt", salt);
-    var line = function (t, sub) { return new Promise(function (ok) { $("log").insertAdjacentHTML("beforeend", "<li><span>" + t + (sub ? "<small>" + sub + "</small>" : "") + "</span></li>"); setTimeout(ok, 420); }); };
-    var ignored = S.cols.filter(function (c) { return !c.field; });
-    line("Lecture du fichier", F.int(S.parsed.rows.length) + " deals, " + S.cols.filter(function (c) { return c.field; }).length + " colonnes reconnues sur " + S.cols.length)
-      .then(function () { return E.anonymize(S.parsed, S.cols, salt); })
-      .then(function (a) { S.anon = a; var ex = Object.keys(a.vault)[0]; return line("Noms masqués sur votre ordinateur", F.int(a.hashedValues) + " noms de deals, d’entreprises et de commerciaux remplacés par un code" + (ex ? " · «\u00a0" + esc(a.vault[ex]) + "\u00a0» devient " + ex : "")); })
-      .then(function () { return ignored.length ? line("Colonnes non utilisées", ignored.map(function (c) { return esc(c.source); }).join(", ")) : null; })
-      .then(function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; S.allQ = false; S.shown = false; S.M = E.analyze(S.anon, S.cfg); compareSnapshots(); return S.M.level === "N2" ? line("Historique des étapes trouvé", "Conversion et durée calculées étape par étape") : line("Pas d’historique des étapes dans ce fichier", "Le funnel étape par étape n’est pas calculable, le reste de l’audit l’est"); })
-      .then(function () { return line(S.M.meta.executed + " points vérifiés", S.M.locked.length + " autres demandent un export par semaine ou un peu de contexte"); })
-      .then(function () { return S.mv ? line("Comparaison avec l’export du " + F.date(S.mv.from), "Deals créés, gagnés, perdus, close dates repoussées, montants modifiés") : null; })
-      .then(function () { return line("Rapport prêt"); })
-      .then(function () { renderReport(); view("report"); observe(); })
-      .catch(function (e) { $("log").insertAdjacentHTML("beforeend", '<li><span class="warn">Lecture impossible : ' + esc(e.message) + "</span></li>"); });
-  };
 
-  // ---------- snapshots: each anonymised export is remembered in this browser and compared with the next ----------
+  // ---------- 3. read, remember the rules learned last time, then check what was understood ----------
+  function start() {
+    const salt = S.isDemo ? "demo" : (store.get("fsfa-salt") || [].map.call(crypto.getRandomValues(new Uint8Array(16)), b => ("0" + b.toString(16)).slice(-2)).join(""));
+    if (!S.isDemo) store.set("fsfa-salt", salt);
+    E.anonymize(S.parsed, S.cols, salt).then(a => {
+      S.anon = a; S.sig = S.cols.map(c => c.source).join("|"); S.cfg = { reasons: {}, answers: {} }; S.edit = {}; S.bet = null; S.names = false; S.listAll = false; S.theme = null; S.learned = 0; S.subject = ""; S.ask = false; S.lit = false;
+      if (!S.isDemo) try { const m = JSON.parse(store.get("fsfa-rules") || "null"); if (m && m.sig === S.sig && m.cfg) { S.cfg = m.cfg; S.cfg.answers = S.cfg.answers || {}; S.cfg.reasons = S.cfg.reasons || {}; S.learned = Object.keys(S.cfg.answers).length; } } catch (e) {}
+      S.M = E.analyze(a, S.cfg); compareSnapshots();
+      S.queue = (S.learned ? [] : ["bet"]).concat(S.M.truths.filter(t => t.interview && t.answer == null).slice(0, 4).map(t => t.id)); S.qi = 0; S.fresh = true;
+      if (S.queue.length) { view("talk"); renderTalk(); } else showReport();
+    }).catch(e => { view("drop"); zoneMsg("Lecture impossible : " + e.message); });
+  }
+  const saveRules = () => { if (!S.isDemo) store.set("fsfa-rules", JSON.stringify({ sig: S.sig, cfg: S.cfg })); };
   function compareSnapshots() {
-    S.mv = null; S.snaps = 0; S.prevKpi = null; S.prevDate = null; var cur = S.M.snapshot; if (!cur) return;
-    var all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {}
-    var ids = {}; cur.deals.forEach(function (d) { ids[d[0]] = 1; });
-    var same = function (p) { return p.deals.filter(function (d) { return ids[d[0]]; }).length >= 0.3 * p.deals.length; };
-    var prev = all.filter(function (p) { return p.date < cur.date && same(p); }).sort(function (a, b) { return b.date - a.date; })[0];
-    if (prev) S.mv = E.diff(prev, cur);
-    all = all.filter(function (p) { return !(p.date === cur.date && same(p)); }); S.prevKpi = prev && prev.kpi ? prev.kpi : null; S.prevDate = prev ? prev.date : null;
-    all.push({ date: cur.date, stages: cur.stages, deals: cur.deals, file: S.name, kpi: slideKpis(S.M) });
-    all.sort(function (a, b) { return a.date - b.date; }); while (all.length > 6) all.shift();
+    S.mv = null; S.snaps = 0; S.prev = null; const cur = S.M.snapshot; if (!cur) return;
+    let all = []; try { all = JSON.parse(store.get("fsfa-snaps") || "[]"); } catch (e) {}
+    const ids = {}; cur.deals.forEach(d => { ids[d[0]] = 1; });
+    const same = p => p.deals.filter(d => ids[d[0]]).length >= 0.3 * p.deals.length, prev = all.filter(p => p.date < cur.date && same(p)).sort((a, b) => b.date - a.date)[0];
+    if (prev) { S.mv = E.diff(prev, cur); S.prev = prev; }
+    all = all.filter(p => !(p.date === cur.date && same(p)));
+    all.push({ date: cur.date, stages: cur.stages, deals: cur.deals, file: S.name, demo: !!S.isDemo, kpi: { open: S.M.kpi.openEur, alive: S.M.story.alive, n: S.M.pipe.unionN } });
+    all.sort((a, b) => a.date - b.date); while (all.length > 6) all.shift();
     store.set("fsfa-snaps", JSON.stringify(all)); S.snaps = all.filter(same).length;
   }
 
-  // ---------- slides: the deliverable taken to the review ----------
-  function slideKpis(M) { var by = {}; M.checks.forEach(function (c) { by[c.id] = c; }); var past = M.checks.filter(function (c) { return c.id === "D2"; })[0]; return { open: M.kpi.openEur, k2: M.kpi.k2, k4: M.kpi.k4, bad: M.pipe.open ? M.pipe.union / M.pipe.open * 100 : null, past: past && past.status !== "na" ? parseFloat(String(past.value).replace(",", ".")) : null }; }
-  function renderSlides(M) {
-    var k = slideKpis(M), p = S.prevKpi, mv = S.mv;
-    var delta = function (cur, old, unit, upGood, fmtv) { if (p == null || old == null || cur == null) return '<span class="d">premier export</span>'; var d = cur - old; if (Math.abs(d) < (unit === "€" ? 500 : 0.05)) return '<span class="d">stable</span>'; var good = (d > 0) === upGood; return '<span class="d ' + (good ? "good" : "bad") + '">' + (d > 0 ? "▲ +" : "▼ −") + fmtv(Math.abs(d)) + "</span>"; };
-    var pts = function (v) { return v.toFixed(1).replace(".", ",") + NB + "pt" + (v >= 2 ? "s" : ""); }, dj = function (v) { return Math.round(v) + NB + "j"; };
-    var cells = [[F.eur(k.open), "Pipeline ouvert", delta(k.open, p && p.open, "€", true, F.eur)], [k.k2 != null ? F.pct(k.k2) : "—", "Win rate", delta(k.k2, p && p.k2, "pt", true, pts)], [k.k4 != null ? F.days(k.k4) : "—", "Cycle de vente médian", delta(k.k4, p && p.k4, "j", false, dj)], [k.bad != null ? F.pct(k.bad) : "—", "Pipeline inactif ou périmé", delta(k.bad, p && p.bad, "pt", false, pts)], [k.past != null ? F.pct(k.past) : "—", "Close dates dépassées", delta(k.past, p && p.past, "pt", false, pts)]];
-    var foot = "<footer><span>Données au " + F.date(M.snap) + " · " + F.int(M.meta.rows) + " deals</span><span>Flash Sales Funnel Audit</span></footer>";
-    var sub = S.prevDate ? "évolution depuis l’export du " + F.date(S.prevDate) : "données au " + F.date(M.snap);
-    var s1 = '<div class="slide"><header><b>Pipeline commercial : les cinq chiffres</b><span>' + sub + '</span></header><div class="s-body">' + (M.top[0] ? '<p class="s-lead">' + hl(M.top[0].text) + "</p>" : "") + '<div class="s-kpis">' + cells.map(function (c) { return '<div><span class="v">' + c[0] + '</span><span class="l">' + c[1] + "</span>" + c[2] + "</div>"; }).join("") + "</div></div>" + foot + "</div>";
-    var s2 = "";
-    if (mv) { var se = function (a) { var t = 0; a.forEach(function (x) { t += (x.d || x)[3]; }); return t; }, st = function (n, l, sm, bad) { return "<div" + (bad ? ' class="bad"' : "") + "><b>" + n + "</b><span> " + l + "</span><small>" + sm + "</small></div>"; };
-      s2 = '<div class="slide"><header><b>Ce qui a bougé</b><span>depuis le ' + F.date(mv.from) + '</span></header><div class="s-body"><div class="s-mv">' + st(mv.created.length, "deals créés", F.eur(se(mv.created))) + st(mv.won.length, "gagnés", F.eur(se(mv.won))) + st(mv.lost.length, "perdus", F.eur(se(mv.lost))) + st(mv.pushed.length, "close dates repoussées", F.eur(se(mv.pushed)), mv.pushed.length > 0) + st(mv.amount.length, "montants modifiés", "") + st(mv.gone.length + mv.regressed.length, "disparus ou en recul", "", mv.gone.length + mv.regressed.length > 0) + "</div></div>" + foot + "</div>"; }
-    var al = M.top.filter(function (f) { return f.status === "r"; }).slice(0, 3);
-    var s3 = '<div class="slide"><header><b>' + (al.length ? "À corriger en priorité" : "Rien à corriger en priorité") + "</b><span>" + al.length + " point" + (al.length > 1 ? "s" : "") + ' en rouge</span></header><div class="s-body"><div class="s-al">' + al.map(function (f) { return "<div><b>" + esc(String(f.value).split(" vs ")[0]) + "</b><span>" + esc(f.text) + "<small>" + esc(f.act || f.reco) + "</small></span></div>"; }).join("") + "</div></div>" + foot + "</div>";
-    $("slides").innerHTML = s1 + s2 + s3;
+  const optsHtml = (t, cls) => t.options.map((o, j) => `<button class="${cls}${t.kind === "multi" ? " tog" + (o.on ? " on" : "") : t.answer === j ? " on" : ""}" type="button" data-t="${att(t.id)}" data-o="${j}">${esc(t.who ? name(o.who) || o.label : o.label)}${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</button>`).join("");
+  function reasonsChart(only) { const M = S.M, tot = M.reasons.reduce((a, r) => a + r.n, 0) || 1; return `<p class="c-title">Raisons de perte saisies · ${F.int(tot)} deals perdus</p>` + hbars(M.reasons.map(r => ({ l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: (only ? r.name === only : r.cls === "vague") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }))) + (only ? "" : `<p class="cap">En rouge : les valeurs qui ne disent pas pourquoi le deal est perdu.</p>`); }
+  function amountsChart() { const M = S.M, t = truth("fixed"), mode = t ? t.options[0].set.addFixed : 0, mk = Math.floor(mode / 1000); return `<p class="c-title">Nombre de deals par tranche de 1 000 € de montant</p>` + cols(M.amountBins.map(b => ({ v: b.n, l: b.k === 30 ? "30+" : b.k % 5 ? "" : b.k + NB + "k", cls: b.k === mk ? "hl" : "", tip: (b.k === 30 ? "30 000 € et plus" : F.int(b.k * 1000) + " à " + F.int(b.k * 1000 + 999) + NB + "€") + " : " + b.n + " deals" })), 130) + `<p class="cap">Un pic isolé sur un seul montant : soit un tarif, soit une case remplie d’office.</p>`; }
+  function evidence(t) {
+    const M = S.M;
+    if (t.ev === "rest") return `<div class="big" id="liveN">${M.pipe.unionN}</div><p class="lbl" id="liveL">deals à l’arrêt avec la règle actuelle</p><p class="lbl">Survolez une réponse : la bande, au-dessus, vous montre lesquels.</p>`;
+    if (t.ev === "reasons") return `<div class="t-ev">${reasonsChart(t.hl)}</div>`;
+    if (t.ev === "amounts") return `<div class="t-ev">${amountsChart()}</div>`;
+    if (t.ev === "pipelines") return `<div class="t-ev"><p class="c-title">Deals par pipeline</p>${hbars(M.rules.pipelines.map(p => ({ l: p.name, v: p.n, f: F.int(p.n), cls: "ink" })))}</div>`;
+    if (t.ev === "dim") { const dm = M.dims.find(d => d.key === t.dim); return dm ? `<div class="t-ev"><p class="c-title">Deals par « ${esc(dm.label)} »</p>${hbars(dm.values.map(v => ({ l: v.v, v: v.n, f: F.int(v.n), cls: "ink" })))}</div>` : ""; }
+    return `<p class="lbl">Touchez les personnes concernées : leurs deals s’allument dans la bande, au-dessus.</p>`;
   }
+  function renderTalk(note) {
+    const M = S.M, id = S.queue[S.qi], t = id === "bet" ? null : truth(id);
+    if (id !== "bet" && !t) return nextQ();   // an earlier answer made this question pointless
+    $("tMeta").innerHTML = `Fichier lu : <b>${F.int(M.meta.rows)} deals</b> sur ${M.monthsAll} mois · <b>${M.meta.open} ouverts</b> · <b>${F.eur(M.kpi.openEur)}</b> de pipeline · ${M.reps.length} commerciaux${S.learned ? ` · <b>${S.learned} règle${S.learned > 1 ? "s" : ""} retenue${S.learned > 1 ? "s" : ""}</b> de votre dernière visite` : ""}<button class="link" id="tCols" type="button">Ce n’est pas ça ?</button>`;
+    $("tStrip").innerHTML = strip(M, { build: S.fresh, neutral: !S.lit }) + `<p class="cap">Votre pipeline ouvert, deal par deal. La largeur d’un trait, c’est son montant. Survolez : ce sont les vôtres.</p>`;
+    const dotsH = `<span class="pdots">${S.queue.map((q, i) => `<i class="${i <= S.qi ? "on" : ""}"></i>`).join("")}</span>`;
+    const h = t ? { step: "Je vérifie que j’ai bien compris · " + esc(t.topic), q: who(t.ask), why: t.why, opts: optsHtml(t, "topt") + (t.kind === "multi" ? `<button class="topt go" type="button" data-next="1">${t.options.some(o => o.on) ? "Continuer" : "Rien à changer, continuer"}</button>` : ""), side: evidence(t) }
+      : { step: "Avant de commencer", q: `${M.meta.open} deals ouverts, ${F.eur(M.kpi.openEur)}. À votre avis, quelle part est encore vivante ?`, why: "Un deal vivant bouge encore, et sa date de signature n’est pas dépassée. La réponse de votre fichier arrive juste après.", opts: BETS.map((b, j) => `<button class="topt" type="button" data-bet="${j}">${b[0]}</button>`).join(""), side: `<div class="big">${F.eur(M.kpi.openEur)}</div><p class="lbl">${M.meta.open} deals ouverts dans votre CRM</p>` };
+    $("tBody").innerHTML = `<div><p class="t-step">${dotsH}<span>${h.step}</span></p><h1 class="t-q">${esc(h.q)}</h1><p class="t-why">${esc(h.why)}</p><div class="t-opts">${h.opts}</div><p class="t-note" id="tNote">${esc(note || "")}</p><p class="t-foot">Vous pourrez tout corriger ensuite, à tout moment.</p></div><div class="t-side">${h.side}</div>`;
+    $("tBody").classList.toggle("intro", !!S.fresh); S.fresh = false;
+    $("tCols").onclick = () => { renderMap(); view("map"); };
+  }
+  function nextQ() { S.qi++; if (S.qi >= S.queue.length) showReport(); else renderTalk(); }
+  $("tSkip").onclick = () => showReport();
 
-  // ---------- chart primitives ----------
-  function hbars(items) {
-    var max = Math.max.apply(null, items.map(function (i) { return Math.max(i.v, i.band ? i.band[1] : 0); })) || 1;
-    return '<div class="hb">' + items.map(function (i, k) { return '<div class="hb-r ' + (i.cls || "") + '" style="--i:' + k + '" data-tip="' + esc(i.tip || "") + '"><span class="hb-l">' + esc(i.l) + '</span><span class="hb-t">' + (i.band ? '<b class="bd" style="left:' + (i.band[0] / max * 100) + "%;width:" + ((i.band[1] - i.band[0]) / max * 100) + '%"></b>' : "") + '<i style="width:' + (i.v / max * 100).toFixed(1) + '%"></i></span><span class="hb-v n">' + i.f + "</span></div>"; }).join("") + "</div>";
-  }
-  function cols(items, h) {
-    var max = Math.max.apply(null, items.map(function (i) { return i.v + (i.v2 || 0); })) || 1;
-    return '<div class="cols" style="--h:' + (h || 120) + 'px">' + items.map(function (i, k) { return '<div class="col ' + (i.cls || "") + '" style="--i:' + k + '" data-tip="' + esc(i.tip || "") + '"><div class="stack">' + (i.v2 ? '<i class="b2" style="height:' + (i.v2 / max * 100).toFixed(1) + '%"></i>' : "") + '<i style="height:' + (i.v / max * 100).toFixed(1) + '%"></i></div><span>' + (i.l || "") + "</span></div>"; }).join("") + "</div>";
-  }
-  function dots(items, ref, refLabel) {
-    var hi = Math.ceil((Math.max.apply(null, items.map(function (i) { return i.v; }).concat([ref])) + 8) / 10) * 10, x = function (v) { return (v / hi * 100).toFixed(1); };
-    return '<div class="dots"><div class="d-ax"></div><span class="d-ref" style="left:' + x(ref) + '%"><b>' + refLabel + "</b></span>" + items.map(function (i) { return '<i class="dot' + (i.hl ? " hl" : "") + '" style="left:' + x(i.v) + '%" data-who="' + i.who + '" data-tip="{who} : ' + esc(i.tip) + '">' + (i.hl ? '<b class="n">' + i.f + "</b>" : "") + "</i>"; }).join("") + '<div class="d-sc n"><span>0' + NB + "%</span><span>" + hi + NB + "%</span></div></div>";
-  }
-  var hl = function (t) { return esc(t).replace(/(\d[\d,]*\s%)/, "<em>$1</em>"); };
-
-  // the chart that proves each finding
-  function chartFor(f, M) {
-    var Sx = M.funnel.length;
-    if (f.chart === "pipe") {
-      var p = M.pipe, ok = p.open - p.union, parts = [["Actif", ok, "k0"], ["Stagnant", p.stagOnly, "k1"], ["Stagnant et close date dépassée", p.both, "k3"], ["Close date dépassée", p.pastOnly, "k2"]];
-      return '<p class="c-title">Pipeline ouvert, en montant · ' + F.eur(p.open) + " · " + p.n + ' deals</p><div class="seg">' + parts.map(function (x, k) { return '<i class="' + x[2] + '" style="flex:' + Math.max(x[1], 1) + ";--i:" + k + '" data-tip="' + x[0] + " : " + F.eur(x[1]) + " (" + F.pct(x[1] / p.open * 100) + ')"></i>'; }).join("") + '</div><div class="leg">' + parts.map(function (x) { return '<div><i class="' + x[2] + '"></i><span>' + x[0] + '</span><span class="n">' + F.eur(x[1]) + "</span></div>"; }).join("") +
-        '</div><div class="cmp"><div><span class="n">' + F.eur(p.open) + '</span>pipeline affiché</div><span class="ar">→</span><div><span class="n">' + F.eur(ok) + "</span>pipeline réellement actif</div></div>";
-    }
-    if (f.chart === "loss") return '<p class="c-title">Deals perdus, selon la dernière étape atteinte · sur ' + F.int(M.meta.cohort) + " deals</p>" + hbars(M.funnel.map(function (s, i) { return { l: s.name, v: s.lost, f: F.int(s.lost) + " · " + F.eur(s.lostEur), cls: i >= Sx - 2 ? "hl" : "", tip: s.name + " : " + s.lost + " deals perdus, " + F.eur(s.lostEur) }; }));
-    if (f.chart === "reasons") { var tot = M.reasons.reduce(function (t, r) { return t + r.n; }, 0); return '<p class="c-title">Raisons de perte déclarées · ' + F.int(tot) + " deals perdus</p>" + hbars(M.reasons.map(function (r) { return { l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: r.cls === (f.id === "D8" ? "vague" : "nd") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }; })) + '<p class="cap">En rouge : ' + (f.id === "D8" ? "les valeurs qui ne disent pas pourquoi le deal est perdu." : "les pertes sans décision de l’acheteur.") + " Cette lecture s’adapte dans les règles métier.</p>"; }
-    if (f.chart === "amounts") { var mk = Math.floor(f.mode / 1000); return '<p class="c-title">Nombre de deals par tranche de 1 000 € de montant</p>' + cols(M.amountBins.map(function (b) { return { v: b.n, l: b.k === 30 ? "30+" : b.k % 5 ? "" : b.k + NB + "k", cls: b.k === mk ? "hl" : "", tip: (b.k === 30 ? "30 000 € et plus" : F.int(b.k * 1000) + " à " + F.int(b.k * 1000 + 999) + NB + "€") + " : " + b.n + " deals" }; }), 150) + '<p class="cap">Le pic isolé à ' + F.int(f.mode) + NB + "€ n’a aucune raison statistique d’exister : c’est une valeur saisie par défaut.</p>"; }
-    if (f.chart === "reps" && M.blocked) { var s = M.blocked.stage; return '<p class="c-title">Conversion de l’étape ' + esc(M.stages[s]) + " vers la suivante · un point par commercial</p>" + dots(M.reps.filter(function (r) { return r.stageConv[s]; }).map(function (r) { return { v: r.stageConv[s].conv, f: F.pct(r.stageConv[s].conv), hl: r.hash === M.blocked.hash, who: r.hash, tip: F.pct(r.stageConv[s].conv) + " sur " + r.stageConv[s].n + " deals" }; }), M.funnel[s].conv, "équipe " + F.pct(M.funnel[s].conv)) + '<p class="cap">Les autres commerciaux sont groupés autour de l’équipe : l’écart est individuel et localisé à une étape.</p>'; }
-    return "";
+  // one truth: what I assume or what you told me, with the buttons to correct it
+  function tw(t, mode) {
+    if (!t) return "";
+    const done = t.answer != null, fold = t.kind === "multi" && mode !== "full", open = mode === "full" || S.edit[t.id] || (!done && !fold);
+    return `<div class="tw ${done ? "ok" : "sup"}"><span class="tag ${done ? "ok" : "sup"}">${done ? (mode === "full" ? "Confirmé par vous" : "Vous m’avez dit") : "Je suppose"}</span>${esc(cap(who(done ? t.said : t.assumed)))}.${done && !open ? `<button class="link" type="button" data-edit="${att(t.id)}">Changer</button>` : ""}${!done && !open ? `<button class="link" type="button" data-t="${att(t.id)}" data-ok="1">C’est bien ça</button><button class="link" type="button" data-edit="${att(t.id)}">Corriger</button>` : ""}` +
+      (open ? `<p class="tw-q">${esc(who(t.ask))}</p>${mode === "full" ? `<p class="tw-why">${esc(t.why)}</p>` : ""}<div class="opts">${optsHtml(t, "opt")}${t.kind === "multi" && (!done || fold) ? `<button class="opt" type="button" data-t="${att(t.id)}" data-ok="1">${done ? "Terminé" : "Rien à changer"}</button>` : ""}</div>` : "") + "</div>";
   }
 
   // ---------- 4. report ----------
-  function renderReport() {
-    var M = S.M, by = {}, a = S.anon; M.checks.forEach(function (c) { by[c.id] = c; });
-    var count = function (st) { return M.checks.filter(function (c) { return c.status === st && !c.pattern; }).length; }, top = M.top[0];
-    $("filefacts").textContent = S.name + " · " + F.int(M.meta.rows) + " deals sur " + M.meta.months + " mois · " + (M.rules.pipelines.length > 1 && M.rules.pipeline ? "pipeline " + M.rules.pipeline + " · " : "") + F.int(a.hashedValues) + " noms masqués";
-    if (top) { $("vEyebrow").textContent = "Constat nº 1 sur " + M.findings.length + (top.impact ? " · " + F.eur(top.impact) + " concernés" : ""); $("vTitle").innerHTML = hl(top.text); $("vDetail").textContent = top.detail || ""; $("vAct").innerHTML = top.act ? "<b>À faire en premier</b>" + esc(top.act) : ""; }
-    else { $("vEyebrow").textContent = "Aucun point à corriger"; $("vTitle").textContent = "Votre funnel est sain sur tous les points vérifiés."; $("vDetail").textContent = ""; $("vAct").innerHTML = ""; }
-    $("vKpis").innerHTML = [[M.kpi.k2 != null ? F.pct(M.kpi.k2) : "—", "Win rate · sur " + F.int(M.kpi.k2n) + " deals qualifiés", "fourchette attendue " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%", false], [M.kpi.k4 != null ? F.days(M.kpi.k4) : "—", "Cycle de vente médian", "panier médian " + F.eur(M.kpi.basket), false], [F.eur(M.kpi.openEur), "Pipeline ouvert · " + M.meta.open + " deals", by.P1 ? "dont " + F.eur(M.pipe.union) + " inactifs ou périmés" : "", !!by.P1]]
-      .map(function (k) { return '<div><span class="n">' + k[0] + "</span><span>" + k[1] + "</span>" + (k[3] ? "<small>" + k[2] + "</small>" : "<span>" + k[2] + "</span>") + "</div>"; }).join("");
-    // health by theme: one square per point checked, worst first, no codes
-    var pts = M.checks.filter(function (c) { return !c.pattern && c.status !== "na"; }), k = 0, ord = { r: 0, o: 1, g: 2 }, plural = function (n, w) { return n + " " + w + (n > 1 ? "s" : ""); };
-    $("mxTitle").textContent = pts.length + " points vérifiés dans votre pipeline";
-    $("mx").innerHTML = Object.keys(FAM).map(function (f) { var cs = pts.filter(function (c) { return c.fam === f; }).sort(function (x, y) { return ord[x.status] - ord[y.status]; }); if (!cs.length) return ""; var nr = cs.filter(function (c) { return c.status === "r"; }).length, no = cs.filter(function (c) { return c.status === "o"; }).length; return '<div class="mx-r"><span>' + FAM[f] + '</span><div class="mx-c">' + cs.map(function (c) { return '<i class="cell ' + c.status + '" style="--k:' + (k++) + '" data-tip="' + esc(c.label + " : " + c.value) + '"></i>'; }).join("") + '</div><b class="' + (nr ? "r" : no ? "o" : "g") + '">' + (nr ? nr + " à corriger" : no ? no + " à surveiller" : "Sain") + "</b></div>"; }).join("");
-    $("mx").classList.toggle("play", !S.shown); S.shown = true;
-    $("mxLeg").innerHTML = '<span><i class="r"></i>' + count("r") + ' à corriger</span><span><i class="o"></i>' + count("o") + ' à surveiller</span><span><i class="g"></i>' + plural(count("g"), "sain") + "</span>" + (M.locked.length ? "<p>" + plural(M.locked.length, "autre") + " point" + (M.locked.length > 1 ? "s" : "") + " se " + (M.locked.length > 1 ? "vérifient" : "vérifie") + " avec un export par semaine ou un peu de contexte.</p>" : "");
-
-    $("sum").innerHTML = M.top.map(function (f, i) { return '<a href="#f' + i + '"><span class="n">0' + (i + 1) + "</span><b>" + esc(f.value) + "</b><span>" + esc(f.label) + (f.impact ? " · " + F.eur(f.impact) : "") + "</span></a>"; }).join("");
-    renderSlides(M);
-    // week-over-week movements (only when a previous export of the same pipeline is remembered)
-    var mv = S.mv; $("moves").hidden = !mv;
-    if (mv) {
-      var se = function (arr, f) { var t = 0; arr.forEach(function (x) { t += f(x); }); return t; }, amtOf = function (x) { return (x.d || x)[3]; }, codeOf = function (h) { var r = M.reps.filter(function (x) { return x.hash === h; })[0]; return r ? r.code : "—"; };
-      var stat = function (n, label, sub, bad) { return '<div class="mv' + (bad ? " bad" : "") + '"><b>' + n + "</b><span>" + label + "</span><small>" + sub + "</small></div>"; }, dAmt = se(mv.amount, function (x) { return x.d[3] - x.old; });
-      $("movesSub").textContent = "depuis l’export du " + F.date(mv.from) + " · " + Math.round((mv.to - mv.from) / 864e5) + " jours";
-      $("mvs").innerHTML = stat(mv.created.length, "deals créés", F.eur(se(mv.created, amtOf))) + stat(mv.won.length, "gagnés", F.eur(se(mv.won, amtOf))) + stat(mv.lost.length, "perdus", F.eur(se(mv.lost, amtOf))) + stat(mv.pushed.length, "close dates repoussées", F.eur(se(mv.pushed, amtOf)) + " · " + F.pct(mv.slippage, 1) + " des deals ouverts", mv.pushed.length > 0) + stat(mv.amount.length, "montants modifiés", (dAmt >= 0 ? "+" : "−") + F.eur(Math.abs(dAmt))) + stat(mv.gone.length + mv.regressed.length, "disparus ou en recul", mv.gone.length + " disparu" + (mv.gone.length > 1 ? "s" : "") + " · " + mv.regressed.length + " retour" + (mv.regressed.length > 1 ? "s" : "") + " en arrière", mv.gone.length + mv.regressed.length > 0);
-      var big = mv.pushed.slice().sort(function (x, y) { return y.d[3] - x.d[3]; }).slice(0, 6);
-      $("mvPushed").innerHTML = '<p class="c-title">Close dates repoussées, les plus gros montants</p>' + (big.length ? '<div class="pr head"><span>Deal</span><span>Commercial</span><span class="r">Montant</span><span class="r">Report</span><span>Ancienne → nouvelle date</span></div>' + big.map(function (x) { return '<div class="pr"><span class="n">' + esc(x.d[0]) + "</span><span>" + codeOf(x.d[5]) + '</span><span class="n r">' + F.eur(x.d[3]) + '</span><span class="n r">+' + x.days + NB + 'j</span><span class="n">' + F.date(x.old).replace(/\u00a0\d{4}$/, "") + " → " + F.date(x.d[4]) + "</span></div>"; }).join("") : '<p class="cap">Aucune close date repoussée.</p>');
-      var du = mv.due, parts = [["Gagnés", du.won, "k0"], ["Perdus", du.lost, "kL"], ["Repoussés", du.pushed, "k3"], ["Toujours ouverts, date dépassée", du.open + du.gone, "k1"]];
-      $("mvDue").innerHTML = '<p class="c-title">Les ' + du.n + " deals qui devaient se signer sur la période</p>" + (du.n ? '<div class="seg">' + parts.filter(function (x) { return x[1]; }).map(function (x) { return '<i class="' + x[2] + '" style="flex:' + x[1] + '" data-tip="' + x[0] + " : " + x[1] + '"></i>'; }).join("") + '</div><div class="leg">' + parts.map(function (x) { return '<div><i class="' + x[2] + '"></i><span>' + x[0] + '</span><span class="n">' + x[1] + "</span></div>"; }).join("") + "</div>" : '<p class="cap">Aucun deal n’avait de close date sur la période.</p>') + '<p class="cap">Prévu contre réalisé : c’est le début de la mesure de fiabilité du forecast, solide à partir de quatre exports.</p>';
-    }
-    $("snapNote").innerHTML = M.snapshot ? "Cet export est gardé en mémoire sur votre ordinateur, sans les noms (" + S.snaps + " en mémoire). Déposez le suivant dans une semaine : ce qui a bougé s’affichera en tête de rapport. " + (S.name === "export-hubspot-exemple.csv" ? '<button class="link" id="week2" type="button">Voir la suite avec l’exemple de la semaine suivante</button> · ' : "") + '<button class="link" id="forget" type="button">Oublier l’historique</button>' : "Sans identifiant de deal unique dans l’export, la comparaison d’une semaine à l’autre n’est pas possible.";
-    if ($("forget")) $("forget").onclick = function () { store.set("fsfa-snaps", "[]"); S.mv = null; S.snaps = 0; renderReport(); observe(); };
-    if ($("week2")) $("week2").onclick = function () { fetch("./data/export-hubspot-exemple-semaine-2.csv").then(function (r) { return r.text(); }).then(function (t) { load("export-hubspot-exemple-semaine-2.csv", t); }); };
-    // questions raised by this very file + free-text context
-    var qs = M.questions, shown = S.allQ ? qs : qs.slice(0, 3), ans = S.cfg.answers;
-    $("askTitle").textContent = qs.length ? qs.length + " question" + (qs.length > 1 ? "s" : "") + " que ce fichier nous amène à vous poser" : "Adaptez l’audit à votre business";
-    $("qs").innerHTML = shown.map(function (q) { var i = qs.indexOf(q); return '<div class="qb"><span class="chip"><i class="mk ' + ((by[q.check] || {}).status || "") + '"></i>' + (QT[q.id.split(":")[0]] || "") + "</span><b>" + esc(q.text) + "</b><small>" + esc(q.why) + '</small><div class="opts">' + q.options.map(function (o, j) { return '<button class="opt' + (ans[q.id] === j ? " on" : "") + '" type="button" data-q="' + i + '" data-o="' + j + '">' + esc(o.label) + "</button>"; }).join("") + "</div></div>"; }).join("");
-    $("askMore").textContent = qs.length > 3 ? (S.allQ ? "Voir moins de questions" : "Voir les " + (qs.length - 3) + " autres questions") : "";
-    $("ctxOut").innerHTML = S.ctx.understood.map(function (u) { return "<p><b>Pris en compte.</b> " + esc(u.label) + ' <span class="q">· «\u00a0' + esc(u.source) + "\u00a0»</span></p>"; }).join("") + S.ctx.notes.map(function (t) { return "<p><b>Noté, sans effet sur les calculs.</b> «\u00a0" + esc(t) + '\u00a0» <span class="q">· à préciser de vive voix</span></p>'; }).join("");
-    // findings with their proof
-    $("topSub").textContent = plural(M.top.length, "constat") + ", par ordre de priorité";
-    $("top").innerHTML = M.top.map(function (f, i) {
-      return '<article class="find rv" id="f' + i + '"><div><div class="f-id"><span class="n">0' + (i + 1) + "</span> · " + esc(f.label) + "</div><h3>" + hl(f.text) + "</h3>" + (f.detail ? "<p>" + esc(f.detail) + "</p>" : "") + (f.act ? '<p class="act"><b>À faire</b>' + esc(f.act) + "</p>" : "") + (f.cause ? '<p class="why"><b>Pourquoi ça arrive, le plus souvent</b>' + esc(f.cause) + "</p>" : "") + (f.potential ? '<p class="pot"><b>Ce que ça peut rapporter</b>' + esc(f.potential) + "</p>" : "") + '<div class="f-meta">' + (f.impact ? "<span><b>" + F.eur(f.impact) + "</b> concernés</span>" : "") + "<span>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Chantier de fond · 1 à 3 mois") + "</span><span>" + (f.indicative ? "Indicatif : seulement " + F.int(f.n) + " deals" : "Calculé sur " + F.int(f.n) + " deals") + "</span></div></div><div>" + chartFor(f, M) + "</div></article>";
-    }).join("");
-
-    // funnel ledger
-    var fm = M.funnel.length ? M.funnel[0].reached : 1, lm = Math.max.apply(null, M.funnel.map(function (f) { return f.lostEur; })) || 1;
-    $("funnelSub").textContent = "sur les " + F.int(M.meta.cohort) + " deals créés il y a plus de quatre mois";
-    $("funnel").innerHTML = M.funnel.length ? '<div class="fr head"><span>Étape</span><span>Deals ayant atteint l’étape</span><span class="r">Deals</span><span class="r">Passent</span><span class="r">Durée</span><span>Montants perdus à cette étape</span></div>' + M.funnel.map(function (f, i) {
-      return '<div class="fr' + (f.name === M.leak ? " leak" : "") + '" data-tip="' + esc(f.name + " : " + f.reached + " deals, " + f.next + " passent à la suite, " + f.lost + " perdus ici") + '"><span>' + esc(f.name) + '</span><span class="fr-b"><i style="width:' + (f.reached / fm * 100).toFixed(1) + "%;--i:" + i + '"></i></span><span class="n r">' + F.int(f.reached) + '</span><span class="n r">' + F.pct(f.conv) + '</span><span class="n r">' + (f.days != null ? F.days(f.days) : "—") + '</span><span class="fr-l"><i style="width:' + (f.lostEur / lm * 62).toFixed(1) + "%;--i:" + i + '"></i><em class="n">' + F.eur(f.lostEur) + "</em></span></div>";
-    }).join("") + '<div class="fr end"><span>Gagné</span><span class="fr-b"><i style="width:' + (M.funnel[M.funnel.length - 1].next / fm * 100).toFixed(1) + '%;--i:6"></i></span><span class="n r">' + F.int(M.funnel[M.funnel.length - 1].next) + "</span><span></span><span></span><span></span></div>" : '<p class="c-title">Pipeline ouvert, par étape actuelle</p>' + hbars(M.openStages.map(function (x) { return { l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink", tip: x.name + " : " + x.n + " deals ouverts, " + F.eur(x.eur) }; })) + '<p class="cap">Votre export ne contient pas les dates d’entrée par étape : la conversion et la durée par étape ne peuvent pas être calculées. Ajoutez ces colonnes à l’export (dans HubSpot : « Date d’entrée dans la phase… ») pour obtenir le funnel complet.</p>';
-    if (!M.funnel.length) $("funnelSub").textContent = "photo du pipeline, sans historique des étapes";
-
-    // secondary figures
-    var k4 = M.kpi.k4, REF = { inbound: [30, 45], outbound: [10, 20], partenaire: [25, 40], referral: [25, 40] }, figs = [];
-    var fig = function (c, chart, cap) { if (c && c.status !== "na") figs.push('<figure class="fig rv"><span class="chip"><i class="mk ' + c.status + '"></i>' + esc(c.label) + "</span><h3>" + hl(c.text) + "</h3>" + chart + '<figcaption class="cap">' + cap + "</figcaption></figure>"); };
-    fig(by.C4, cols(M.ageBins.map(function (b, i) { return { v: b.n, l: i === 8 ? "240+" : String(b.from), cls: k4 && b.from >= 2 * k4 ? "hl" : "ink", tip: b.n + " deals ouverts, " + F.eur(b.eur) }; })), "Deals ouverts par âge, en jours. En rouge : au-delà de deux cycles gagnants.");
-    fig(by.D2, cols(M.closeMonths.map(function (m) { return { v: m.future, v2: m.past, l: m.label, cls: "ink" + (m.current ? " hl" : ""), tip: (m.past + m.future) + " deals attendus, dont " + m.eom + " au dernier jour du mois" }; })), "Deals ouverts par mois de close date. En rouge : dates déjà passées." + (by.H3 ? " " + by.H3.text : ""));
-    fig(by.B4, cols(M.monthly.map(function (m) { return { v: m.created, l: m.label, cls: m.partial ? "dim" : "ink", tip: m.created + " deals créés, " + m.won + " gagnés" }; })), "Deals créés par mois sur quinze mois. Le mois en cours est partiel.");
-    fig(by.B5, hbars((M.sources || []).map(function (s) { return { l: s.name, v: s.wr, f: F.pct(s.wr), cls: "ink", band: REF[s.name.toLowerCase()], tip: s.name + " : " + F.pct(s.wr) + " de win rate sur " + s.n + " deals clos, " + F.pct(s.vol) + " du volume" }; })), "Win rate par source. La bande grise est la fourchette de référence de la source.");
-    fig(by.C2, hbars(M.funnel.map(function (f) { return { l: f.name, v: f.days || 0, f: f.days != null ? F.days(f.days) : "—", cls: "ink", tip: "Durée médiane en " + f.name }; })), "Durée médiane passée dans chaque étape." + (by.C1 ? " " + by.C1.text : ""));
-    var cmp = M.reps.filter(function (r) { return r.wr != null; });
-    if (by.E1 && cmp.length) fig(by.E1, dots(cmp.map(function (r) { return { v: r.wr, f: F.pct(r.wr), who: r.hash, hl: false, tip: F.pct(r.wr) + " de win rate sur " + r.closed + " deals clos" }; }), M.kpi.k2, "équipe " + F.pct(M.kpi.k2)), "Win rate par commercial, un point chacun." + (by.E4 ? " " + by.E4.text : ""));
-    $("grid").innerHTML = figs.join("");
-
-    var ex = M.checks.filter(function (c) { return !c.pattern; }).sort(function (x, y) { return x.id < y.id ? -1 : 1; });
-    $("allN").textContent = ex.length;
-    $("all").innerHTML = '<div class="arow head"><span></span><span>Point vérifié</span><span>Valeur</span><span>Seuils</span><span>Deals</span></div>' + ex.map(function (c) { return '<div class="arow"><i class="mk ' + c.status + '"></i><span>' + esc(c.label) + (M.absorbed[c.id] && by[M.absorbed[c.id]] ? ' <span class="q">· regroupé dans «\u00a0' + esc(by[M.absorbed[c.id]].label) + "\u00a0»</span>" : "") + '</span><span class="n">' + esc(c.value || "—") + '</span><span class="q">' + esc(c.thr || "") + '</span><span class="n q">' + (c.n != null ? F.int(c.n) : "—") + "</span></div>"; }).join("");
-    var row = function (c) { var a = c.status === "g" ? "" : c.act || c.reco || ""; return '<div class="rowl"><i class="mk ' + c.status + '"></i><span>' + esc(c.text) + (a ? "<small>À faire : " + esc(a) + "</small>" : "") + "</span></div>"; };
-    $("others").innerHTML = M.others.map(row).join("") || '<p class="cap">Rien d’autre hors du vert.</p>';
-    $("good").innerHTML = M.good.map(row).join("");
-    $("steps").innerHTML = M.top.slice().sort(function (x, y) { return (x.horizon === "quick" ? 0 : 1) - (y.horizon === "quick" ? 0 : 1); }).slice(0, 3).map(function (f) { return "<li><span>" + esc(f.act || f.reco) + "</span><small>" + (f.horizon === "quick" ? "Quick win · moins de 2 semaines" : "Chantier de fond · 1 à 3 mois") + "</small></li>"; }).join("");
-    $("lockSub").textContent = plural(M.locked.length, "point") + " de plus";
-    $("locks").innerHTML = [["N3", "Avec un export chaque semaine", "Le glissement des close dates et la fiabilité du forecast se mesurent d’un export à l’autre, et deviennent solides au quatrième." + (S.snaps ? " En mémoire : " + S.snaps + " sur 4." : "")], ["N4", "Avec les activités et les quotas", "Deals non travaillés, couverture par commercial, ramp des nouveaux, handoff."], ["Contexte", "Avec trois questions", "Vos critères de sortie d’étape et votre méthode de qualification."]].map(function (g) { return "<div><h3>" + g[1] + "</h3><p>" + g[2] + "</p><ul>" + M.locked.filter(function (l) { return l.needs === g[0]; }).map(function (l) { return "<li>" + l.label + "</li>"; }).join("") + "</ul></div>"; }).join("");
-    var rsum = rulesSummary();
-    $("vRules").innerHTML = (rsum.length ? "Règles adaptées à votre business : " + esc(rsum.join(" · ")) + '. <span class="noprint">' : 'Calculé avec les règles par défaut. <span class="noprint">Tous les business ne se ressemblent pas\u00a0: ') + '<button class="link" id="vRulesBtn" type="button">' + (rsum.length ? "Modifier" : "répondez à quelques questions pour l’adapter au vôtre") + "</button></span>";
-    $("vRulesBtn").onclick = rsum.length ? openRules : function () { $("ask").scrollIntoView({ behavior: "smooth" }); };
-    $("openRules").textContent = "Règles métier" + (rsum.length ? " · " + rsum.length + " adaptée" + (rsum.length > 1 ? "s" : "") : "");
-    $("foot").innerHTML = "<span>Règles métier : " + (rsum.length ? esc(rsum.join(" · ")) : "valeurs par défaut") + "</span><span>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA</span><span>Données au " + F.date(M.snap) + "</span><span>Vos deals ne quittent pas votre ordinateur : tout y est calculé</span>" + '<span class="noprint"><button class="link" id="seeCols" type="button">Vérifier les colonnes reconnues</button></span>';
-    $("seeCols").onclick = function () { renderMap(); view("map"); };
+  function showReport() { S.lit = true; S.intro = true; renderReport(); view("report"); observe(); S.intro = false; }
+  function recompute() { S.M = E.analyze(S.anon, S.cfg); saveRules(); if (S.view === "report") { renderReport(); document.querySelectorAll("#v-report .rv").forEach(el => el.classList.add("in")); } if ($("fiche").classList.contains("on")) renderFiche(); }
+  function betLine() { const b = S.bet, x = Math.round(S.M.story.aliveShare); if (!b) return ""; const d = b[1] - x; return Math.abs(d) <= 8 ? `Vous aviez vu juste : ${x}${NB}% de votre pipeline est vivant.` : d > 0 ? `Vous pariiez sur ${b[2]}. Votre fichier dit ${x}${NB}%.` : `Vous étiez plus dur que votre fichier : ${x}${NB}% de votre pipeline est vivant.`; }
+  function repBars() { const rs = S.M.reps.filter(r => r.open > 0).sort((a, b) => b.stalledEur - a.stalledEur), mx = Math.max.apply(null, rs.map(r => r.openEur)) || 1;
+    return `<div class="rbx"><p class="c-title">Pipeline ouvert par commercial : ce qui avance, ce qui est à l’arrêt</p><div class="rb">${rs.map(r => `<div class="rb-r" data-tip="${esc(`${rep(r.hash)} : ${F.eur(r.openEur)} ouverts, dont ${F.eur(r.stalledEur)} à l’arrêt`)}"><span>${esc(rep(r.hash))}${r.off ? ` <small class="q">ne vend plus</small>` : ""}</span><span class="rb-t" style="width:${(r.openEur / mx * 100).toFixed(1)}%"><i style="flex:${Math.max(r.openEur - r.stalledEur, 0).toFixed(0)}"></i><i class="s" style="flex:${r.stalledEur.toFixed(0)}"></i></span><span class="rb-v">${r.stalledN ? `<b>${F.eur(r.stalledEur)}</b> · ${r.stalledN} deals` : "rien à l’arrêt"}</span></div>`).join("")}</div></div>`; }
+  const stalled = () => S.M.openDeals.filter(d => d.g > 0).sort((a, b) => b.amount - a.amount);
+  const dealName = d => name(d.label) || "Deal " + (d.id || "");
+  function stalledList() { const M = S.M, L = stalled(), show = S.listAll ? L : L.slice(0, 10), unit = M.funnel.length ? "sans changer d’étape" : "d’ancienneté";
+    const why = d => d.g === 3 ? `devait signer le ${F.date(d.close)}` : `${d.rest}${NB}j ${unit}` + (d.g === 2 ? `, et devait signer le ${F.date(d.close)}` : "");
+    return `<div class="dr head"><span>Deal</span><span class="r">Montant</span><span>Commercial</span><span>Étape</span><span>Pourquoi il est là</span></div>${show.map(d => `<div class="dr"><span>${esc(dealName(d))}</span><span class="n r">${F.eur(d.amount)}</span><span>${esc(rep(d.owner))}</span><span>${esc(d.stage)}</span><span class="q">${why(d)}</span></div>`).join("")}<div class="lbar"><span>${show.length} deals sur ${L.length} · ${F.eur(M.pipe.union)}</span>${L.length > 10 ? `<button class="link" type="button" id="listAll">${S.listAll ? "Réduire la liste" : "Voir les " + L.length}</button>` : ""}<button class="link" type="button" id="listCsv">Télécharger la liste par commercial</button><button class="link" type="button" id="copyMsg">Copier le message pour l’équipe</button><label class="names"><input type="checkbox" id="names"${S.names ? " checked" : ""}> Afficher les noms des commerciaux (visibles sur cet écran seulement)</label></div>`; }
+  function listCsv() { const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"', L = stalled().sort((a, b) => (name(a.owner) || "").localeCompare(name(b.owner) || "") || b.amount - a.amount);
+    const rows = [["Commercial", "Deal", "Montant", "Étape", "Jours sans changer d’étape", "Date de signature prévue"]].concat(L.map(d => [name(d.owner), dealName(d), Math.round(d.amount), d.stage, d.rest == null ? "" : d.rest, d.close ? new Date(d.close).toISOString().slice(0, 10) : ""]));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map(r => r.map(q).join(";")).join("\n")], { type: "text/csv;charset=utf-8" })); a.download = "deals-a-l-arret.csv"; document.body.appendChild(a); a.click(); a.remove(); }
+  function journeyChart() { const M = S.M, f = M.funnel, n = f.length;
+    if (!n) return `<p class="c-title">Pipeline ouvert, par étape actuelle</p>` + hbars(M.openStages.map(x => ({ l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink", tip: x.name + " : " + x.n + " deals ouverts, " + F.eur(x.eur) })));
+    const fm = f[0].reached || 1, b6 = M.checks.find(c => c.id === "B6"), red = b6 && b6.status === "r";
+    return `<div class="jr head"><span>Étape</span><span>Deals arrivés, et ceux qui passent</span><span class="r">Arrivés · passent</span><span class="r">Durée</span><span class="r">Perdu ici</span></div>` + f.map((s, i) => { const on = red ? i >= n - 2 : s.name === M.leak;
+      return `<div class="jr${on ? " hl" : ""}" data-tip="${esc(`${s.name} : ${s.reached} deals arrivés, ${s.next} passent à la suite, ${s.lost} perdus ici`)}"><span>${esc(s.name)}</span><span class="jr-t" style="width:${(s.reached / fm * 100).toFixed(1)}%"><i style="flex:${s.next};--i:${i}"></i><i class="x" style="flex:${Math.max(s.reached - s.next, 0)};--i:${i}"></i></span><span class="n r">${F.int(s.reached)} · ${F.pct(s.conv)}</span><span class="n r">${s.days != null ? F.days(s.days) : "—"}</span><span class="n r lost">${F.eur(s.lostEur)}</span></div>`; }).join("") + (red ? `<p class="jnote">C’est ici que ça casse.</p>` : "");
   }
-  // ---------- leads: e-mail + audit summary (aggregates only, never deal data) ----------
-  var CFG = window.FSFA_CONFIG || {};
-  function sendLead(kind, email) {
-    var M = S.M, n = function (st) { return M.checks.filter(function (c) { return c.status === st && !c.pattern; }).length; };
+  function chartOf(b) { const M = S.M;
+    if (b.key === "stalled") return `<p class="c-title">Votre pipeline ouvert, deal par deal · ${F.eur(M.kpi.openEur)} · survolez pour voir chaque deal</p>${strip(M)}${sleg(M)}`;
+    if (b.key === "orphans") return `<p class="c-title">Deals ouverts encore portés par quelqu’un qui ne vend plus</p>` + hbars(M.reps.filter(r => r.off && r.open).map(r => ({ l: name(r.hash) || r.code, v: r.openEur, f: F.eur(r.openEur) + " · " + r.open, cls: "hl" })));
+    if (b.key === "amounts") return b.tone === "g" ? "" : amountsChart();
+    if (b.key === "dates") return b.tone === "g" ? "" : `<p class="c-title">Dates de signature prévues des deals ouverts</p><div class="seg"><i class="k3" style="flex:${M.eom}"></i><i class="k0" style="flex:${100 - M.eom}"></i></div><div class="leg"><div><i class="k3"></i><span>Le dernier jour du mois</span><span class="n">${F.pct(M.eom)}</span></div><div><i class="k0"></i><span>Les autres jours</span><span class="n">${F.pct(100 - M.eom)}</span></div></div>`;
+    if (b.key === "journey") return journeyChart() + (M.story.good ? `<p class="holds"><b>Ce qui tient :</b> ${esc(M.story.good)}</p>` : "");
+    if (b.key === "rep" && M.blocked) { const s = M.blocked.stage; return `<p class="c-title">Part des deals qui passent l’étape ${esc(M.stages[s])} · un point par commercial</p>` + dots(M.reps.filter(r => r.stageConv[s] && !r.off).map(r => ({ v: r.stageConv[s].conv, f: F.pct(r.stageConv[s].conv), hl: r.hash === M.blocked.hash, tip: rep(r.hash) + " : " + F.pct(r.stageConv[s].conv) + " sur " + r.stageConv[s].n + " deals" })), M.funnel[s].conv, "équipe " + F.pct(M.funnel[s].conv)) + `<p class="cap">Les autres sont groupés autour de l’équipe : l’écart tient à une personne et à une étape.</p>`; }
+    if (b.key === "reasons") return reasonsChart();
+    return ""; }
+  function blk(b) {
+    const kv = (dt, dd) => dd ? `<div><dt>${dt}</dt><dd>${esc(cap(dd))}</dd></div>` : "", truths = (b.truths || []).map(id => tw(truth(id), "in")).join("");
+    const head = `<h3>${hl(b.title)}</h3>${b.sub ? `<p class="sub">${esc(b.sub)}</p>` : ""}${b.body ? `<p class="body">${esc(b.body)}</p>` : ""}`;
+    const act = `${b.decision ? `<p class="dec"><b>Décision</b>${esc(cap(b.decision))}</p>` : ""}<dl class="kv">${kv(b.worthLabel || "Ce que ça vaut", b.worth)}${kv(b.unknownLabel || "Ce que votre fichier ne dit pas", b.unknown)}${kv("Au debrief", b.debrief)}</dl>${b.cta ? `<button class="link raph" type="button" data-raph="${esc(b.cta)}">${esc(b.cta)} →</button>` : ""}`;
+    return b.half ? `<article class="blk ${b.tone} rv" id="b-${b.key}">${head}<div class="blk-r">${chartOf(b)}${truths}</div>${act}</article>`
+      : `<article class="blk ${b.tone} rv" id="b-${b.key}"><div>${head}${act}</div><div class="blk-r">${chartOf(b)}${truths}${b.key === "stalled" ? repBars() : ""}</div></article>` + (b.key === "stalled" ? `<div class="blk-full rv" id="list">${stalledList()}</div>` : "");
+  }
+  function themeCharts(f) { const M = S.M, fig = (t, c, cap2) => `<figure class="fig"><p class="c-title">${t}</p>${c}${cap2 ? `<figcaption class="cap">${cap2}</figcaption>` : ""}</figure>`, out = [], k4 = M.kpi.k4, REF = { inbound: [30, 45], outbound: [10, 20], partenaire: [25, 40], referral: [25, 40] };
+    if (f === "A") out.push(fig("Pipeline ouvert, par étape actuelle", hbars(M.openStages.map(x => ({ l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink" })))));
+    if (f === "B") { if (M.funnel.length) out.push(fig("Le parcours d’un deal, étape par étape", journeyChart())); out.push(fig("Deals créés par mois", cols(M.monthly.map(m => ({ v: m.created, l: m.label, cls: m.partial ? "dim" : "ink", tip: m.created + " deals créés, " + m.won + " gagnés" }))), "Le dernier mois est partiel.")); }
+    if (f === "C") { if (M.funnel.length) out.push(fig("Temps passé dans chaque étape", hbars(M.funnel.map(s => ({ l: s.name, v: s.days || 0, f: s.days != null ? F.days(s.days) : "—", cls: "ink" }))))); out.push(fig("Deals ouverts selon leur ancienneté, en jours", cols(M.ageBins.map((b, i) => ({ v: b.n, l: i === 8 ? "240+" : String(b.from), cls: k4 && b.from >= 2 * k4 ? "hl" : "ink", tip: b.n + " deals ouverts, " + F.eur(b.eur) }))), k4 ? "En rouge : ouverts depuis plus de deux fois la durée d’une vente gagnée." : "")); }
+    if (f === "D") { out.push(fig("Informations manquantes sur les deals ouverts", hbars(M.completeness.map(c => ({ l: cap(c.label), v: c.miss, f: F.pct(c.miss, 1), cls: c.miss > 15 ? "hl" : "ink" })))), fig("Deals ouverts par mois de signature prévue", cols(M.closeMonths.map(m => ({ v: m.future, v2: m.past, l: m.label, cls: "ink", tip: (m.past + m.future) + " deals attendus" }))), "En rouge : dates déjà passées.")); }
+    if (f === "E") { const cmp = M.reps.filter(r => r.wr != null && !r.off); if (cmp.length) out.push(fig("Part de deals signés, un point par commercial", dots(cmp.map(r => ({ v: r.wr, f: F.pct(r.wr), tip: rep(r.hash) + " : " + F.pct(r.wr) + " sur " + r.closed + " deals" })), M.kpi.k2, "équipe " + F.pct(M.kpi.k2)))); }
+    if (f === "G") out.push(fig("Pourquoi vous perdez", reasonsChart()));
+    if (f === "H") out.push(fig("Deals ouverts par mois de signature prévue", cols(M.closeMonths.map(m => ({ v: m.future, v2: m.past, l: m.label, cls: "ink" + (m.current ? " hl" : "") }))), "En rouge : dates déjà passées."));
+    if (f === "I" || f === "B") { if ((M.sources || []).length) out.push(fig("Part de deals signés, par source", hbars(M.sources.map(s => ({ l: s.name, v: s.wr, f: F.pct(s.wr), cls: "ink", band: REF[s.name.toLowerCase()], tip: s.name + " : " + F.pct(s.wr) + " sur " + s.n + " deals" }))), "La bande grise : ce qu’on attend d’habitude de cette source.")); }
+    if (f === "I" && (M.segments || []).length) out.push(fig("Part de deals signés, par segment", hbars(M.segments.map(s => ({ l: s.name, v: s.wr, f: F.pct(s.wr), cls: "ink" })))));
+    return out.join(""); }
+  function renderExplore() { const M = S.M;
+    const fams = Object.keys(FAM).map(f => { const cs = M.checks.filter(c => c.fam === f && !c.pattern && c.status !== "na").sort((a, b) => ORD[a.status] - ORD[b.status]); return { f: f, cs: cs, worst: cs.length ? cs[0].status : "" }; }).filter(x => x.cs.length);
+    if (!fams.length) { $("explore").hidden = true; return; }
+    if (!fams.some(x => x.f === S.theme)) S.theme = (fams.find(x => x.worst === "r") || fams.find(x => x.worst === "o") || fams[0]).f;
+    const cur = fams.find(x => x.f === S.theme);
+    $("tabs").innerHTML = fams.map(x => `<button class="tab${x.f === S.theme ? " on" : ""}" type="button" data-theme="${x.f}"><i class="mk ${x.worst}"></i>${FAM[x.f]}</button>`).join("");
+    $("exp").innerHTML = `<div>${cur.cs.map(c => `<div class="rowl"><i class="mk ${c.status}"></i><span>${esc(c.text)}${c.status !== "g" && (c.act || c.reco) ? `<small>À faire : ${esc(c.act || c.reco)}</small>` : ""}</span></div>`).join("")}</div><div>${themeCharts(S.theme)}</div>`;
+  }
+  function renderOffer() { const ag = S.M.story.agenda;
+    $("offer").innerHTML = `<div><h3>Cet audit vous dit où. Il ne dit pas pourquoi.</h3><p>Trente minutes avec Raph, consultant RevOps, sur vos chiffres.${ag.length ? " L’ordre du jour est écrit par vos décisions :" : ""}</p>${ag.length ? `<ol>${ag.map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : ""}<p>Vous repartez avec le plan écrit, dans l’ordre. 199${NB}€, déduits de la première mission si nous continuons ensemble.</p></div>` +
+      `<div class="card"><form id="debrief"><p class="subj">${esc(S.subject || (S.ask ? "Une question, ou une règle de votre métier" : "Réserver un debrief de 30 minutes"))}</p>${S.ask ? `<textarea rows="3" placeholder="Par exemple : chez nous, les renouvellements passent par un autre pipeline." aria-label="Votre question ou votre règle"></textarea>` : ""}<input type="email" required placeholder="vous@entreprise.fr" aria-label="Votre e-mail professionnel"><button class="btn" type="submit">${S.ask ? "Envoyer à Raph" : "Réserver mon debrief · 199" + NB + "€"}</button><small>Ce que Raph reçoit, et rien d’autre : votre e-mail, les chiffres clés de cet écran et vos règles. Aucun deal, aucun nom de client ni de commercial.</small></form><p><button class="link" type="button" id="askToggle">${S.ask ? "Finalement, réserver un debrief" : "Poser d’abord une question à Raph"}</button></p></div>`;
+    $("askToggle").onclick = () => { S.ask = !S.ask; S.subject = ""; renderOffer(); };
+    leadForm($("debrief"), "debrief", "Demande reçue. Raph vous écrit pour fixer un créneau.");
+  }
+  function renderFiche() { const M = S.M, groups = [], done = M.truths.filter(t => t.answer != null).length;
+    M.truths.forEach(t => { let g = groups.find(x => x.k === t.topic); if (!g) groups.push(g = { k: t.topic, ts: [] }); g.ts.push(t); });
+    $("fiche").innerHTML = `<div class="r-top"><h2>Votre business, tel que je l’ai compris</h2><button class="link" id="closeFiche" type="button">Fermer</button></div><p class="r-lede">Je ne devine pas votre métier. Voici ce que j’ai compris de votre fichier : chaque règle reste une supposition tant que vous ne l’avez pas confirmée. Touchez pour corriger, tout se recalcule aussitôt.</p><p><span class="tag ok">${done} confirmée${done > 1 ? "s" : ""} par vous</span><span class="tag sup">${M.truths.length - done} que je suppose</span></p>` +
+      groups.map(g => `<div class="fi-g"><h3>${esc(g.k)}</h3>${g.ts.map(t => tw(t, "full")).join("")}</div>`).join("") +
+      `<div class="fi-g"><h3>Une règle de votre métier que je ne sais pas encore prendre en compte ?</h3><p class="r-lede">Écrivez-la à Raph : il l’ajoute à l’outil et vous répond.</p><button class="btn" type="button" id="ficheAsk">L’écrire à Raph</button></div><div class="r-end"><button class="link" id="resetRules" type="button">Tout remettre comme je l’avais supposé</button></div>`;
+    $("closeFiche").onclick = closeFiche;
+    $("resetRules").onclick = () => { S.cfg = { reasons: {}, answers: {} }; S.edit = {}; S.learned = 0; recompute(); };
+    $("ficheAsk").onclick = () => { closeFiche(); S.ask = true; S.subject = ""; renderOffer(); $("raph").scrollIntoView({ behavior: "smooth" }); };
+  }
+  const openFiche = () => { renderFiche(); $("fiche").classList.add("on"); $("scrim").classList.add("on"); };
+  const closeFiche = () => { $("fiche").classList.remove("on"); $("scrim").classList.remove("on"); };
+  $("scrim").onclick = closeFiche;
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeFiche(); });
+
+  function renderReport() {
+    const M = S.M, st = M.story, v = st.verdict, a = S.anon, done = M.truths.filter(t => t.answer != null).length, sup = M.truths.length - done, nSt = M.pipe.unionN;
+    Object.keys(STRIPS).forEach(k => { if (!document.querySelector(`#v-drop [data-strip="${k}"]`)) delete STRIPS[k]; });
+    $("filefacts").textContent = `${S.name} · ${F.int(M.meta.rows)} deals sur ${M.monthsAll} mois${M.rules.pipelines.length > 1 && M.rules.pipeline ? " · pipeline " + M.rules.pipeline : ""} · ${F.int(a.hashedValues)} noms masqués`;
+    $("vd").classList.toggle("intro", !!S.intro);
+    $("vEyebrow").textContent = `Votre pipeline au ${F.date(M.snap)} · ${M.meta.open} deals ouverts`;
+    $("vTitle").innerHTML = esc(v.title).replace(esc(v.em), `<em id="vEm">${esc(v.em)}</em>`);
+    $("vBet").textContent = betLine();
+    $("vPrev").textContent = S.prev && S.prev.kpi && S.prev.kpi.n != null ? `Le ${F.date(S.prev.date)}, ${S.prev.kpi.n} deals étaient à l’arrêt. Aujourd’hui : ${nSt}.` : "";
+    $("vStrip").innerHTML = strip(M, { neutral: S.intro, build: S.intro }) + sleg(M);
+    $("vSub").textContent = v.sub + (v.bench ? " " + v.bench : "");
+    $("vRule").innerHTML = tw(truth("stale"), "in");
+    $("vBtns").innerHTML = (st.blocks.some(b => b.key === "stalled") ? `<button class="btn inv" type="button" data-go="list">Voir les ${nSt} deals</button>` : "") + (st.decisions.length ? `<button class="btn ghost" type="button" data-go="monday">La diapositive pour lundi</button>` : "") + `<button class="link" type="button" id="seeCols">Un chiffre vous surprend ? Vérifier la lecture du fichier</button>`;
+    $("vAns").innerHTML = st.answers.map((x, i) => `<a href="#ch${i}" class="${x.tone}"><span>${esc(x.q)}</span><b>${esc(x.a)}</b></a>`).join("") + (st.good ? `<p><b>Ce qui tient :</b> ${esc(st.good)}</p>` : "");
+    $("seeCols").onclick = () => { renderMap(); view("map"); };
+    if (S.intro) setTimeout(() => { paint(); if (v.kind === "alive") countTo($("vEm"), M.kpi.openEur, st.alive, 1300); }, 1000);
+    $("rbar").innerHTML = `<span>Jugé avec vos règles : <b>${done}</b> confirmée${done > 1 ? "s" : ""} par vous${S.learned ? ", retenues depuis votre dernière visite" : ""}${sup ? ` · <span class="tag sup">${sup} que je suppose encore</span>` : ""}</span><button class="link" type="button" data-fiche>${sup ? "Voir ce que j’ai compris, et me corriger" : "Voir ce que j’ai compris"}</button>`;
+
+    // week-over-week movements (only when a previous export of the same pipeline is remembered)
+    const mv = S.mv; $("moves").hidden = !mv;
+    if (mv) {
+      const se = (arr, f) => arr.reduce((t, x) => t + f(x), 0), amtOf = x => (x.d || x)[3], codeOf = h => rep(h);
+      const stat = (n, label, sub, bad) => `<div class="mv${bad ? " bad" : ""}"><b>${n}</b><span>${label}</span><small>${sub}</small></div>`, dAmt = se(mv.amount, x => x.d[3] - x.old);
+      $("movesSub").textContent = `depuis votre fichier du ${F.date(mv.from)} · ${Math.round((mv.to - mv.from) / 864e5)} jours`;
+      $("mvs").innerHTML = stat(mv.created.length, "deals créés", F.eur(se(mv.created, amtOf))) + stat(mv.won.length, "gagnés", F.eur(se(mv.won, amtOf))) + stat(mv.lost.length, "perdus", F.eur(se(mv.lost, amtOf))) + stat(mv.pushed.length, "dates de signature repoussées", F.eur(se(mv.pushed, amtOf)) + " · " + F.pct(mv.slippage, 1) + " des deals ouverts", mv.pushed.length > 0) + stat(mv.amount.length, "montants modifiés", (dAmt >= 0 ? "+" : "−") + F.eur(Math.abs(dAmt))) + stat(mv.gone.length + mv.regressed.length, "disparus ou en recul", mv.gone.length + " disparu" + (mv.gone.length > 1 ? "s" : "") + " · " + mv.regressed.length + " retour" + (mv.regressed.length > 1 ? "s" : "") + " en arrière", mv.gone.length + mv.regressed.length > 0);
+      const big = mv.pushed.slice().sort((x, y) => y.d[3] - x.d[3]).slice(0, 6);
+      $("mvPushed").innerHTML = `<p class="c-title">Dates de signature repoussées, les plus gros montants</p>` + (big.length ? `<div class="pr head"><span>Deal</span><span>Commercial</span><span class="r">Montant</span><span class="r">Report</span><span>Ancienne → nouvelle date</span></div>` + big.map(x => `<div class="pr"><span class="n">${esc(x.d[0])}</span><span>${esc(codeOf(x.d[5]))}</span><span class="n r">${F.eur(x.d[3])}</span><span class="n r">+${x.days}${NB}j</span><span class="n">${F.date(x.old).replace(/ \d{4}$/, "")} → ${F.date(x.d[4])}</span></div>`).join("") : `<p class="cap">Aucune date repoussée.</p>`);
+      const du = mv.due, parts = [["Gagnés", du.won, "k0"], ["Perdus", du.lost, "kL"], ["Repoussés", du.pushed, "k3"], ["Toujours ouverts, date dépassée", du.open + du.gone, "k1"]];
+      $("mvDue").innerHTML = `<p class="c-title">Les ${du.n} deals qui devaient se signer sur la période</p>` + (du.n ? `<div class="seg">${parts.filter(x => x[1]).map(x => `<i class="${x[2]}" style="flex:${x[1]}" data-tip="${x[0]} : ${x[1]}"></i>`).join("")}</div><div class="leg">${parts.map(x => `<div><i class="${x[2]}"></i><span>${x[0]}</span><span class="n">${x[1]}</span></div>`).join("")}</div>` : `<p class="cap">Aucun deal n’avait de date de signature sur la période.</p>`);
+    }
+
+    // three chapters, in the order a sales director asks the questions
+    $("chapters").innerHTML = st.answers.map((x, i) => { const bs = st.blocks.filter(b => b.ch === i), half = bs.filter(b => b.half);
+      return `<section id="ch${i}"><div class="chap-h"><h2><small>${i + 1} sur 3</small>${esc(x.q)}</h2><p class="${x.tone}">${esc(x.a)}</p></div>${bs.filter(b => !b.half).map(blk).join("")}${half.length ? `<div class="halves">${half.map(blk).join("")}</div>` : ""}</section>`; }).join("");
+    const la = $("listAll"); if (la) la.onclick = () => { S.listAll = !S.listAll; rerenderList(); };
+    bindList();
+
+    $("monday").hidden = !st.decisions.length;
+    $("slide").innerHTML = `<header><span>Revue du pipeline · ${F.date(M.snap)}</span><h3>${esc(st.slideTitle)}</h3></header><ol>${st.decisions.map(d => `<li>${esc(d)}</li>`).join("")}</ol>${strip(M)}<footer><span>Analyse de l’export CRM du ${F.date(M.snap)}</span><span>flashaudit.raaf.fr</span></footer>`;
+    renderOffer();
+    $("weekText").textContent = (nSt ? `Combien de ces ${nSt} deals auront été fermés ? Combien de dates repoussées, de montants revus à la baisse ? ` : "") + "Un fichier est une photo. Recevez le film chaque lundi matin, avec les slides de votre revue de pipeline. Premier mois offert, sans carte.";
+    $("snapNote").innerHTML = M.snapshot ? `Ou revenez déposer un nouveau fichier : la comparaison se fait toute seule, avec vos règles (${S.snaps} fichier${S.snaps > 1 ? "s" : ""} en mémoire sur cet ordinateur, sans les noms). ` + (S.name === "export-hubspot-exemple.csv" ? `<button class="link" id="week2" type="button">Voir l’exemple une semaine plus tard</button> · ` : "") + `<button class="link" id="forget" type="button">Oublier l’historique</button>` : "";
+    if ($("forget")) $("forget").onclick = () => { store.set("fsfa-snaps", "[]"); S.mv = null; S.prev = null; S.snaps = 0; recompute(); };
+    if ($("week2")) $("week2").onclick = () => fetch("./data/export-hubspot-exemple-semaine-2.csv").then(r => r.text()).then(t => load("export-hubspot-exemple-semaine-2.csv", t, true));
+    renderExplore();
+    $("foot").innerHTML = `<span>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA</span><span>Données au ${F.date(M.snap)}</span><span>Vos deals ne quittent pas votre ordinateur</span>`;
+  }
+  function bindList() {
+    if ($("listAll")) $("listAll").onclick = () => { S.listAll = !S.listAll; rerenderList(); };
+    if ($("listCsv")) $("listCsv").onclick = listCsv;
+    if ($("copyMsg")) $("copyMsg").onclick = e => { const b = S.M.story.blocks.find(x => x.key === "stalled"); if (b) copy(b.message, e.target); };
+    if ($("names")) $("names").onchange = e => { S.names = e.target.checked; renderReport(); document.querySelectorAll("#v-report .rv").forEach(el => el.classList.add("in")); };
+  }
+  function rerenderList() { $("list").innerHTML = stalledList(); bindList(); }
+  $("slideCopy").onclick = e => copy(S.M.story.slideTitle + "\n\n" + S.M.story.decisions.map((d, i) => (i + 1) + ". " + d).join("\n"), e.target);
+  $("slidePdf").onclick = () => { document.documentElement.classList.add("ps"); window.print(); };
+  window.addEventListener("afterprint", () => document.documentElement.classList.remove("ps"));
+
+  // ---------- leads: e-mail + key figures + the rules the user taught (never deal data) ----------
+  function sendLead(kind, email, note) {
+    const M = S.M, n = s => M.checks.filter(c => c.status === s && !c.pattern).length;
     if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) return Promise.reject(new Error("offline"));
     return fetch(CFG.supabaseUrl.replace(/\/$/, "") + "/rest/v1/leads", { method: "POST", headers: { apikey: CFG.supabaseAnonKey, Authorization: "Bearer " + CFG.supabaseAnonKey, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ kind: kind, email: email, deals: M.meta.rows, level: M.level, top_findings: M.top.map(function (f) { return { id: f.id, value: f.value, text: f.text, impact_eur: Math.round(f.impact || 0) }; }), counts: { red: n("r"), orange: n("o"), green: n("g"), locked: M.locked.length }, rules: rulesSummary(), notes: S.ctx.notes.concat(S.ctx.understood.map(function (u) { return u.source; })), page: location.host }) })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); });
+      body: JSON.stringify({ kind: kind, email: email, deals: M.meta.rows, level: M.level, top_findings: [{ id: "verdict", text: M.story.verdict.title }].concat(M.story.blocks.filter(b => b.tone === "r").map(b => ({ id: b.key, text: b.title }))), counts: { red: n("r"), orange: n("o"), green: n("g") }, rules: M.truths.filter(t => t.answer != null).map(t => t.said), notes: [S.subject, note].filter(Boolean), page: location.host }) })
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); });
   }
-  function leadForm(id, kind, okText) {
-    $(id).addEventListener("submit", function (e) {
-      e.preventDefault(); var f = e.target, btn = f.querySelector("button"); btn.disabled = true;
-      sendLead(kind, f.querySelector("input").value.trim()).then(function () { f.innerHTML = "<p><b>" + okText + "</b></p>"; })
-        .catch(function (err) { btn.disabled = false; var p = f.querySelector(".fmsg") || f.appendChild(document.createElement("p")); p.className = "fmsg"; p.textContent = err.message === "offline" ? "Prototype en test : cette demande n’est pas encore transmise." : "L’envoi a échoué. Réessayez dans un instant."; });
+  function leadForm(f, kind, okText) {
+    f.addEventListener("submit", e => {
+      e.preventDefault(); const btn = f.querySelector("button"), ta = f.querySelector("textarea"); btn.disabled = true;
+      sendLead(kind, f.querySelector("input").value.trim(), ta ? ta.value.trim() : "").then(() => { f.innerHTML = `<p><b>${okText}</b></p>`; })
+        .catch(err => { btn.disabled = false; const p = f.querySelector(".fmsg") || f.appendChild(document.createElement("p")); p.className = "fmsg"; p.textContent = err.message === "offline" ? "Prototype en test : cette demande n’est pas encore transmise." : "L’envoi a échoué. Réessayez dans un instant."; });
     });
   }
-  leadForm("debrief", "debrief", "Demande reçue. Vous serez recontacté par e-mail pour fixer un créneau.");
-  leadForm("form", "weekly", "C’est noté. Vous serez prévenu dès l’ouverture des rapports hebdomadaires.");
-  $("pdf").onclick = function () { window.print(); };
-  $("deckPdf").onclick = function () { document.documentElement.classList.add("ps"); window.print(); };
-  window.addEventListener("afterprint", function () { document.documentElement.classList.remove("ps"); });
-  if (new URLSearchParams(location.search).get("print") === "slides") document.documentElement.classList.add("ps");
-  window.addEventListener("beforeprint", function () { var d = document.querySelector(".all"); if (d) { d.dataset.was = d.open ? "1" : ""; d.open = true; } });
-  window.addEventListener("afterprint", function () { var d = document.querySelector(".all"); if (d && !d.dataset.was) d.open = false; });
-  $("qs").addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (!b) return; var q = S.M.questions[+b.dataset.q]; S.cfg.answers[q.id] = +b.dataset.o; E.applyRule(S.cfg, q.options[+b.dataset.o].set); recompute(); });
-  $("askMore").onclick = function () { S.allQ = !S.allQ; renderReport(); observe(); };
-  $("askRules").onclick = function () { openRules(); };
-  $("ctxGo").onclick = function () { var r = E.interpret($("ctxText").value, S.M); if (!r.understood.length && !r.notes.length) return; r.understood.forEach(function (u) { E.applyRule(S.cfg, u.set); }); S.ctx.understood = S.ctx.understood.concat(r.understood); S.ctx.notes = S.ctx.notes.concat(r.notes); $("ctxText").value = ""; recompute(); };
+  leadForm($("weekly"), "weekly", "C’est noté. Vous serez prévenu dès l’ouverture des rapports du lundi.");
 
-  // ---------- business rules: adjusted after the first result, report recomputed live ----------
-  function rulesSummary() {
-    var c = S.cfg, M = S.M, o = [], n = Object.keys(c.reasons || {}).length;
-    if (c.pipeline) o.push(c.pipeline === "*" ? "tous les pipelines ensemble" : "pipeline « " + c.pipeline + " »");
-    if (c.qualStage != null && +c.qualStage !== 1) o.push("qualifié dès " + M.stages[c.qualStage]);
-    if ((c.wrMin != null && +c.wrMin !== 17) || (c.wrMax != null && +c.wrMax !== 30)) o.push("win rate attendu " + M.rules.wrMin + "–" + M.rules.wrMax + NB + "%");
-    if (c.cycle) o.push("cycle attendu " + c.cycle + NB + "j");
-    if (c.stagMult && +c.stagMult !== 2) o.push("stagnation à " + String(c.stagMult).replace(".", ",") + "×");
-    if (c.fixedAmounts && c.fixedAmounts.length) o.push(c.fixedAmounts.length + " montant" + (c.fixedAmounts.length > 1 ? "s" : "") + " à prix fixe");
-    if (n) o.push(n + " raison" + (n > 1 ? "s" : "") + " de perte reclassée" + (n > 1 ? "s" : ""));
-    if (c.eomOk) o.push("close dates de fin de mois assumées");
-    if (c.exclude && c.exclude.length) o.push(c.exclude.map(function (x) { return x.key + " «\u00a0" + x.value + "\u00a0» exclu" + (x.key === "source" ? "e" : ""); }).join(", "));
-    return o;
-  }
-  function renderRules() {
-    var M = S.M, r = M.rules, c = S.cfg, o = function (v, l, sel) { return '<option value="' + esc(v) + '"' + (sel ? " selected" : "") + ">" + esc(l) + "</option>"; };
-    var CL = [["vague", "Ne dit rien (fourre-tout)"], ["nd", "Sans décision de l’acheteur"], ["comp", "Concurrence"], ["price", "Prix"], ["other", "Autre motif précis"]];
-    $("rules").innerHTML = '<div class="r-top"><h2>Règles métier</h2><button class="link" id="closeRules" type="button">Fermer</button></div><p class="r-lede">Tous les business ne se ressemblent pas. Adaptez ces règles au vôtre : le rapport se recalcule aussitôt, et chaque règle adaptée reste affichée en pied de rapport.</p>'
-      + (r.pipelines.length > 1 ? '<div class="rule"><label for="r-pipe">Pipeline analysé</label><small>Votre fichier contient plusieurs pipelines. Par défaut, le plus volumineux est analysé.</small><select id="r-pipe" data-k="pipeline">' + r.pipelines.map(function (p) { return o(p.name, p.name + " · " + p.n + " deals", r.pipeline === p.name); }).join("") + o("*", "Tous les pipelines ensemble", c.pipeline === "*") + "</select></div>" : "")
-      + (M.stages.length > 1 ? '<div class="rule"><label for="r-qual">Un deal est qualifié à partir de</label><small>Le win rate se calcule sur les deals ayant atteint cette étape.</small><select id="r-qual" data-k="qualStage">' + M.stages.map(function (s, i) { return o(i, s, i === r.qualStage); }).join("") + "</select></div>" : "")
-      + '<div class="rule"><label>Win rate attendu</label><small>Par défaut 17–30 %, la référence B2B. Inbound : 30–45 %. Outbound à froid : 10–20 %.</small><div class="pair">de <input type="number" min="1" max="99" data-k="wrMin" value="' + r.wrMin + '" aria-label="Win rate attendu minimum"> à <input type="number" min="1" max="100" data-k="wrMax" value="' + r.wrMax + '" aria-label="Win rate attendu maximum"> %</div></div>'
-      + '<div class="rule"><label for="r-cycle">Cycle de vente attendu</label><small>Laissez vide pour la référence de votre panier (' + r.cycleAuto + ' jours).</small><div class="pair"><input id="r-cycle" type="number" min="1" data-k="cycle" value="' + (r.cycle || "") + '" placeholder="' + r.cycleAuto + '"> jours</div></div>'
-      + '<div class="rule"><label for="r-stag">Un deal stagne au-delà de</label><small>Multiple de la durée médiane de son étape, sans changement d’étape.</small><select id="r-stag" data-k="stagMult">' + [[1.5, "1,5 fois la durée médiane"], [2, "2 fois la durée médiane (défaut)"], [3, "3 fois la durée médiane"]].map(function (x) { return o(x[0], x[1], x[0] === r.stagMult); }).join("") + "</select></div>"
-      + '<div class="rule"><label for="r-fixed">Offres à prix fixe</label><small>Ces montants ne seront pas lus comme des valeurs saisies par défaut. Séparez-les par une virgule.</small><input id="r-fixed" type="text" inputmode="numeric" data-k="fixedAmounts" value="' + r.fixedAmounts.join(", ") + '" placeholder="ex. 10000, 4900"></div>'
-      + '<div class="rule"><label>Lecture des raisons de perte</label><small>« Sans suite » ou « Autre » ne disent pas pourquoi vous perdez : par défaut, elles sont lues comme un problème de saisie.</small>' + M.reasons.map(function (x) { return '<div class="rr"><span>' + esc(x.name) + ' <span class="n">' + x.n + '</span></span><select data-reason="' + esc(x.name) + '" aria-label="Lecture de ' + esc(x.name) + '">' + CL.map(function (k) { return o(k[0], k[1], k[0] === x.cls); }).join("") + "</select></div>"; }).join("") + "</div>"
-      + '<div class="r-end"><button class="link" id="resetRules" type="button">Revenir aux règles par défaut</button></div>';
-    $("closeRules").onclick = closeRules; $("resetRules").onclick = function () { S.cfg = { reasons: {}, answers: {} }; S.ctx = { understood: [], notes: [] }; recompute(); };
-  }
-  function recompute() { S.M = E.analyze(S.anon, S.cfg); renderReport(); renderRules(); observe(); }
-  function openRules() { renderRules(); $("rules").classList.add("on"); $("scrim").classList.add("on"); }
-  function closeRules() { $("rules").classList.remove("on"); $("scrim").classList.remove("on"); }
-  $("openRules").onclick = openRules; $("scrim").onclick = closeRules;
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeRules(); });
-  $("rules").addEventListener("change", function (e) {
-    var t = e.target, c = S.cfg;
-    if (t.dataset.reason) c.reasons[t.dataset.reason] = t.value;
-    else if (t.dataset.k === "fixedAmounts") c.fixedAmounts = t.value.split(/[;,\s]+/).map(Number).filter(function (n) { return n > 0; });
-    else if (t.dataset.k) c[t.dataset.k] = t.value === "" ? null : (t.dataset.k === "pipeline" ? t.value : +t.value);
-    recompute();
+  // ---------- one place for every click that teaches a rule, and for the previews on hover ----------
+  document.addEventListener("click", e => {
+    const c = sel => e.target.closest && e.target.closest(sel); let b;
+    if ((b = c("[data-restart]"))) { $("file").value = ""; closeFiche(); refreshBack(); return view("drop"); }
+    if ((b = c("[data-fiche]"))) return openFiche();
+    if ((b = c("[data-go]"))) { const el = $(b.dataset.go); return el && el.scrollIntoView({ behavior: "smooth" }); }
+    if ((b = c("[data-raph]"))) { S.subject = b.dataset.raph; S.ask = false; renderOffer(); return $("raph").scrollIntoView({ behavior: "smooth" }); }
+    if ((b = c("[data-theme]"))) { S.theme = b.dataset.theme; return renderExplore(); }
+    if ((b = c("[data-edit]"))) { S.edit[b.dataset.edit] = 1; return recompute(); }
+    if (S.busy) return;
+    if ((b = c("[data-bet]"))) { S.bet = BETS[+b.dataset.bet]; b.classList.add("on"); $("tNote").textContent = "Noté. Je vous réponds dans un instant."; return later(nextQ); }
+    if ((b = c("[data-next]"))) { const t = truth(S.queue[S.qi]); if (t && t.answer == null) { S.cfg.answers[t.id] = true; S.M = E.analyze(S.anon, S.cfg); saveRules(); } return nextQ(); }
+    if ((b = c("[data-t]"))) {
+      const t = truth(b.dataset.t); if (!t) return; let note = "";
+      if (b.dataset.ok) S.cfg.answers[t.id] = true;
+      else { const o = t.options[+b.dataset.o]; E.applyRule(S.cfg, o.set); S.cfg.answers[t.id] = t.kind === "multi" ? true : +b.dataset.o; note = o.note || ""; }
+      if (t.kind === "multi" && !b.dataset.ok && S.view === "report") S.edit[t.id] = 1; else delete S.edit[t.id];
+      if (t.id === "stale") S.lit = true;
+      if (S.view !== "talk") return recompute();
+      S.M = E.analyze(S.anon, S.cfg); saveRules();
+      if (t.kind === "multi") return renderTalk();
+      renderTalk("Noté. " + note); later(nextQ, note ? 1900 : 1000);
+    }
+  });
+  document.addEventListener("mouseover", e => {
+    const b = e.target.closest && e.target.closest("[data-t]"); if (!b || b.dataset.ok || !S.M || S.busy) return;
+    const t = truth(b.dataset.t), o = t && t.options[+b.dataset.o]; if (!o) return; const dark = S.view === "talk" && !S.lit;
+    if (t.id === "stale") { paint({ T: o.set.stagDays || 0 }); if ($("liveN") && S.view === "talk") { $("liveN").textContent = parseInt(o.sub, 10); $("liveL").textContent = "deals à l’arrêt · " + o.label.toLowerCase(); } }
+    else if (t.id === "fixed") paint({ neutral: dark, hl: d => d.fixed });
+    else if (t.id === "team") paint({ neutral: dark, hl: d => d.owner === o.who });
+    else if (t.id.indexOf("dim:") === 0) paint({ neutral: dark, hl: d => (t.dim === "source" || t.dim === "segment" ? d[t.dim] : (d.x || {})[t.dim]) === o.label });
+  });
+  document.addEventListener("mouseout", e => {
+    const b = e.target.closest && e.target.closest("[data-t]"); if (!b || !S.M || S.busy) return;
+    paint({ neutral: S.view === "talk" && !S.lit }); if ($("liveN") && S.view === "talk") { $("liveN").textContent = S.M.pipe.unionN; $("liveL").textContent = "deals à l’arrêt avec la règle actuelle"; }
   });
 
-
-  // reveal on scroll, tooltip, local names
+  // reveal on scroll, tooltip
   function observe() {
-    if (!("IntersectionObserver" in window)) return [].forEach.call(document.querySelectorAll(".rv"), function (el) { el.classList.add("in"); });
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
-    [].forEach.call(document.querySelectorAll(".rv:not(.in)"), function (el) { io.observe(el); });
+    if (!("IntersectionObserver" in window)) return [].forEach.call(document.querySelectorAll(".rv"), el => el.classList.add("in"));
+    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }), { rootMargin: "0px 0px -6% 0px" });
+    [].forEach.call(document.querySelectorAll(".rv:not(.in)"), el => io.observe(el));
   }
-  var tip = $("tip");
-  document.addEventListener("mousemove", function (e) {
-    var t = e.target.closest && e.target.closest("[data-tip]");
-    if (!t || !t.dataset.tip) { tip.style.opacity = 0; return; }
-    var txt = t.dataset.tip;
-    if (t.dataset.who) { var r = S.M.reps.filter(function (x) { return x.hash === t.dataset.who; })[0]; txt = txt.replace("{who}", $("names").checked && S.anon.vault[t.dataset.who] ? S.anon.vault[t.dataset.who] : r ? r.code : "Commercial"); }
+  const tip = $("tip");
+  document.addEventListener("mousemove", e => {
+    const sl = e.target.closest && e.target.closest(".strip[data-strip] i"), t = sl ? null : e.target.closest && e.target.closest("[data-tip]"); let txt = "";
+    if (sl) { const st = STRIPS[sl.parentNode.dataset.strip], d = st && st.deals[+sl.dataset.d]; if (d) txt = (st.vault[d.label] || "Deal " + (d.id || "")) + " · " + F.eur(d.amount) + " · " + d.stage + (d.rest != null ? " · " + d.rest + NB + "j " + (st.n1 ? "d’ancienneté" : "sans changer d’étape") : "") + (d.past ? " · devait signer le " + F.date(d.close) : ""); }
+    else if (t) txt = t.dataset.tip;
+    if (!txt) { tip.style.opacity = 0; return; }
     tip.textContent = txt; tip.style.opacity = 1;
-    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10) + "px"; tip.style.top = (e.clientY + 16) + "px";
+    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10) + "px"; tip.style.top = (e.clientY + 18) + "px";
   });
 })();
 </script>
