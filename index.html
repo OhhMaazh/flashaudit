@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F6F5F1;--ink:#15140F;--ink-2:#5F5B51;--line:#DCD9CF;--mark:#2A2823;--mute:#CBC7BB;--band:#E4E0D3;
-  --red:#CF3A1E;--red-2:#E58A76;--red-3:#8F2611;--amber:#E0A91B;--green:#16875C;--slab:#15140F;--slab-2:#A6A193;--slab-line:#37342D;--cream:#F2F0E8;--hot:#FF6A4A;
+  --go-bg:#E4EFE8;--mint:#8FE0BA;--red:#CF3A1E;--red-2:#E58A76;--red-3:#8F2611;--amber:#E0A91B;--green:#16875C;--slab:#15140F;--slab-2:#A6A193;--slab-line:#37342D;--cream:#F2F0E8;--hot:#FF6A4A;
   --a:var(--mark);--n:var(--mute);--hatch:repeating-linear-gradient(135deg,var(--amber) 0 2px,transparent 2px 5px);--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -71,17 +71,18 @@ button,select,input,textarea{font:inherit;color:inherit}
 .nofile{margin-top:10px;font-size:14.5px;color:var(--ink-2)}.nofile .link{font-size:14.5px;color:var(--ink)}
 .ex{padding:26px 28px 6px;opacity:.5;transition:opacity .6s}.ex.on{opacity:1}
 .ex h2{display:block;border:0;padding:0;font-size:clamp(24px,2.5vw,36px);font-weight:700;letter-spacing:-.032em;line-height:1.06;margin:12px 0 22px;max-width:17ch}
-.ex h2 em,.vd h1 em{font-style:normal;color:var(--hot)}
+.ex h2 em,.vd h1 em{font-style:normal;color:var(--cream)}.vd h1 em.bad{color:var(--hot)}.ex h2 .dim,.vd h1 .dim{color:var(--slab-2)}
 .ex .strip{height:48px}.ex .strip i.h{box-shadow:0 -7px 0 var(--amber),0 7px 0 var(--amber)}
 .ex-cap{margin-top:14px;font-size:13.5px;min-height:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-cap:not(:empty)::before{content:"";display:inline-block;width:8px;height:8px;background:var(--amber);margin-right:8px}
 .ex .ans{margin-top:22px}.ex .ans a{grid-template-columns:1fr;gap:2px;padding:11px 0}.ex .ans a::after{display:none}.ex .ans b{font-size:15.5px}.ex .ans a span:first-child{font-size:13.5px}.ex .ans a:last-child{border-bottom:0}
 .exq{margin-top:16px;border:1.5px solid var(--ink);padding:20px 24px 22px}.exq:empty{display:none}
 .exq small{display:block;font-size:13px;color:var(--ink-2)}
+.mock{margin-top:10px;border:1.5px solid var(--ink);background:#fff;padding:13px 16px;font-size:16px;color:var(--ink-2)}.mock span{color:var(--red);margin-right:12px}
 .say{margin-top:10px;font-size:19px;font-weight:650;line-height:1.3;letter-spacing:-.012em;min-height:50px}
 .say::after{content:"";display:inline-block;width:2px;height:1em;background:var(--red);margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .got{margin-top:10px;font-size:15px;line-height:1.45;min-height:68px;opacity:0;transition:opacity .4s}.got.on{opacity:1}
-.got em{font-style:normal;color:var(--red);font-weight:650;display:block;margin-top:3px}
+.got em{font-style:normal;color:var(--red);font-weight:650;display:block;margin-top:3px}.exq .pill.r{color:var(--ink)}.exq .pill.c{color:#80600A}.exq .pill.k{color:var(--green)}
 .how{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink);margin-bottom:80px}
 .how div{padding:20px 28px 0 0}.how div+div{padding-left:28px;border-left:1px solid var(--line)}
 .how b{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em}.how b i{font:600 13px "Geist Mono",ui-monospace,monospace;color:var(--red);margin-right:10px}
@@ -178,6 +179,17 @@ button,select,input,textarea{font:inherit;color:inherit}
 .t-side .cz-out{margin-top:26px;padding-top:6px;border-top:1px solid var(--slab-line);max-width:46ch}
 .talk .cz{margin-top:18px;max-width:640px}.talk .cz-in input{font-size:17px;padding:14px 16px}
 .rules .cz{margin:18px 0 0}.rules .cz-in input{font-size:16px;padding:13px 14px}
+.cz-ic{align-self:center;padding-left:14px;color:var(--cream);font-size:15px;line-height:1}
+.rbar .cz-in{border-color:rgba(242,240,232,.38)}.rbar .cz-in:focus-within{border-color:var(--hot)}
+.cz-k{align-self:center;margin-right:12px;font:500 12px/1.5 "Geist Mono",ui-monospace,monospace;color:var(--slab-2);border:1px solid var(--slab-line);padding:0 7px;border-radius:4px}
+.cz-in input:not(:placeholder-shown)~.cz-k,.cz-in:focus-within .cz-k,.cz-in input:placeholder-shown~button{display:none}
+.cz.lt .cz-ic{color:var(--red)}
+.pill{display:inline-block;font:600 11.5px/1.6 "Geist Mono",ui-monospace,monospace;padding:0 7px;margin-right:10px;border:1px solid currentColor;vertical-align:2px;white-space:nowrap}
+.pill.r{color:var(--cream)}.pill.c{color:var(--amber)}.pill.k{color:var(--mint)}
+.cz.lt .pill.r{color:var(--ink)}.cz.lt .pill.c{color:#80600A}.cz.lt .pill.k{color:var(--green)}
+.sug{display:flex;align-items:baseline;width:100%;background:none;border:0;border-top:1px solid var(--slab-line);padding:10px 0;color:inherit;text-align:left;cursor:pointer;font-size:15.5px}
+.sug .pill{flex:none;min-width:58px;text-align:center}.sug b{font-weight:500}.sug:hover b{text-decoration:underline;text-underline-offset:4px}
+.cz-out .cz-hint+.sug{border-top:0}
 .nl{margin-top:8px;padding:12px 14px;border:1px solid var(--ink);font-size:14.5px;line-height:1.4}.nl q{display:block;font-weight:600;quotes:"« " " »"}.nl span{color:var(--ink-2)}.nl .link{font-size:13.5px;margin-left:8px}
 .tag{display:inline-block;font-size:12.5px;font-weight:600;padding:1px 8px;border:1px solid var(--ink);margin-right:8px;white-space:nowrap}
 .tag.sup{border:1px dashed #A37A0B;color:#7A5B06}.tag.ok{background:var(--ink);color:var(--bg)}
@@ -197,7 +209,7 @@ button,select,input,textarea{font:inherit;color:inherit}
 section{padding-top:88px;scroll-margin-top:60px}
 h2{font-size:15px;font-weight:650;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:20px;align-items:baseline}
 h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
-.chap-h{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:end;padding-bottom:22px;border-bottom:2px solid var(--ink)}
+.chap-h{padding-bottom:18px;border-bottom:2px solid var(--ink)}
 .chap-h h2{border:0;padding:0;display:block;font-size:clamp(30px,3.5vw,50px);font-weight:700;letter-spacing:-.037em;line-height:1.02}
 .chap-h h2 small{display:block;font-size:14px;font-weight:400;color:var(--ink-2);letter-spacing:0;margin-bottom:12px}
 .chap-h p{font-size:19px;font-weight:600;line-height:1.3;letter-spacing:-.012em}.chap-h p.r{color:var(--red)}.chap-h p.o{color:#80600A}.chap-h p.g{color:var(--green)}
@@ -205,27 +217,88 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .blk h3{font-size:28px;font-weight:700;line-height:1.12;letter-spacing:-.027em}
 .blk h3 em{font-style:normal;color:var(--red)}.blk.g h3,.blk.g h3 em{color:var(--green)}
 .blk .sub{margin-top:12px;color:var(--ink-2);font-size:16px;max-width:48ch}.blk .body{margin-top:12px;font-size:16px;max-width:48ch}
-/* audit → finding → recommended solution */
-.stp{font-size:14.5px;color:var(--ink-2);max-width:50ch;line-height:1.45}
-.stp b{display:inline-block;font:600 12px/1.55 "Geist Mono",ui-monospace,monospace;color:var(--ink);border:1px solid var(--ink);padding:0 7px;margin-right:10px}
-.stp.k{margin-top:20px}.stp.k+h3{margin-top:10px}
-.rec{grid-column:1/-1;background:var(--slab);color:var(--cream);padding:30px 34px 24px}
-.rec .stp b{color:var(--slab);background:var(--hot);border-color:var(--hot)}
-.rec h4{font-size:clamp(22px,2.3vw,30px);font-weight:700;letter-spacing:-.028em;line-height:1.1;margin-top:12px;max-width:32ch}
-.rec-s{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(3,1fr);margin-top:24px;border-top:1px solid var(--slab-line)}
-.rec-s li{counter-increment:s;padding:18px 26px 4px 0;font-size:15.5px;line-height:1.46;color:#D8D5CA}
-.rec-s li+li{padding-left:26px;border-left:1px solid var(--slab-line)}
-.rec-s li b{display:block;color:var(--cream);font-size:15px;font-weight:650;margin-bottom:6px}
-.rec-s li b::before{content:counter(s);font:600 13px "Geist Mono",ui-monospace,monospace;color:var(--hot);margin-right:10px}
-.rec-k{display:grid;grid-template-columns:repeat(3,1fr);margin-top:22px;border-top:1px solid var(--slab-line)}
-.rec-k div{padding:14px 26px 0 0}.rec-k div+div{padding-left:26px}
-.rec-k dt{font-size:13px;color:var(--slab-2)}.rec-k dd{font-size:15px;color:var(--cream);margin-top:3px;line-height:1.42}
-.rec-f{margin-top:22px;padding-top:14px;border-top:1px solid var(--slab-line);display:flex;gap:8px 26px;flex-wrap:wrap;align-items:center;font-size:14.5px;color:var(--slab-2)}
-.rec-f .link{color:var(--cream);font-size:14.5px;font-weight:600}
-.halves{display:grid;grid-template-columns:1fr 1fr;gap:72px;padding:44px 0;border-bottom:1px solid var(--line)}
-.halves .blk{display:block;padding:0;border:0}.halves .blk h3{font-size:22px}.halves .blk-r{margin-top:22px}
-.halves .rec{margin-top:26px;padding:24px 24px 20px}.halves .rec-s,.halves .rec-k{grid-template-columns:1fr}
-.halves .rec-s li,.halves .rec-s li+li{padding:14px 0 6px;border-left:0}.halves .rec-s li+li{border-top:1px solid var(--slab-line)}.halves .rec-k div,.halves .rec-k div+div{padding:12px 0 0}
+/* ---- a finding and its recommendation, side by side: the eye separates them before reading (red dot = finding, green arrow = what to do) ---- */
+.zl{font:600 12px/1.6 "Geist Mono",ui-monospace,monospace;color:var(--ink-2);white-space:nowrap}
+.zl.bad{color:var(--red)}.zl.bad::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:7px}
+.zl.fix{color:var(--green)}.zl.fix::before{content:"";display:inline-block;width:7px;height:7px;border-top:2px solid;border-right:2px solid;transform:rotate(45deg);margin:0 10px 1px 0}
+.slab .zl{color:var(--slab-2)}.slab .zl.bad{color:var(--hot)}.slab .zl.bad::before{background:var(--hot)}.slab .zl.fix{color:var(--mint)}
+.sev{display:inline-block;font:600 12px/1.6 "Geist Mono",ui-monospace,monospace;padding:0 8px;margin-right:12px;border:1px solid;white-space:nowrap}
+.sev.r{background:var(--red);border-color:var(--red);color:#fff}.sev.o{border-color:#A37A0B;color:#7A5B06;background:#FBF1D2}.sev.g{border-color:var(--green);color:var(--green)}.sev.na{border-color:var(--mute);color:var(--ink-2)}
+.fc{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:#fff;margin-top:22px;scroll-margin-top:80px}
+.fc-l,.fc-r{padding:24px 28px 26px;min-width:0}
+.fc-r{background:var(--go-bg);border-left:1px solid var(--line)}.fc-r.ask{background:#FBF6E4}
+.fc-tag{display:flex;align-items:center;min-height:22px}
+.fc-fig{white-space:nowrap;color:var(--red)}
+.fc h3{margin-top:14px;font-size:clamp(24px,2.3vw,32px);font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.fc h3 em{font-style:normal;color:var(--red)}
+.fc-line{margin-top:8px;font-size:15.5px;color:var(--ink-2);max-width:52ch}
+.fc-proof{margin-top:22px}.fc-proof:empty{display:none}
+.fc h4{margin-top:14px;font-size:clamp(20px,1.9vw,26px);font-weight:700;letter-spacing:-.025em;line-height:1.14;max-width:27ch}
+.fc-gain{margin-top:12px;font-size:17px;font-weight:700;color:#0F6B48;letter-spacing:-.01em}
+.fc-goal{margin-top:14px;font-size:15.5px}.fc-goal b{font-weight:650}.fc-goal span::before{content:"";display:inline-block;width:6px;height:6px;border-top:2px solid;border-right:2px solid;transform:rotate(45deg);margin:0 10px 1px 10px}
+.fc-stake{margin-top:14px;font-size:14.5px;color:var(--ink-2);max-width:46ch}
+details summary{cursor:pointer;list-style:none}details summary::-webkit-details-marker{display:none}
+.fc-more{margin-top:20px;border-top:1px solid rgba(21,20,15,.14)}
+.fc-more summary,.fc-list summary,.xr-ok summary{font-size:14.5px;font-weight:650;padding-top:12px}
+.fc-more summary::after,.fc-list summary::after,.xr-ok summary::after{content:"+";font-family:"Geist Mono",ui-monospace,monospace;margin-left:10px;color:var(--ink-2)}
+details[open]>summary::after{content:"−"}
+.fc-steps{list-style:none;counter-reset:s;margin-top:4px}
+.fc-steps li{counter-increment:s;display:grid;grid-template-columns:26px 1fr;padding:12px 0;border-bottom:1px solid rgba(21,20,15,.1);font-size:14.5px;line-height:1.45}
+.fc-steps li::before{content:counter(s);font:600 13px "Geist Mono",ui-monospace,monospace;color:var(--green);padding-top:3px}
+.fc-steps b{grid-column:2;font-size:15.5px;font-weight:650}.fc-steps span{grid-column:2;color:var(--ink-2);margin-top:3px}
+.fc-kv{margin-top:14px;display:grid;gap:10px}.fc-kv dt{font-size:12.5px;color:var(--ink-2)}.fc-kv dd{font-size:14.5px}
+.fc-f{margin-top:14px;display:flex;gap:22px;flex-wrap:wrap}.fc-f .link{font-size:14px;font-weight:600}
+.fc.ok{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 2px;padding:14px 20px}
+.fc-one{font-size:16px;font-weight:600}.fc-one span{font-weight:400;color:var(--ink-2)}
+.fc-list{border:1px solid var(--line);border-top:0;background:#fff;padding:0 28px 16px}.fc-list summary{padding:14px 0 0}.fc-list[open] summary{padding-bottom:16px}
+/* the whole report in three lines, right under the verdict */
+.gl{margin-top:34px}
+.gl-h,.gl-r{display:grid;grid-template-columns:230px 1fr 1fr;gap:28px;align-items:baseline}
+.gl-h{padding-bottom:8px}
+.gl-r{padding:14px 0;border-top:1px solid var(--slab-line);text-decoration:none;color:inherit;transition:background .15s}
+.gl-r:hover{background:rgba(242,240,232,.05)}
+.gl-q{color:var(--slab-2);font-size:15px}
+.gl-a{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.3}.gl-r.r .gl-a{color:var(--hot)}.gl-r.o .gl-a{color:var(--amber)}
+.gl-d{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.3;color:var(--mint)}.gl-d.no{color:var(--slab-2);font-weight:400}
+.gl-f{padding-top:14px;border-top:1px solid var(--slab-line);display:flex;gap:8px 26px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--slab-2)}.gl-f .link{font-size:14px;color:var(--cream)}
+/* how a number is computed: an "i" next to the figure, opened on hover, focus or tap */
+.mth{position:relative;display:inline-block;vertical-align:middle;margin-left:10px;font:400 13px/1.45 "Schibsted Grotesk",system-ui,sans-serif;letter-spacing:0;word-spacing:0}
+.mth-b{position:relative;width:20px;height:20px;border-radius:50%;border:1px solid currentColor;background:none;color:inherit;font:600 12px/1 "Geist Mono",ui-monospace,monospace;opacity:.5;cursor:help;transition:opacity .15s}
+.mth-b::after{content:"";position:absolute;inset:-7px}
+.mth:hover .mth-b,.mth-b:focus-visible,.mth.on .mth-b{opacity:1}
+.pop{display:none;position:absolute;left:-14px;top:100%;z-index:30;width:310px;padding:10px 0 0;text-align:left;font-weight:400;color:var(--cream);white-space:normal}
+.mth.flip .pop{left:auto;right:-14px}
+.mth:hover .pop,.mth:focus-within .pop,.mth.on .pop{display:block}
+.pop-in{display:block;background:var(--ink);padding:13px 15px 14px;box-shadow:0 14px 34px rgba(21,20,15,.28)}
+.pop b{display:inline;font-size:14px;font-weight:650;margin-right:8px}.pop .tag{font-size:11.5px;border-color:var(--cream);color:var(--cream);margin:0}.pop .tag.ok{background:var(--cream);color:var(--ink)}
+.pop-l{display:grid;grid-template-columns:46px 1fr;gap:8px;margin-top:8px;color:#D8D5CA}.pop-l i{font-style:normal;color:var(--slab-2);font-size:12px;padding-top:1px}
+.pop .link{margin-top:10px;font-size:13px;font-weight:600;color:var(--cream)}
+.slab .pop{color:var(--ink)}.slab .pop-in{background:var(--cream)}.slab .pop-l{color:var(--ink-2)}.slab .pop-l i{color:#8D897D}.slab .pop .tag{border-color:var(--ink);color:var(--ink)}.slab .pop .tag.ok{background:var(--ink);color:var(--cream)}.slab .pop .link{color:var(--ink)}
+/* the sales cycle, one column per stage */
+.h2t{font-weight:650;color:var(--ink);font-size:15px}
+.cy{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;padding-top:22px}
+.cy-s{display:grid;grid-template-rows:auto 96px auto auto;gap:7px;min-width:0}
+.cy-n{font-size:14.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cy-w{display:flex;align-items:flex-end;border-bottom:1px solid var(--ink)}.cy-b{display:block;width:100%;background:var(--mark)}
+.cy-s.weak .cy-b{background:var(--red)}.cy-s.end .cy-b{background:var(--green)}
+.cy-v{font-size:13.5px;color:var(--ink-2)}.cy-v b{color:var(--ink);font-weight:650}
+.cy-c{font-size:15.5px;font-weight:650}.cy-s.weak .cy-c{color:var(--red)}.cy-s.end .cy-c{color:var(--green)}
+/* indicators invented by the user */
+.kp{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px;padding-top:22px}
+.kp-c{border:1px solid var(--line);background:#fff;padding:20px 24px 18px;min-width:0}
+.kp-l{font-size:15px;font-weight:600;line-height:1.3}.kp-v{font:700 40px/1.1 "Schibsted Grotesk",sans-serif;letter-spacing:-.035em;word-spacing:0;margin:8px 0 16px}
+.kp-c .hb-r{grid-template-columns:110px 1fr 76px}.kp-c .link{margin-top:14px;font-size:13.5px;color:var(--ink-2)}
+/* secondary checks: same grammar, smaller */
+.exp{display:block}
+.xr{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.xr-h{border-bottom:2px solid var(--ink)}.xr-h span{padding-bottom:8px}.xr-h .fix{padding-left:20px}
+.xr-c{display:grid;grid-template-columns:14px 1fr;gap:12px;font-size:15px;padding:14px 24px 14px 0}.xr-c .mk{margin-top:6px}
+.xr-d{padding:14px 20px;background:var(--go-bg);font-size:14.5px;color:#0F5A3D}
+.xr-ok .xr{grid-template-columns:1fr}
+.xr-figs{display:grid;grid-template-columns:1fr 1fr;gap:40px 72px;padding-top:36px}.xr-figs .fig,.xr-figs .fig+.fig{padding:0;border:0;margin:0}
+.tab b{font-weight:650;color:var(--red);margin-left:8px}.tab.on b{color:var(--hot)}
+.lg{margin-left:14px;white-space:nowrap}.lg i{display:inline-block;width:9px;height:9px;margin:0 6px 0 12px}
+.xr-ok{margin-top:6px}.xr-ok .xr-c{color:var(--ink-2)}
 .blk-full{padding:36px 0 44px;border-bottom:1px solid var(--line)}
 .dr{display:grid;grid-template-columns:1.7fr 90px 1fr .9fr 1.6fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px;align-items:baseline}
 .dr.head{font-size:13px;color:var(--ink-2);border-bottom:2px solid var(--ink)}.dr .r{text-align:right}
@@ -235,7 +308,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .rb-r{display:grid;grid-template-columns:132px 1fr 170px;gap:14px;align-items:center;font-size:14px}
 .rb-t{display:flex;height:14px;gap:1px}.rb-t i{display:block;background:var(--mark)}.rb-t i.s{background:var(--red)}
 .rb-v{text-align:right;font-size:13.5px;color:var(--ink-2)}.rb-v b{color:var(--red);font-weight:600}
-.jr{display:grid;grid-template-columns:128px 1fr 118px 46px 92px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.jr{display:grid;grid-template-columns:128px 1fr 78px 60px 46px 96px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
 .jr.head{font-size:13px;color:var(--ink-2);padding:0 0 8px}.jr .r{text-align:right}
 .jr-t{display:flex;height:16px}.jr-t i{display:block;background:var(--mark);transform-origin:left;transition:transform 1s var(--ease) calc(var(--i)*70ms)}.jr-t i.x{background:var(--mute)}
 .jr.hl .jr-t i.x{background:var(--red)}.jr.hl>span:first-child,.jr.hl .lost{font-weight:650;color:var(--red)}
@@ -336,18 +409,20 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .rv.in{opacity:1;transform:none}
 .rv:not(.in) .hb-t i,.rv:not(.in) .jr-t i{transform:scaleX(0)}
 .rv:not(.in) .stack i{transform:scaleY(0)}
-.vd.intro>*{animation:rise .8s var(--ease) both}.vd.intro>:nth-child(2){animation-delay:.08s}.vd.intro>:nth-child(n+3){animation-delay:.25s}.vd.intro>:nth-child(n+6){animation-delay:1.5s}
+.vd.intro>*{animation:rise .8s var(--ease) both}.vd.intro>:nth-child(2){animation-delay:.08s}.vd.intro>:nth-child(n+3){animation-delay:.25s}.vd.intro>:nth-child(n+5){animation-delay:1.3s}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv{opacity:1!important;transform:none!important}}
 @media screen and (max-width:980px){
   .wrap{padding:0 20px}.drop,.t-body,.chap-h,.blk,.halves,.offer,.exp,.two,.cta,.how,.rec-s,.rec-k{grid-template-columns:1fr;gap:32px}.drop{padding-top:28px}
   .top{flex-wrap:wrap;gap:6px 16px}.drop>*,.t-body>*,.blk>*,.halves>*,.offer>*{min-width:0}
+  .cy{grid-auto-columns:132px;overflow-x:auto;padding-bottom:6px}
+  .fc,.gl-h,.gl-r,.xr,.xr-figs{grid-template-columns:1fr}.xr-h .fix{display:none}.xr-d{margin-bottom:10px}.fc-r{border-left:0;border-top:1px solid var(--line)}.fc-l,.fc-r{padding:20px 18px 22px}.gl-h{display:none}.gl-r{gap:4px}.gl-d::before{content:"";display:inline-block;width:6px;height:6px;border-top:2px solid;border-right:2px solid;transform:rotate(45deg);margin:0 9px 1px 0}.pop{width:270px}.fc-list{padding:0 18px 14px}.kp{grid-template-columns:1fr}
   .how{gap:0;margin-bottom:56px}.how div,.how div+div{padding:16px 0 4px;border-left:0}.how div+div{border-top:1px solid var(--line)}
   .rec{padding:24px 20px 20px}.rec-s,.rec-k{gap:0}.rec-s li,.rec-s li+li{padding:14px 0 6px;border-left:0}.rec-s li+li{border-top:1px solid var(--slab-line)}.rec-k div,.rec-k div+div{padding:12px 0 0}
   .rbar{position:static}.rbar .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 16px;white-space:normal}.rbar .cz{order:3;flex:1 0 100%}.rbar #rbar{order:4;flex:1 0 100%}.rbar .cz-out{left:20px;right:20px}.cz-in input{font-size:16px;padding:13px 12px}.cz-in button{padding:0 14px}
   .chap-h{gap:12px;align-items:start}.ans a{grid-template-columns:1fr;gap:2px}.ans a::after{display:none}
   .strip{height:48px;gap:0}.v-strip .strip{height:56px}.t-body{padding-top:32px}.t-side .big{font-size:52px}
   .dr{grid-template-columns:1fr 84px}.dr span:nth-child(n+3){display:none}.dr.head span:nth-child(n+3){display:none}
-  .jr{grid-template-columns:1fr 84px 84px;gap:6px 10px}.jr-t{grid-column:1/-1;order:9}.jr span:nth-child(4),.jr.head span:nth-child(2),.jr.head span:nth-child(4){display:none}
+  .jr{grid-template-columns:1fr 60px 56px 76px;gap:6px 8px}.jr-t{grid-column:1/-1;order:9}.jr span:nth-child(5),.jr.head span:nth-child(2){display:none}
   .rb-r{grid-template-columns:100px 1fr}.rb-v{grid-column:1/-1;text-align:left}.hb-r{grid-template-columns:96px 1fr 96px}
   .mr{grid-template-columns:1fr 1fr;gap:6px 14px}.mr.head{display:none}
   .mvs{grid-template-columns:1fr 1fr}.mv,.mv:first-child{padding:16px 0;border-left:0;border-top:1px solid var(--line)}.pr{grid-template-columns:1fr 70px 64px}.pr span:nth-child(2),.pr span:nth-child(5){display:none}
@@ -402,9 +477,9 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     </aside>
   </div>
   <div class="how">
-    <div><b><i>1</i>Audit</b><p>Vos deals sont lus un par un, avec vos règles. Vous les donnez en touchant vos chiffres, ou en les écrivant avec vos mots.</p></div>
-    <div><b><i>2</i>Constat</b><p>Ce qui ne tient pas, chiffré en euros, avec le graphique qui le prouve et la liste des deals concernés.</p></div>
-    <div><b><i>3</i>Recommandation</b><p>Pour chaque faiblesse, une solution en trois temps : le premier geste, la règle à installer, ce qui la fait tenir. Faisable sans consultant.</p></div>
+    <div><b><i>1</i>Audit</b><p>Vos deals sont lus un par un, avec vos règles métier et vos méthodes de calcul, dites avec vos mots.</p></div>
+    <div><b><i>2</i>Constat</b><p>Ce qui ne tient pas, en un chiffre et un graphique. La méthode de calcul s’affiche au survol.</p></div>
+    <div><b><i>3</i>Recommandation</b><p>En face de chaque constat, quoi faire en une ligne, puis les trois étapes. Faisable sans consultant.</p></div>
   </div>
 </main>
 
@@ -432,7 +507,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 <div id="v-report" hidden>
   <div class="rbar slab" id="rb"><div class="wrap">
     <span class="brand">FLASH SALES FUNNEL AUDIT</span>
-    <div class="cz" id="czB"><div class="cz-in"><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Une règle de votre métier, avec vos mots"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div></div>
+    <div class="cz" id="czB"><div class="cz-in"><span class="cz-ic" aria-hidden="true">✦</span><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Vos règles, vos calculs, ou un KPI à inventer" placeholder="Donnez-nous vos règles, vos calculs, ou inventez un KPI…"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div></div>
     <span id="rbar"></span>
     <button class="link" data-restart type="button">Nouveau fichier</button>
   </div></div>
@@ -442,19 +517,12 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
       <h1 id="vTitle"></h1>
       <div><p class="v-bet" id="vBet"></p><p class="v-prev" id="vPrev"></p></div>
       <div class="v-strip" id="vStrip"></div>
-      <p class="v-sub" id="vSub"></p>
-      <div class="cz" id="czV">
-        <p class="cz-h"><b>Ce chiffre dépend de vos règles.</b> Quelque chose ne colle pas à votre réalité ? Dites-le-moi avec vos mots, je recalcule tout.</p>
-        <div class="cz-in"><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Une règle de votre métier, avec vos mots"><button type="button" data-czgo>Appliquer</button></div>
-        <div class="cz-out" aria-live="polite"></div>
-        <div class="cz-ex" id="czVex"></div>
-      </div>
-      <div id="vRule"></div>
-      <div class="vbtns" id="vBtns"></div>
-      <div class="ans" id="vAns"></div>
+      <div class="gl" id="glance"></div>
     </div>
   </div></header>
   <div class="wrap">
+    <section id="cycle" hidden></section>
+    <section id="mine" hidden></section>
     <section id="moves" hidden><h2>Ce qui a bougé <span id="movesSub"></span></h2><div class="mvs" id="mvs"></div><div class="two mv2"><div id="mvPushed"></div><div id="mvDue"></div></div></section>
     <div id="chapters"></div>
     <section id="monday"><h2>Lundi matin, trois décisions <span>la diapositive est prête, écrite à votre place, sans aucun nom de commercial</span></h2><div class="slide" id="slide"></div><div class="lbar"><button class="link" id="slideCopy" type="button">Copier en texte pour l’équipe</button><button class="link" id="slidePdf" type="button">Enregistrer la diapositive en PDF</button></div></section>
@@ -472,9 +540,9 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 <aside class="rules" id="fiche" aria-label="Ce que l’outil a compris de votre business"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261127143814 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261127143814"></script>
-<script src="./engine.js?v=20261127143814"></script>
+<!-- ?v=20261127153531 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261127153531"></script>
+<script src="./engine.js?v=20261127153531"></script>
 <script>
 (function () {
   "use strict";
@@ -521,7 +589,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
         else if (o.T != null) { const sg = d.lim ? d.rest > d.lim : o.T === 0 ? d.def : d.rest != null && d.rest > o.T; k = sg && d.past ? "b" : sg ? "s" : d.past ? "p" : "a"; } else k = "asbp"[d.g];
         if (o.hl) k += o.hl(d) ? " h" : " dim"; c.className = k; }); });
   }
-  const sleg = M => { const p = M.pipe, st = M.story; return `<div class="sleg"><span><i class="la"></i><b>${F.eur(st.alive)}</b> · ${st.aliveN} deals qui avancent</span>${p.unionN ? `<span><b>${F.eur(p.union)}</b> · ${p.unionN} deals à l’arrêt : <i class="ls"></i>ne bougent plus ${F.eur(p.stagOnly)}<i class="lb"></i>les deux ${F.eur(p.both)}<i class="lp"></i>date de signature dépassée ${F.eur(p.pastOnly)}</span>` : ""}</div>`; };
+  const sleg = M => { const p = M.pipe, st = M.story; return `<div class="sleg"><span><i class="la"></i><b>${F.eur(st.alive)}</b> · ${st.aliveN} deals qui avancent</span>${p.unionN ? `<span><i class="ls"></i><b>${F.eur(p.union)}</b> · ${p.unionN} deals à l’arrêt</span>` : ""}</div>`; };
   function countTo(el, from, to, ms) { if (!el || window.matchMedia("(prefers-reduced-motion:reduce)").matches) return; const t0 = performance.now(), step = t => { const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = F.eur(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
 
   // ---------- 1. file intake ----------
@@ -560,18 +628,12 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   // the example on the home page is computed live by the real engine
   if (window.isSecureContext) getSample().then(t => { const p = E.parseCSV(t); return E.anonymize(p, E.proposeMapping(p), "demo"); }).then(a => {
     const M = E.analyze(a, {}), v = M.story.verdict, t = M.truths.find(x => x.interview && x.ev === "reasons") || M.truths.find(x => x.interview);
-    $("exTitle").innerHTML = esc(v.title.replace("Votre CRM", "Ce CRM")).replace(esc(v.em), `<em>${esc(v.em)}</em>`);
+    $("exTitle").innerHTML = esc(v.title.replace("Votre CRM", "Ce CRM")).replace(esc(v.em), `<em>${esc(v.em)}</em>`).replace(/^(.*?\. )/, `<span class="dim">$1</span>`);
     $("exStrip").innerHTML = strip(M, { build: true, vault: a.vault });
     $("exAns").innerHTML = M.story.answers.map(x => `<a class="${x.tone}"><span>${esc(x.q)}</span><b>${esc(x.a)}</b></a>`).join("");
     $("ex").classList.add("on");
     // under the example: rules said in plain words, read by the real engine, and what each one moves in this pipeline
-    const demos = [], todo = M.examples.filter(e => ["stale", "fixed", "stage", "reason"].indexOf(e.k) >= 0), still = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
-    const prep = () => { const e = todo.shift(); if (!e) return; const r = E.interpret(e.text, M, {}); if (r.understood.length) { const c = { answers: {} }; r.understood.forEach(u => { E.applyRule(c, u.set); Object.assign(c.answers, u.answers); }); const M1 = E.analyze(a, c), map = {}; M1.openDeals.forEach(d => { map[d.id] = d.g; }); demos.push({ txt: e.text, label: r.understood[0].label, eff: E.effect(M, M1)[0] || "", map: map }); } if (demos.length === 1) play(0); setTimeout(prep, 60); };
-    const play = i => { const d = demos[i % demos.length], say = $("exSay"), got = $("exGot"); if (!d || !say) return; if (S.view !== "drop") return setTimeout(() => play(i), 3000);
-      const show = () => { say.textContent = d.txt; got.innerHTML = `<span class="tag ok">Je comprends</span>${esc(d.label)}.<em>${esc(cap(d.eff))}${d.eff ? "." : ""}</em>`; got.classList.add("on"); if (S.view === "drop") paint({ map: d.map }); };
-      if (still) return show();
-      got.classList.remove("on"); say.textContent = ""; let n = 0; const tm = setInterval(() => { say.textContent = d.txt.slice(0, ++n); if (n >= d.txt.length) { clearInterval(tm); setTimeout(show, 350); setTimeout(() => { if (S.view === "drop") paint(); play(i + 1); }, 5600); } }, 26); };
-    if (t) { $("exQ").innerHTML = `<small>Vous lui expliquez vos règles avec vos mots. Il recalcule devant vous.</small><p class="say" id="exSay"></p><p class="got" id="exGot"></p>`; setTimeout(prep, 900); }
+    $("exQ").innerHTML = `<small>Ensuite, le rapport s’adapte à ce que vous lui dites</small><p class="mock"><span aria-hidden="true">✦</span>Donnez-nous vos règles, vos calculs, ou inventez un KPI…</p>`;
     // the example stays alive: one stalled deal after another lights up in the strip, with its name
     const hot = M.openDeals.map((d, i) => ({ d: d, i: i })).filter(x => x.d.g > 0).sort((x, y) => y.d.amount - x.d.amount).slice(0, 14); let k = 0;
     const tick = () => { const el = $("exStrip").querySelector(".strip"); if (S.view !== "drop" || !hot.length || !el) return; const x = hot[k++ % hot.length];
@@ -603,9 +665,9 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     E.anonymize(S.parsed, S.cols, salt).then(a => {
       S.anon = a; S.sig = S.cols.map(c => c.source).join("|"); S.cfg = { reasons: {}, answers: {}, nl: [] }; S.edit = {}; S.bet = null; S.names = false; S.listAll = false; S.theme = null; S.learned = 0; S.subject = ""; S.ask = false; S.askText = ""; S.lit = false;
       if (!S.isDemo) try { const m = JSON.parse(store.get("fsfa-rules") || "null"); if (m && m.sig === S.sig && m.cfg) { S.cfg = m.cfg; S.cfg.answers = S.cfg.answers || {}; S.cfg.reasons = S.cfg.reasons || {}; S.cfg.nl = S.cfg.nl || []; S.learned = Object.keys(S.cfg.answers).length + S.cfg.nl.filter(x => !Object.keys(x.prev || {}).length).length; } } catch (e) {}
-      ["czV", "czB"].forEach(id => { $(id).querySelector("input").value = ""; $(id).querySelector(".cz-out").innerHTML = ""; });
+      $("czB").querySelector("input").value = ""; $("czB").querySelector(".cz-out").innerHTML = ""; S.open = {};
       S.M = E.analyze(a, S.cfg); compareSnapshots();
-      S.queue = (S.learned ? [] : ["bet"]).concat(S.M.truths.filter(t => t.interview && t.answer == null).slice(0, 4).map(t => t.id)); S.qi = 0; S.fresh = true;
+      S.queue = S.M.truths.filter(t => t.interview && t.answer == null).slice(0, 4).map(t => t.id); S.qi = 0; S.fresh = true;
       if (S.queue.length) { view("talk"); renderTalk(); } else showReport();
     }).catch(e => { view("drop"); zoneMsg("Lecture impossible : " + e.message); });
   }
@@ -624,45 +686,58 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 
   // ---------- the composer: a business rule said in plain words. The engine reads it, shows what it would move, then applies it ----------
   const czOut = c => (c.dataset.out && $(c.dataset.out)) || c.querySelector(".cz-out");
-  const czHtml = o => `<div class="cz${o.lt ? " lt" : ""}"${o.out ? ` data-out="${o.out}"` : ""}>${o.head ? `<p class="cz-h">${o.head}</p>` : ""}<div class="cz-in"><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Une règle de votre métier, avec vos mots" placeholder="${att(o.ph || "")}"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div>${o.chips ? `<div class="cz-ex${o.lt ? " lt" : ""}">${o.chips}</div>` : ""}</div>`;
-  const exOf = k => { const e = S.M.examples.filter(x => x.k === k)[0]; return e ? who(e.text) : ""; };
-  const exFor = t => exOf(t.id.indexOf("reason:") === 0 ? "reason" : t.id.indexOf("dim:") === 0 ? "dim" : t.id);
-  const chips = n => S.M.examples.slice(0, n).map(e => `<button class="chip" type="button" data-say="${att(who(e.text))}">${esc(who(e.text))}</button>`).join("");
+  const PH = "Donnez-nous vos règles, vos calculs, ou inventez un KPI…";
+  const czHtml = o => `<div class="cz${o.lt ? " lt" : ""}"${o.out ? ` data-out="${o.out}"` : ""}>${o.head ? `<p class="cz-h">${o.head}</p>` : ""}<div class="cz-in"><span class="cz-ic" aria-hidden="true">✦</span><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="${att(PH)}" placeholder="${att(o.ph || PH)}"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div></div>`;
   const namesOf = () => { const o = {}; S.M.reps.forEach(r => { if (name(r.hash)) o[r.hash] = name(r.hash); }); return o; };
   const calm = () => paint({ neutral: S.view === "talk" && !S.lit });
+  // what the engine understood is labelled after the fact: a rule, a calculation method, or an indicator
+  const kindOf = u => u.set.addKpi ? "KPI" : ["qualStage", "cycleFrom", "minAmount", "since", "stagMult"].some(k => k in u.set) ? "Calcul" : "Règle";
+  const pill = k => `<span class="pill ${k === "KPI" ? "k" : k === "Calcul" ? "c" : "r"}">${k}</span>`;
+  const said = u => cap(who(u.label)).replace(/^Nouvel indicateur : /, "");
   function czRead(c) {
     const txt = c.querySelector("input").value.trim(); if (txt.length < 3) return null;
     const r = E.interpret(txt, S.M, { names: namesOf() }); r.text = txt;
     if (r.understood.length) { const cfg = JSON.parse(JSON.stringify(S.cfg)); r.understood.forEach(u => { E.applyRule(cfg, u.set); Object.assign(cfg.answers, u.answers); }); r.M1 = E.analyze(S.anon, cfg); r.eff = E.effect(S.M, r.M1); }
     return r;
   }
-  const czSaid = (r, tag) => `<p class="cz-got"><span class="tag ok">${tag}</span>${r.understood.map(u => esc(cap(who(u.label)))).join(" · ")}.</p><p class="cz-eff">${r.eff.length ? "Ce que ça change : " + esc(r.eff.join(" · ")) + "." : "Aucun chiffre ne bouge pour l’instant, mais la règle est retenue."}</p>`;
+  const czSaid = r => r.understood.map(u => `<p class="cz-got">${pill(kindOf(u))}${esc(said(u))}</p>`).join("") + `<p class="cz-eff">${r.eff.length ? esc(cap(who(r.eff.join(" · ")))) + "." : "Aucun chiffre ne bouge pour l’instant."}</p>`;
+  // three starting points, shown only while the empty bar has focus and nothing has been said yet
+  function czHints(c) { if (!S.M || S.view !== "report" || S.cfg.nl.length || c.querySelector("input").value) return; czOut(c).innerHTML = `<p class="cz-hint">Dites-le avec vos mots. Par exemple :</p>` + S.M.hints.map(h => `<button class="sug" type="button" data-say="${att(h.text)}">${pill(h.kind)}<b>${esc(h.text)}</b></button>`).join(""); }
   function czPreview(c) {
     const out = czOut(c), r = czRead(c), ok = r && r.understood.length;
     if ($("liveN") && S.view === "talk") $("liveN").textContent = (ok ? r.M1 : S.M).pipe.unionN;
-    if (!ok) { out.innerHTML = r ? `<p class="cz-hint">Je vous écoute. Appuyez sur Entrée quand votre phrase est finie.</p>` : ""; return calm(); }
-    out.innerHTML = czSaid(r, "Je comprends") + `<p class="cz-hint">Entrée pour appliquer.${r.notes.length ? " Le reste de votre phrase n’est pas encore une règle que je sais appliquer." : ""}</p>`;
+    if (!ok) { out.innerHTML = r ? `<p class="cz-hint">Je vous écoute. Entrée quand votre phrase est finie.</p>` : ""; if (!r) czHints(c); return calm(); }
+    out.innerHTML = czSaid(r) + `<p class="cz-hint">Entrée pour appliquer.${r.notes.length ? " Le reste de votre phrase n’est pas encore quelque chose que je sais lire." : ""}</p>`;
     if (!r.M1.openDeals.some(d => d.id == null || d.id === "")) { const m = {}; r.M1.openDeals.forEach(d => { m[d.id] = d.g; }); paint({ map: m }); }
   }
   function czApply(c) {
     const inp = c.querySelector("input"), r = czRead(c); if (!r) return inp.focus();
-    if (!r.understood.length) { czOut(c).innerHTML = `<p><b>Je ne sais pas encore appliquer cette règle tout seul.</b> Aujourd’hui je comprends : le délai avant qu’un deal soit à l’arrêt, en général ou pour une étape ; qui ne vend plus chez vous ; vos tarifs ; les petits deals à ne pas compter ; le sens d’une raison de perte ; les deals à mettre de côté ; la période à juger ; la durée et le taux de signature normaux chez vous.</p><p><button class="link" type="button" data-czraph="${att(r.text)}">Envoyer cette règle à Raph, pour qu’il l’ajoute à l’outil</button></p>`; return; }
-    const was = S.M.story.alive, k = r.understood.length, inTalk = S.view === "talk", cur = inTalk ? S.queue[S.qi] : null;
+    if (!r.understood.length) { czOut(c).innerHTML = `<p><b>Je ne sais pas encore lire cette phrase.</b> Je comprends une règle métier (délai avant qu’un deal soit à l’arrêt, tarif, sens d’une raison de perte, deals à écarter, personne qui ne vend plus), une méthode de calcul (base du taux de signature, départ de la durée d’une vente, pipeline pondéré) ou un indicateur (une mesure, puis « par » une catégorie).</p><p><button class="link" type="button" data-czraph="${att(r.text)}">L’envoyer à Raph, pour qu’il l’ajoute à l’outil</button></p>`; return; }
+    const was = S.M.story.alive, k = r.understood.length, inTalk = S.view === "talk", cur = inTalk ? S.queue[S.qi] : null, kpi = r.understood.some(u => u.set.addKpi);
     r.understood.forEach(u => { const prev = {}; Object.keys(u.answers).forEach(id => { prev[id] = S.cfg.answers[id] != null ? S.cfg.answers[id] : null; }); S.cfg.nl.push({ text: u.mask, label: u.label, undo: E.inverse(S.cfg, u.set), prev: prev }); E.applyRule(S.cfg, u.set); Object.assign(S.cfg.answers, u.answers); });
-    inp.value = ""; S.lit = true; const html = czSaid(r, "C’est noté") + `<p><button class="link" type="button" data-czundo="${k}">Annuler</button>${inTalk ? "" : `<button class="link" type="button" data-fiche>Voir toutes vos règles</button>`}</p>`;
+    inp.value = ""; S.lit = true; const html = `<p class="cz-hint">C’est noté</p>` + czSaid(r) + `<p><button class="link" type="button" data-czundo="${k}">Annuler</button>${inTalk ? "" : `<button class="link" type="button" data-fiche>Voir vos règles</button>`}</p>`;
     if (inTalk) { S.M = E.analyze(S.anon, S.cfg); saveRules(); const t = cur === "bet" ? null : truth(cur);
       renderTalk(); paint(); if ($("tOut")) $("tOut").innerHTML = html; if (!t || t.answer != null) later(nextQ, 3000); return; }
-    recompute(); const live = c.isConnected ? c : $("czV"); czOut(live).innerHTML = html; live.classList.add("open");
+    recompute(); const live = c.isConnected ? c : $("czB"); czOut(live).innerHTML = html; live.classList.add("open");
+    if (kpi && !$("mine").hidden) window.scrollTo({ top: $("mine").getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
     if (S.M.story.verdict.kind === "alive" && Math.round(was) !== Math.round(S.M.story.alive)) countTo($("vEm"), was, S.M.story.alive, 900);
   }
   function nlRemove(i) { const e = S.cfg.nl[i]; if (!e) return; E.applyRule(S.cfg, e.undo || {}); Object.keys(e.prev || {}).forEach(id => { if (e.prev[id] == null) delete S.cfg.answers[id]; else S.cfg.answers[id] = e.prev[id]; }); S.cfg.nl.splice(i, 1); }
   let czTimer = 0;
   document.addEventListener("input", e => { const c = e.target.closest && e.target.closest(".cz"); if (!c || !S.M) return; c.classList.add("open"); clearTimeout(czTimer); czTimer = setTimeout(() => czPreview(c), 140); });
-  document.addEventListener("keydown", e => { const c = e.target.closest && e.target.closest(".cz"); if (!c) return; if (e.key === "Enter") { e.preventDefault(); clearTimeout(czTimer); czApply(c); } else if (e.key === "Escape") { c.classList.remove("open"); e.target.blur(); calm(); } });
-  document.addEventListener("focusin", e => { const c = e.target.closest && e.target.closest(".cz"); if (c) c.classList.add("open"); });
-  // the placeholder keeps suggesting rules written from the user's own file
-  let phI = 0; const czPh = () => { if (S.view !== "report" || !S.M || !S.M.examples.length) return; const ex = who(S.M.examples[phI++ % S.M.examples.length].text); ["czV", "czB"].forEach(id => { const i = $(id).querySelector("input"); if (!i.value && document.activeElement !== i) i.placeholder = (id === "czB" ? "Dites une règle de votre métier. Par exemple : " : "Par exemple : ") + ex; }); };
-  setInterval(czPh, 3400);
+  document.addEventListener("keydown", e => {
+    const c = e.target.closest && e.target.closest(".cz"), typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (e.key === "/" && !typing && S.view === "report" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); return $("czB").querySelector("input").focus(); }
+    if (e.key === "Escape") { document.querySelectorAll(".mth.on").forEach(x => x.classList.remove("on")); if (document.activeElement && document.activeElement.closest(".mth")) document.activeElement.blur(); }
+    if (!c) return;
+    if (e.key === "Enter") { e.preventDefault(); clearTimeout(czTimer); czApply(c); } else if (e.key === "Escape") { c.classList.remove("open"); e.target.blur(); calm(); }
+  });
+  document.addEventListener("focusin", e => { const c = e.target.closest && e.target.closest(".cz"); if (c && e.target.tagName === "INPUT") { c.classList.add("open"); if (!e.target.value) czHints(c); } });
+  // how a number is computed: one small "i" next to it, same three lines everywhere (what is counted, on what, with which rule)
+  const mth = o => `<span class="mth"><button type="button" class="mth-b" aria-label="Comment est-ce calculé ?" aria-expanded="false">i</button><span class="pop"><span class="pop-in"><b>${esc(o.name || "Comment c’est calculé")}</b>${o.t ? `<span class="tag ${o.t.answer != null ? "ok" : "sup"}">${o.t.answer != null ? "Votre règle" : "Règle par défaut"}</span>` : ""}<span class="pop-l"><i>Calcul</i><span>${esc(o.method)}</span></span>${o.scope ? `<span class="pop-l"><i>Base</i><span>${esc(o.scope)}</span></span>` : ""}${o.t ? `<span class="pop-l"><i>Règle</i><span>${esc(cap(who(o.t.answer != null ? o.t.said : o.t.assumed)))}.</span></span><button class="link" type="button" data-mod="${att(o.t.id)}">Modifier la règle</button>` : ""}</span></span></span>`;
+  const withI = (html, i) => i ? (/ ([^ <>]+)$/.test(html) ? html.replace(/ ([^ <>]+)$/, ` <span class="nw">$1${i}</span>`) : html + i) : html;
+  document.addEventListener("mouseover", e => { const w = e.target.closest && e.target.closest(".mth"); if (w) w.classList.toggle("flip", w.getBoundingClientRect().left + 330 > document.documentElement.clientWidth); });
+  document.addEventListener("toggle", e => { const k = e.target.dataset && e.target.dataset.det; if (k) S.open[k] = e.target.open; }, true);
 
   const optsHtml = (t, cls) => t.options.map((o, j) => `<button class="${cls}${t.kind === "multi" ? " tog" + (o.on ? " on" : "") : t.answer === j ? " on" : ""}" type="button" data-t="${att(t.id)}" data-o="${j}">${esc(t.who ? name(o.who) || o.label : o.label)}${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</button>`).join("");
   function reasonsChart(only) { const M = S.M, tot = M.reasons.reduce((a, r) => a + r.n, 0) || 1; return `<p class="c-title">Raisons de perte saisies · ${F.int(tot)} deals perdus</p>` + hbars(M.reasons.map(r => ({ l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: (only ? r.name === only : r.cls === "vague") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }))) + (only ? "" : `<p class="cap">En rouge : les valeurs qui ne disent pas pourquoi le deal est perdu.</p>`); }
@@ -683,7 +758,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     $("tStrip").innerHTML = strip(M, { build: S.fresh, neutral: !S.lit }) + `<p class="cap">Votre pipeline ouvert, deal par deal. La largeur d’un trait, c’est son montant. Survolez : ce sont les vôtres.</p>`;
     const dotsH = `<span class="pdots">${S.queue.map((q, i) => `<i class="${i <= S.qi ? "on" : ""}"></i>`).join("")}</span>`;
     const h = t ? { step: "Je vérifie que j’ai bien compris · " + esc(t.topic), q: who(t.ask), why: t.why, opts: optsHtml(t, "topt") + (t.kind === "multi" ? `<button class="topt go" type="button" data-next="1">${t.options.some(o => o.on) ? "Continuer" : "Rien à changer, continuer"}</button>` : ""), side: evidence(t),
-        cz: czHtml({ out: "tOut", head: "Aucune de ces réponses ? <b>Dites-le avec vos mots.</b>", ph: exFor(t) ? "Par exemple : " + exFor(t) : "Écrivez votre règle, comme vous la diriez à un nouveau collègue" }) }
+        cz: czHtml({ out: "tOut", head: "Aucune de ces réponses ? <b>Dites-le avec vos mots.</b>", ph: "Votre règle, avec vos mots…" }) }
       : { step: "Avant de commencer", q: `${M.meta.open} deals ouverts, ${F.eur(M.kpi.openEur)}. À votre avis, quelle part est encore vivante ?`, why: "Un deal vivant bouge encore, et sa date de signature n’est pas dépassée. La réponse de votre fichier arrive juste après.", opts: BETS.map((b, j) => `<button class="topt" type="button" data-bet="${j}">${b[0]}</button>`).join(""), side: `<div class="big">${F.eur(M.kpi.openEur)}</div><p class="lbl">${M.meta.open} deals ouverts dans votre CRM</p>` };
     $("tBody").innerHTML = `<div><p class="t-step">${dotsH}<span>${h.step}</span></p><h1 class="t-q">${esc(h.q)}</h1><p class="t-why">${esc(h.why)}</p><div class="t-opts">${h.opts}</div><p class="t-note" id="tNote">${esc(note || "")}</p>${h.cz || ""}<p class="t-foot">Vous pourrez tout corriger ensuite, à tout moment.</p></div><div class="t-side">${h.side}<div class="cz-out" id="tOut" aria-live="polite"></div></div>`;
     $("tBody").classList.toggle("intro", !!S.fresh); S.fresh = false;
@@ -696,16 +771,16 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   function tw(t, mode) {
     if (!t) return "";
     const done = t.answer != null, fold = t.kind === "multi" && mode !== "full", open = mode === "full" || S.edit[t.id] || (!done && !fold);
-    return `<div class="tw ${done ? "ok" : "sup"}"><span class="tag ${done ? "ok" : "sup"}">${done ? (mode === "full" ? "Confirmé par vous" : "Vous m’avez dit") : "Je suppose"}</span>${esc(cap(who(done ? t.said : t.assumed)))}.${done && !open ? `<button class="link" type="button" data-edit="${att(t.id)}">Changer</button>` : ""}${!done && !open ? `<button class="link" type="button" data-t="${att(t.id)}" data-ok="1">C’est bien ça</button><button class="link" type="button" data-edit="${att(t.id)}">Corriger</button>` : ""}` +
+    return `<div class="tw ${done ? "ok" : "sup"}"><span class="tag ${done ? "ok" : "sup"}">${done ? "Votre règle" : "Par défaut"}</span>${esc(cap(who(done ? t.said : t.assumed)))}.${done && !open ? `<button class="link" type="button" data-edit="${att(t.id)}">Changer</button>` : ""}${!done && !open ? `<button class="link" type="button" data-t="${att(t.id)}" data-ok="1">C’est bien ça</button><button class="link" type="button" data-edit="${att(t.id)}">Corriger</button>` : ""}` +
       (open ? `<p class="tw-q">${esc(who(t.ask))}</p>${mode === "full" ? `<p class="tw-why">${esc(t.why)}</p>` : ""}<div class="opts">${optsHtml(t, "opt")}${t.kind === "multi" && (!done || fold) ? `<button class="opt" type="button" data-t="${att(t.id)}" data-ok="1">${done ? "Terminé" : "Rien à changer"}</button>` : ""}</div>` : "") + "</div>";
   }
 
   // ---------- 4. report ----------
-  function showReport() { S.lit = true; S.intro = true; renderReport(); view("report"); observe(); S.intro = false; czPh(); $("rb").classList.remove("hint"); void $("rb").offsetWidth; $("rb").classList.add("hint"); }
+  function showReport() { S.lit = true; S.intro = true; renderReport(); view("report"); observe(); S.intro = false; $("rb").classList.remove("hint"); void $("rb").offsetWidth; $("rb").classList.add("hint"); }
   function recompute() { S.M = E.analyze(S.anon, S.cfg); saveRules(); if (S.view === "report") { renderReport(); document.querySelectorAll("#v-report .rv").forEach(el => el.classList.add("in")); } if ($("fiche").classList.contains("on")) renderFiche(); }
   function betLine() { const b = S.bet, x = Math.round(S.M.story.aliveShare); if (!b) return ""; const d = b[1] - x; return Math.abs(d) <= 8 ? `Vous aviez vu juste : ${x}${NB}% de votre pipeline est vivant.` : d > 0 ? `Vous pariiez sur ${b[2]}. Votre fichier dit ${x}${NB}%.` : `Vous étiez plus dur que votre fichier : ${x}${NB}% de votre pipeline est vivant.`; }
   function repBars() { const rs = S.M.reps.filter(r => r.open > 0).sort((a, b) => b.stalledEur - a.stalledEur), mx = Math.max.apply(null, rs.map(r => r.openEur)) || 1;
-    return `<div class="rbx"><p class="c-title">Pipeline ouvert par commercial : ce qui avance, ce qui est à l’arrêt</p><div class="rb">${rs.map(r => `<div class="rb-r" data-tip="${esc(`${rep(r.hash)} : ${F.eur(r.openEur)} ouverts, dont ${F.eur(r.stalledEur)} à l’arrêt`)}"><span>${esc(rep(r.hash))}${r.off ? ` <small class="q">ne vend plus</small>` : ""}</span><span class="rb-t" style="width:${(r.openEur / mx * 100).toFixed(1)}%"><i style="flex:${Math.max(r.openEur - r.stalledEur, 0).toFixed(0)}"></i><i class="s" style="flex:${r.stalledEur.toFixed(0)}"></i></span><span class="rb-v">${r.stalledN ? `<b>${F.eur(r.stalledEur)}</b> · ${r.stalledN} deals` : "rien à l’arrêt"}</span></div>`).join("")}</div></div>`; }
+    return `<div><p class="c-title">Pipeline ouvert par commercial <span class="lg"><i class="k0"></i>avance<i class="k3"></i>à l’arrêt</span></p><div class="rb">${rs.map(r => `<div class="rb-r" data-tip="${esc(`${rep(r.hash)} : ${F.eur(r.openEur)} ouverts, dont ${F.eur(r.stalledEur)} à l’arrêt`)}"><span>${esc(rep(r.hash))}${r.off ? ` <small class="q">ne vend plus</small>` : ""}</span><span class="rb-t" style="width:${(r.openEur / mx * 100).toFixed(1)}%"><i style="flex:${Math.max(r.openEur - r.stalledEur, 0).toFixed(0)}"></i><i class="s" style="flex:${r.stalledEur.toFixed(0)}"></i></span><span class="rb-v">${r.stalledN ? `<b>${F.eur(r.stalledEur)}</b> · ${r.stalledN} deals` : "rien à l’arrêt"}</span></div>`).join("")}</div></div>`; }
   const stalled = () => S.M.openDeals.filter(d => d.g > 0).sort((a, b) => b.amount - a.amount);
   const dealName = d => name(d.label) || "Deal " + (d.id || "");
   function stalledList() { const M = S.M, L = stalled(), show = S.listAll ? L : L.slice(0, 10), unit = M.funnel.length ? "sans changer d’étape" : "d’ancienneté";
@@ -717,26 +792,39 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   function journeyChart() { const M = S.M, f = M.funnel, n = f.length;
     if (!n) return `<p class="c-title">Pipeline ouvert, par étape actuelle</p>` + hbars(M.openStages.map(x => ({ l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink", tip: x.name + " : " + x.n + " deals ouverts, " + F.eur(x.eur) })));
     const fm = f[0].reached || 1, b6 = M.checks.find(c => c.id === "B6"), red = b6 && b6.status === "r";
-    return `<div class="jr head"><span>Étape</span><span>Deals arrivés, et ceux qui passent</span><span class="r">Arrivés · passent</span><span class="r">Durée</span><span class="r">Perdu ici</span></div>` + f.map((s, i) => { const on = red ? i >= n - 2 : s.name === M.leak;
-      return `<div class="jr${on ? " hl" : ""}" data-tip="${esc(`${s.name} : ${s.reached} deals arrivés, ${s.next} passent à la suite, ${s.lost} perdus ici`)}"><span>${esc(s.name)}</span><span class="jr-t" style="width:${(s.reached / fm * 100).toFixed(1)}%"><i style="flex:${s.next};--i:${i}"></i><i class="x" style="flex:${Math.max(s.reached - s.next, 0)};--i:${i}"></i></span><span class="n r">${F.int(s.reached)} · ${F.pct(s.conv)}</span><span class="n r">${s.days != null ? F.days(s.days) : "—"}</span><span class="n r lost">${F.eur(s.lostEur)}</span></div>`; }).join("") + (red ? `<p class="jnote">C’est ici que ça casse.</p>` : "");
+    return `<div class="jr head"><span>Étape</span><span></span><span class="r">Deals entrés</span><span class="r">Passent</span><span class="r">Durée</span><span class="r">Montant perdu</span></div>` + f.map((s, i) => { const on = red ? i >= n - 2 : s.name === M.leak;
+      return `<div class="jr${on ? " hl" : ""}" data-tip="${esc(`${s.name} : ${s.reached} deals entrés, ${s.next} passent à la suite, ${s.lost} perdus ici`)}"><span>${esc(s.name)}</span><span class="jr-t" style="width:${(s.reached / fm * 100).toFixed(1)}%"><i style="flex:${s.next};--i:${i}"></i><i class="x" style="flex:${Math.max(s.reached - s.next, 0)};--i:${i}"></i></span><span class="n r">${F.int(s.reached)}</span><span class="n r">${F.pct(s.conv)}</span><span class="n r">${s.days != null ? F.days(s.days) : "—"}</span><span class="n r lost">${F.eur(s.lostEur)}</span></div>`; }).join("") + (red ? `<p class="jnote">C’est ici que ça casse.</p>` : "");
   }
   function chartOf(b) { const M = S.M;
-    if (b.key === "stalled") return `<p class="c-title">Votre pipeline ouvert, deal par deal · ${F.eur(M.kpi.openEur)} · survolez pour voir chaque deal</p>${strip(M)}${sleg(M)}`;
+    if (b.key === "stalled") return repBars();
     if (b.key === "orphans") return `<p class="c-title">Deals ouverts encore portés par quelqu’un qui ne vend plus</p>` + hbars(M.reps.filter(r => r.off && r.open).map(r => ({ l: name(r.hash) || r.code, v: r.openEur, f: F.eur(r.openEur) + " · " + r.open, cls: "hl" })));
     if (b.key === "amounts") return b.tone === "g" ? "" : amountsChart();
     if (b.key === "dates") return b.tone === "g" ? "" : `<p class="c-title">Dates de signature prévues des deals ouverts</p><div class="seg"><i class="k3" style="flex:${M.eom}"></i><i class="k0" style="flex:${100 - M.eom}"></i></div><div class="leg"><div><i class="k3"></i><span>Le dernier jour du mois</span><span class="n">${F.pct(M.eom)}</span></div><div><i class="k0"></i><span>Les autres jours</span><span class="n">${F.pct(100 - M.eom)}</span></div></div>`;
-    if (b.key === "journey") return journeyChart() + (M.story.good ? `<p class="holds"><b>Ce qui tient :</b> ${esc(M.story.good)}</p>` : "");
+    if (b.key === "journey") return journeyChart();
     if (b.key === "rep" && M.blocked) { const s = M.blocked.stage; return `<p class="c-title">Part des deals qui passent l’étape ${esc(M.stages[s])} · un point par commercial</p>` + dots(M.reps.filter(r => r.stageConv[s] && !r.off).map(r => ({ v: r.stageConv[s].conv, f: F.pct(r.stageConv[s].conv), hl: r.hash === M.blocked.hash, tip: rep(r.hash) + " : " + F.pct(r.stageConv[s].conv) + " sur " + r.stageConv[s].n + " deals" })), M.funnel[s].conv, "équipe " + F.pct(M.funnel[s].conv)) + `<p class="cap">Les autres sont groupés autour de l’équipe : l’écart tient à une personne et à une étape.</p>`; }
     if (b.key === "reasons") return reasonsChart();
     return ""; }
-  function blk(b) {
-    // every weakness reads the same way: what was audited, what it shows, the solution recommended
-    const kv = (dt, dd) => dd ? `<div><dt>${dt}</dt><dd>${esc(cap(dd))}</dd></div>` : "", truths = (b.truths || []).map(id => tw(truth(id), "in")).join("");
-    const head = `${b.audit ? `<p class="stp"><b>Audit</b>${esc(cap(b.audit))}</p><p class="stp k"><b>Constat</b></p>` : ""}<h3>${hl(b.title)}</h3>${b.sub ? `<p class="sub">${esc(b.sub)}</p>` : ""}${b.body ? `<p class="body">${esc(b.body)}</p>` : ""}`;
-    const rec = b.sol ? `<div class="rec"><p class="stp"><b>Recommandation</b></p><h4>${esc(b.sol.name)}</h4><ol class="rec-s">${b.sol.steps.map(s => `<li><b>${esc(s.w)}</b>${esc(s.t)}</li>`).join("")}</ol><dl class="rec-k">${kv("Le signe que ça marche", b.sol.sign)}${kv(b.worthLabel || "Ce que ça vaut", b.worth)}${kv(b.unknownLabel || "Ce que votre fichier ne dit pas", b.unknown)}</dl><p class="rec-f"><span>Tout cela se met en place sans consultant.</span><button class="link" type="button" data-copyrec="${b.key}">Copier cette recommandation</button><button class="link" type="button" data-raph="${att("Mettre en place : " + b.sol.name)}">Envie d’aide pour la mettre en place ? En parler à Raph</button></p></div>` : "";
-    return b.half ? `<article class="blk ${b.tone} rv" id="b-${b.key}">${head}<div class="blk-r">${chartOf(b)}${truths}</div>${rec}</article>`
-      : `<article class="blk ${b.tone} rv" id="b-${b.key}"><div>${head}</div><div class="blk-r">${chartOf(b)}${truths}${b.key === "stalled" ? repBars() : ""}</div>${rec}</article>` + (b.key === "stalled" ? `<div class="blk-full rv" id="list">${stalledList()}</div>` : "");
+  // one card per finding: the finding on the left (figure, one line, its proof), what to do on the right. Details stay folded.
+  function card(b) {
+    const kv = (dt, dd) => dd ? `<div><dt>${dt}</dt><dd>${esc(cap(dd))}</dd></div>` : "", id = `id="b-${b.key}"`;
+    if (b.tone === "g" || b.tone === "na") return `<article class="fc ok rv" ${id}><span class="sev ${b.tone}">${b.sev}</span><p class="fc-one">${esc(b.title)}${b.sub ? ` <span>${esc(b.sub)}</span>` : ""}</p></article>`;
+    if (b.tone === "o") { const q = truth((b.truths || [])[0]);
+      return `<article class="fc o rv" ${id}><div class="fc-l"><p class="fc-tag"><span class="sev o">${b.sev}</span></p><h3>${hl(b.fact || b.title)}</h3><div class="fc-proof">${chartOf(b)}</div></div><div class="fc-r ask"><p class="fc-tag"><span class="zl">Votre réponse</span></p><h4>${esc(b.ask || "À vous de trancher.")}</h4>${q ? `<div class="opts">${optsHtml(q, "opt")}</div>` : ""}${b.stake ? `<p class="fc-stake">${esc(b.stake)}</p>` : ""}</div></article>`; }
+    const more = `<details class="fc-more" data-det="${b.key}"${S.open[b.key] ? " open" : ""}><summary>Voir le plan en 3 étapes</summary><ol class="fc-steps">${b.sol.steps.map(x => `<li><b>${esc(x.s)}</b><span>${esc(x.t)}</span></li>`).join("")}</ol><dl class="fc-kv">${kv(b.worthLabel || "Ce que ça vaut", b.worth)}${kv(b.unknownLabel || "Ce que votre fichier ne dit pas", b.unknown)}</dl><p class="fc-f"><button class="link" type="button" data-copyrec="${b.key}">Copier cette recommandation</button><button class="link" type="button" data-raph="${att("Mettre en place : " + b.sol.name)}">La mettre en place avec Raph</button></p></details>`;
+    return `<article class="fc r rv" ${id}><div class="fc-l"><p class="fc-tag"><span class="sev r">${b.sev}</span></p><h3>${hl(b.big)}${b.fig ? ` <span class="fc-fig">· ${b.fig}</span>` : ""}${mth({ name: b.big, method: b.method, scope: b.scope, t: b.rule ? truth(b.rule) : null })}</h3><p class="fc-line">${esc(b.line)}.</p><div class="fc-proof">${chartOf(b)}</div></div>` +
+      `<div class="fc-r"><p class="fc-tag"><span class="zl fix">Recommandation</span></p><h4>${esc(b.sol.act)}.</h4>${b.sol.gain ? `<p class="fc-gain">Gain attendu : ${esc(b.sol.gain)}</p>` : ""}<p class="fc-goal"><b>Aujourd’hui ${esc(b.sol.now)}</b><span>objectif : ${esc(b.sol.goal)}</span></p>${more}</div></article>` +
+      (b.key === "stalled" ? `<details class="fc-list rv" id="list" data-det="list"${S.open.list ? " open" : ""}><summary>Voir les ${S.M.pipe.unionN} deals, un par un</summary><div id="listBody">${stalledList()}</div></details>` : "");
   }
+  // the sales cycle as one band: a column per stage (deals entering, share moving on, time spent), then the signature
+  function renderCycle() { const c = S.M.cycle, el = $("cycle"); el.hidden = !c; if (!c) return;
+    const col = (cls, nm, h, a, b) => `<div class="cy-s${cls}"><span class="cy-n">${esc(nm)}</span><span class="cy-w"><i class="cy-b" style="height:${Math.max(4, h).toFixed(0)}%"></i></span><span class="cy-v">${a}</span><span class="cy-c">${b}</span></div>`;
+    el.innerHTML = `<h2><span class="h2t">Votre cycle de vente, étape par étape${mth({ name: "Cycle de vente", method: c.method, scope: c.scope })}</span> <span>deals entrés · temps passé · part qui passe à la suite</span></h2><div class="cy">` +
+      c.stages.map((x, i) => col(i === c.weak ? " weak" : "", x.name, x.n / c.from * 100, `<b>${F.int(x.n)}</b> deals · ${x.days != null ? F.days(x.days) : "durée inconnue"}`, `${F.pct(x.conv)} passent`)).join("") +
+      col(" end", "Signature", c.won / c.from * 100, `<b>${F.int(c.won)}</b> deals signés${c.days ? " · " + F.days(c.days) + " au total" : ""}`, `${F.pct(c.overall)} des deals entrés`) + `</div>`; }
+  // indicators the user invented in the rule bar
+  function renderMine() { const ks = S.M.custom || []; $("mine").hidden = !ks.length; if (!ks.length) return;
+    $("mine").innerHTML = `<h2>Vos indicateurs <span>inventés par vous, calculés sur les mêmes deals que le reste</span></h2><div class="kp">${ks.map(k => { const rows = k.rows.map(r => ({ l: r.who ? rep(r.who) : r.l, v: r.v, f: r.f, cls: "ink", tip: (r.who ? rep(r.who) : r.l) + " : " + r.f + " sur " + r.n + " deals" }));
+      return `<article class="kp-c"><p class="kp-l">${withI(esc(who(k.label)), mth({ method: k.how, scope: k.scope }))}</p><p class="kp-v n">${k.f}</p>${!rows.length ? "" : k.by === "month" ? cols(rows.map(r => ({ v: r.v, l: r.l.slice(0, 1).toUpperCase(), cls: "ink", tip: r.tip })), 90) : hbars(rows)}${k.more ? `<p class="cap">et ${k.more} autres</p>` : ""}<button class="link" type="button" data-kpirm="${att(k.id)}">Retirer</button></article>`; }).join("")}</div>`; }
   const recText = b => cap(b.title) + (b.sub ? "\n" + b.sub : "") + "\n\nRecommandation : " + b.sol.name + "\n" + b.sol.steps.map((s, i) => (i + 1) + ". " + s.w + " : " + s.t).join("\n") + "\nLe signe que ça marche : " + b.sol.sign;
   function themeCharts(f) { const M = S.M, fig = (t, c, cap2) => `<figure class="fig"><p class="c-title">${t}</p>${c}${cap2 ? `<figcaption class="cap">${cap2}</figcaption>` : ""}</figure>`, out = [], k4 = M.kpi.k4, REF = { inbound: [30, 45], outbound: [10, 20], partenaire: [25, 40], referral: [25, 40] };
     if (f === "A") out.push(fig("Pipeline ouvert, par étape actuelle", hbars(M.openStages.map(x => ({ l: x.name, v: x.n, f: F.int(x.n) + " · " + F.eur(x.eur), cls: "ink" })))));
@@ -750,25 +838,26 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     if (f === "I" && (M.segments || []).length) out.push(fig("Part de deals signés, par segment", hbars(M.segments.map(s => ({ l: s.name, v: s.wr, f: F.pct(s.wr), cls: "ink" })))));
     return out.join(""); }
   function renderExplore() { const M = S.M;
-    const fams = Object.keys(FAM).map(f => { const cs = M.checks.filter(c => c.fam === f && !c.pattern && c.status !== "na").sort((a, b) => ORD[a.status] - ORD[b.status]); return { f: f, cs: cs, worst: cs.length ? cs[0].status : "" }; }).filter(x => x.cs.length);
+    const fams = Object.keys(FAM).map(f => { const cs = M.checks.filter(c => c.fam === f && !c.pattern && c.status !== "na").sort((a, b) => ORD[a.status] - ORD[b.status]); return { f: f, cs: cs, n: cs.filter(c => c.status !== "g").length }; }).filter(x => x.cs.length).sort((a, b) => (b.n > 0) - (a.n > 0));
     if (!fams.length) { $("explore").hidden = true; return; }
-    if (!fams.some(x => x.f === S.theme)) S.theme = (fams.find(x => x.worst === "r") || fams.find(x => x.worst === "o") || fams[0]).f;
-    const cur = fams.find(x => x.f === S.theme);
-    $("tabs").innerHTML = fams.map(x => `<button class="tab${x.f === S.theme ? " on" : ""}" type="button" data-theme="${x.f}"><i class="mk ${x.worst}"></i>${FAM[x.f]}</button>`).join("");
-    $("exp").innerHTML = `<div>${cur.cs.map(c => `<div class="rowl"><i class="mk ${c.status}"></i><span>${esc(c.text)}${c.status !== "g" && (c.reco || c.act) ? `<small>Recommandation : ${esc(c.reco || c.act)}</small>` : ""}</span></div>`).join("")}</div><div>${themeCharts(S.theme)}</div>`;
+    if (!fams.some(x => x.f === S.theme)) S.theme = fams[0].f;
+    const cur = fams.find(x => x.f === S.theme), bad = cur.cs.filter(c => c.status !== "g"), ok = cur.cs.filter(c => c.status === "g"), dk = "ok-" + S.theme;
+    const row = c => `<div class="xr"><p class="xr-c"><i class="mk ${c.status}"></i><span>${withI(esc(c.text), c.how ? mth({ method: c.how }) : "")}</span></p>${c.status !== "g" && (c.reco || c.act) ? `<p class="xr-d">${esc(c.reco || c.act)}</p>` : ""}</div>`;
+    $("tabs").innerHTML = fams.map(x => `<button class="tab${x.f === S.theme ? " on" : ""}" type="button" data-theme="${x.f}">${FAM[x.f]}${x.n ? `<b>${x.n}</b>` : ""}</button>`).join("");
+    $("exp").innerHTML = `${bad.length ? `<div class="xr xr-h"><span class="zl bad">Constat</span><span class="zl fix">Recommandation</span></div>` + bad.map(row).join("") : `<p class="fc-one">Rien à corriger sur ce sujet.</p>`}${ok.length ? `<details class="xr-ok" data-det="${dk}"${S.open[dk] ? " open" : ""}><summary>Points sains (${ok.length})</summary>${ok.map(row).join("")}</details>` : ""}<div class="xr-figs">${themeCharts(S.theme)}</div>`;
   }
   // the end of the report: the roadmap first (everything can be done alone), the offer to do it together second
   function renderOffer() { const rm = S.M.story.roadmap;
-    $("offer").innerHTML = `<div>${rm.length ? `<h3>Votre feuille de route, dans l’ordre.</h3><p>${rm.length > 1 ? rm.length + " solutions, détaillées" : "Une solution, détaillée"} plus haut avec ${rm.length > 1 ? "leurs" : "ses"} trois temps. Tout se met en place sans consultant : copiez-la, partagez-la à votre équipe.</p><ol>${rm.map(x => `<li><a href="#b-${x.key}">${esc(x.name)}</a></li>`).join("")}</ol><p><button class="btn" type="button" id="roadCopy">Copier la feuille de route complète</button></p>` : `<h3>Rien d’urgent à corriger.</h3><p>Aucune faiblesse majeure ne ressort de ce fichier. Le détail, sujet par sujet, est juste en dessous.</p>`}</div>` +
+    $("offer").innerHTML = `<div>${rm.length ? `<h3>Votre plan d’action, dans l’ordre.</h3><p>${rm.length > 1 ? rm.length + " solutions, détaillées" : "Une solution, détaillée"} plus haut avec ${rm.length > 1 ? "leurs" : "ses"} trois temps. Tout se met en place sans consultant : copiez-la, partagez-la à votre équipe.</p><ol>${rm.map(x => `<li><a href="#b-${x.key}">${esc(x.name)}</a></li>`).join("")}</ol><p><button class="btn" type="button" id="roadCopy">Copier le plan d’action complet</button></p>` : `<h3>Rien d’urgent à corriger.</h3><p>Aucune faiblesse majeure ne ressort de ce fichier. Le détail, sujet par sujet, est juste en dessous.</p>`}</div>` +
       `<div class="card"><form id="debrief"><p class="subj">${esc(S.subject || (S.ask ? "Une question, ou une règle de votre métier" : "Vous préférez ne pas le faire seul ?"))}</p><p class="card-t">Trente minutes avec Raph, consultant RevOps, sur vos chiffres : caler ces solutions sur votre vente, écrire les règles à installer dans votre CRM, et regarder ce que le fichier ne dit pas.</p>${S.ask ? `<textarea rows="3" placeholder="Par exemple : chez nous, les renouvellements passent par un autre pipeline." aria-label="Votre question ou votre règle">${esc(S.askText || "")}</textarea>` : ""}<input type="email" required placeholder="vous@entreprise.fr" aria-label="Votre e-mail professionnel"><button class="btn" type="submit">${S.ask ? "Envoyer à Raph" : "Réserver 30 minutes · 199" + NB + "€"}</button><small>${S.ask ? "" : "199" + NB + "€, déduits de la première mission si nous continuons ensemble. "}Ce que Raph reçoit, et rien d’autre : votre e-mail, les chiffres clés de cet écran et vos règles. Aucun deal, aucun nom de client ni de commercial.</small></form><p><button class="link" type="button" id="askToggle">${S.ask ? "Finalement, réserver 30 minutes" : "Poser d’abord une question à Raph"}</button></p></div>`;
-    if ($("roadCopy")) $("roadCopy").onclick = e => { const st = S.M.story, order = st.roadmap.map(x => st.blocks.filter(b => b.key === x.key)[0]); copy("Feuille de route · pipeline au " + F.date(S.M.snap) + "\n\n" + order.map((b, i) => (i + 1) + ". " + recText(b)).join("\n\n"), e.target); };
+    if ($("roadCopy")) $("roadCopy").onclick = e => { const st = S.M.story, order = st.roadmap.map(x => st.blocks.filter(b => b.key === x.key)[0]); copy("Plan d’action · pipeline au " + F.date(S.M.snap) + "\n\n" + order.map((b, i) => (i + 1) + ". " + recText(b)).join("\n\n"), e.target); };
     $("askToggle").onclick = () => { S.ask = !S.ask; S.subject = ""; S.askText = ""; renderOffer(); };
     leadForm($("debrief"), "debrief", "Demande reçue. Raph vous écrit pour fixer un créneau.");
   }
   function renderFiche() { const M = S.M, groups = [], done = M.truths.filter(t => t.answer != null).length;
     M.truths.forEach(t => { let g = groups.find(x => x.k === t.topic); if (!g) groups.push(g = { k: t.topic, ts: [] }); g.ts.push(t); });
-    $("fiche").innerHTML = `<div class="r-top"><h2>Votre business, tel que je l’ai compris</h2><button class="link" id="closeFiche" type="button">Fermer</button></div><p class="r-lede">Je ne devine pas votre métier. Voici ce que j’ai compris de votre fichier : chaque règle reste une supposition tant que vous ne l’avez pas confirmée. Touchez pour corriger, ou écrivez votre règle : tout se recalcule aussitôt.</p><p><span class="tag ok">${done} confirmée${done > 1 ? "s" : ""} par vous</span><span class="tag sup">${M.truths.length - done} que je suppose</span></p>` +
-      czHtml({ lt: true, ph: "Écrivez une règle de votre métier, avec vos mots", chips: chips(9) }) +
+    $("fiche").innerHTML = `<div class="r-top"><h2>Votre business, tel que je l’ai compris</h2><button class="link" id="closeFiche" type="button">Fermer</button></div><p class="r-lede">Une règle reste « par défaut » tant que vous ne l’avez pas confirmée ou changée. Touchez une réponse, ou écrivez la vôtre : tout se recalcule.</p><p><span class="tag ok">${done} à vous</span><span class="tag sup">${M.truths.length - done} par défaut</span></p>` +
+      czHtml({ lt: true }) +
       (S.cfg.nl.length ? `<div class="fi-g"><h3>Ce que vous m’avez dit avec vos mots</h3>${S.cfg.nl.map((x, i) => `<div class="nl">${x.text ? `<q>${esc(who(x.text))}</q>` : ""}<span>Compris : ${esc(who(x.label))}.</span><button class="link" type="button" data-nlrm="${i}">Retirer</button></div>`).join("")}</div>` : "") +
       groups.map(g => `<div class="fi-g"><h3>${esc(g.k)}</h3>${g.ts.map(t => tw(t, "full")).join("")}</div>`).join("") +
       `<div class="fi-g"><h3>Une règle de votre métier que je ne sais pas encore prendre en compte ?</h3><p class="r-lede">Écrivez-la à Raph : il l’ajoute à l’outil et vous répond.</p><button class="btn" type="button" id="ficheAsk">L’écrire à Raph</button></div><div class="r-end"><button class="link" id="resetRules" type="button">Tout remettre comme je l’avais supposé</button></div>`;
@@ -785,20 +874,20 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     const M = S.M, st = M.story, v = st.verdict, a = S.anon, done = M.truths.filter(t => t.answer != null).length, sup = M.truths.length - done, nSt = M.pipe.unionN;
     Object.keys(STRIPS).forEach(k => { if (!document.querySelector(`#v-drop [data-strip="${k}"]`)) delete STRIPS[k]; });
     $("vd").classList.toggle("intro", !!S.intro);
-    $("vEyebrow").textContent = `Votre pipeline au ${F.date(M.snap)} · ${M.meta.open} deals ouverts · ${S.name} · ${F.int(M.meta.rows)} deals sur ${M.monthsAll} mois${M.rules.pipelines.length > 1 && M.rules.pipeline ? " · pipeline " + M.rules.pipeline : ""} · ${F.int(a.hashedValues)} noms masqués`;
-    $("vTitle").innerHTML = esc(v.title).replace(esc(v.em), `<em id="vEm">${esc(v.em)}</em>`);
+    $("vEyebrow").textContent = `Votre pipeline au ${F.date(M.snap)} · ${M.meta.open} deals ouverts`;
+    $("vTitle").innerHTML = esc(v.title).replace(esc(v.em), `<em id="vEm"${v.kind === "leak" || v.kind === "why" ? ` class="bad"` : ""}>${esc(v.em)}</em>`).replace(/^(.*?\. )/, `<span class="dim">$1</span>`) + mth({ name: v.kind === "alive" ? "Pipeline vivant" : "Pipeline ouvert", method: v.method, scope: v.scope, t: v.rule ? truth(v.rule) : null });
     $("vBet").textContent = betLine();
     $("vPrev").textContent = S.prev && S.prev.kpi && S.prev.kpi.n != null ? `Le ${F.date(S.prev.date)}, ${S.prev.kpi.n} deals étaient à l’arrêt. Aujourd’hui : ${nSt}.` : "";
     $("vStrip").innerHTML = strip(M, { neutral: S.intro, build: S.intro }) + sleg(M);
-    $("vSub").textContent = v.sub + (v.bench ? " " + v.bench : "");
-    $("vRule").innerHTML = tw(truth("stale"), "in");
-    $("vBtns").innerHTML = (st.blocks.some(b => b.key === "stalled") ? `<button class="btn inv" type="button" data-go="list">Voir les ${nSt} deals</button>` : "") + (st.decisions.length ? `<button class="btn ghost" type="button" data-go="monday">La diapositive pour lundi</button>` : "") + `<button class="link" type="button" id="seeCols">Un chiffre vous surprend ? Vérifier la lecture du fichier</button>`;
-    $("vAns").innerHTML = st.answers.map((x, i) => `<a href="#ch${i}" class="${x.tone}"><span>${esc(x.q)}</span><b>${esc(x.a)}</b></a>`).join("") + (st.good ? `<p><b>Ce qui tient :</b> ${esc(st.good)}</p>` : "");
-    $("seeCols").onclick = () => { renderMap(); view("map"); };
+    // the whole report in three lines: each question, what the file shows, what to do
+    const cn = st.counts, plural = (n, a, b) => n + " " + (n > 1 ? b : a);
+    $("glance").innerHTML = `<div class="gl-h"><span></span><span class="zl bad">Constat</span><span class="zl fix">Recommandation</span></div>` +
+      st.glance.map((g, i) => `<a class="gl-r ${g.tone}" href="#ch${i}"><span class="gl-q">${esc(g.q)}</span><b class="gl-a">${esc(g.a)}</b><span class="gl-d${g.act ? "" : " no"}">${esc(g.act ? g.act + "." : g.pending ? "À trancher d’abord, plus bas." : "Rien à corriger.")}</span></a>`).join("") +
+      `<p class="gl-f"><span>${cn.crit ? plural(cn.crit, "constat critique", "constats critiques") : "Aucun constat critique"}${cn.ask ? " · " + plural(cn.ask, "question pour vous", "questions pour vous") : ""}</span>${st.decisions.length ? `<button class="link" type="button" data-go="monday">La diapositive pour lundi</button>` : ""}${st.roadmap.length ? `<button class="link" type="button" data-go="raph">Le plan d’action</button>` : ""}</p>`;
     if (S.intro) setTimeout(() => { paint(); if (v.kind === "alive") countTo($("vEm"), M.kpi.openEur, st.alive, 1300); }, 1000);
     const given = done + S.cfg.nl.filter(x => !Object.keys(x.prev || {}).length).length;
-    $("rbar").innerHTML = `<button class="link" type="button" data-fiche>Vos règles</button>${given ? ` <b>${given}</b> de vous` : ""}${sup ? ` <span class="tag sup">${sup} supposée${sup > 1 ? "s" : ""}</span>` : ""}`;
-    $("czVex").innerHTML = M.examples.length ? `<span>Par exemple :</span>${chips(4)}` : "";
+    $("rbar").innerHTML = `<button class="link" type="button" data-fiche>Vos règles : ${given ? given + " à vous, " : ""}${sup} par défaut</button>`;
+    renderCycle(); renderMine();
 
     // week-over-week movements (only when a previous export of the same pipeline is remembered)
     const mv = S.mv; $("moves").hidden = !mv;
@@ -814,20 +903,20 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     }
 
     // three chapters, in the order a sales director asks the questions
-    $("chapters").innerHTML = st.answers.map((x, i) => { const bs = st.blocks.filter(b => b.ch === i), half = bs.filter(b => b.half);
-      return `<section id="ch${i}"><div class="chap-h"><h2><small>${i + 1} sur 3</small>${esc(x.q)}</h2><p class="${x.tone}">${esc(x.a)}</p></div>${bs.filter(b => !b.half).map(blk).join("")}${half.length ? `<div class="halves">${half.map(blk).join("")}</div>` : ""}</section>`; }).join("");
+    $("chapters").innerHTML = st.answers.map((x, i) => `<section id="ch${i}"><div class="chap-h"><h2><small>${i + 1} sur 3</small>${esc(x.q)}</h2></div>${st.blocks.filter(b => b.ch === i).map(card).join("")}</section>`).join("");
     const la = $("listAll"); if (la) la.onclick = () => { S.listAll = !S.listAll; rerenderList(); };
     bindList();
 
     $("monday").hidden = !st.decisions.length;
     $("slide").innerHTML = `<header><span>Revue du pipeline · ${F.date(M.snap)}</span><h3>${esc(st.slideTitle)}</h3></header><ol>${st.decisions.map(d => `<li>${esc(d)}</li>`).join("")}</ol>${strip(M)}<footer><span>Analyse de l’export CRM du ${F.date(M.snap)}</span><span>flashaudit.raaf.fr</span></footer>`;
     renderOffer();
-    $("weekText").textContent = (nSt ? `Combien de ces ${nSt} deals auront été fermés ? Combien de dates repoussées, de montants revus à la baisse ? ` : "") + "Un fichier est une photo. Recevez le film chaque lundi matin, avec les slides de votre revue de pipeline. Premier mois offert, sans carte.";
+    $("weekText").textContent = "Un fichier est une photo. Recevez le film chaque lundi matin : ce qui a bougé, deal par deal. Premier mois offert, sans carte.";
     $("snapNote").innerHTML = M.snapshot ? `Ou revenez déposer un nouveau fichier : la comparaison se fait toute seule, avec vos règles (${S.snaps} fichier${S.snaps > 1 ? "s" : ""} en mémoire sur cet ordinateur, sans les noms). ` + (S.name === "export-hubspot-exemple.csv" ? `<button class="link" id="week2" type="button">Voir l’exemple une semaine plus tard</button> · ` : "") + `<button class="link" id="forget" type="button">Oublier l’historique</button>` : "";
     if ($("forget")) $("forget").onclick = () => { store.set("fsfa-snaps", "[]"); S.mv = null; S.prev = null; S.snaps = 0; recompute(); };
     if ($("week2")) $("week2").onclick = () => fetch("./data/export-hubspot-exemple-semaine-2.csv").then(r => r.text()).then(t => load("export-hubspot-exemple-semaine-2.csv", t, true));
     renderExplore();
-    $("foot").innerHTML = `<span>Chaque chiffre est calculé à partir de vos deals, aucun n’est estimé par une IA</span><span>Données au ${F.date(M.snap)}</span><span>Vos deals ne quittent pas votre ordinateur</span>`;
+    $("foot").innerHTML = `<span>${esc(S.name)} · ${F.int(M.meta.rows)} deals sur ${M.monthsAll} mois${M.rules.pipelines.length > 1 && M.rules.pipeline ? " · pipeline " + esc(M.rules.pipeline) : ""} · ${F.int(a.hashedValues)} noms masqués</span><span>Chaque chiffre est calculé, aucun n’est estimé par une IA</span><span>Vos deals ne quittent pas votre ordinateur</span><button class="link" type="button" id="seeCols">Un chiffre vous surprend ? Vérifier la lecture du fichier</button>`;
+    $("seeCols").onclick = () => { renderMap(); view("map"); };
   }
   function bindList() {
     if ($("listAll")) $("listAll").onclick = () => { S.listAll = !S.listAll; rerenderList(); };
@@ -835,7 +924,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     if ($("copyMsg")) $("copyMsg").onclick = e => { const b = S.M.story.blocks.find(x => x.key === "stalled"); if (b) copy(b.message, e.target); };
     if ($("names")) $("names").onchange = e => { S.names = e.target.checked; renderReport(); document.querySelectorAll("#v-report .rv").forEach(el => el.classList.add("in")); };
   }
-  function rerenderList() { $("list").innerHTML = stalledList(); bindList(); }
+  function rerenderList() { $("listBody").innerHTML = stalledList(); bindList(); }
   $("slideCopy").onclick = e => copy(S.M.story.slideTitle + "\n\n" + S.M.story.decisions.map((d, i) => (i + 1) + ". " + d).join("\n"), e.target);
   $("slidePdf").onclick = () => { document.documentElement.classList.add("ps"); window.print(); };
   window.addEventListener("afterprint", () => document.documentElement.classList.remove("ps"));
@@ -864,10 +953,14 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     if ((b = c("[data-fiche]"))) return openFiche();
     if ((b = c("[data-go]"))) { const el = $(b.dataset.go); return el && el.scrollIntoView({ behavior: "smooth" }); }
     document.querySelectorAll(".cz.open").forEach(z => { if (!z.contains(e.target)) { z.classList.remove("open"); if (S.M) calm(); } });
+    const mb = c(".mth-b"); document.querySelectorAll(".mth.on").forEach(x => { if (!mb || x !== mb.parentNode) { x.classList.remove("on"); x.firstChild.setAttribute("aria-expanded", "false"); } });
+    if (mb) { const w = mb.parentNode; w.classList.toggle("on"); w.classList.toggle("flip", w.getBoundingClientRect().left + 330 > document.documentElement.clientWidth); return mb.setAttribute("aria-expanded", w.classList.contains("on")); }
     if ((b = c("[data-raph]"))) { S.subject = b.dataset.raph; S.ask = false; renderOffer(); return $("raph").scrollIntoView({ behavior: "smooth" }); }
     if ((b = c("[data-czraph]"))) { closeFiche(); S.ask = true; S.subject = "Une règle que l’outil ne sait pas encore appliquer"; S.askText = b.dataset.czraph; if (S.view !== "report") showReport(); else renderOffer(); return $("raph").scrollIntoView({ behavior: "smooth" }); }
     if ((b = c("[data-copyrec]"))) { const blk0 = S.M.story.blocks.filter(x => x.key === b.dataset.copyrec)[0]; return blk0 && copy(recText(blk0), b); }
-    if ((b = c("[data-say]"))) { const z = b.closest(".cz") || $("czV"), i = z.querySelector("input"); i.value = b.dataset.say; i.focus(); return czPreview(z); }
+    if ((b = c("[data-say]"))) { const z = b.closest(".cz") || $("czB"), i = z.querySelector("input"); i.value = b.dataset.say; i.focus(); return czPreview(z); }
+    if ((b = c("[data-mod]"))) { const t = truth(b.dataset.mod); if (t && t.say) { const z = $("czB"), i = z.querySelector("input"); i.value = t.say; z.classList.add("open"); i.focus(); const m = /\d+/.exec(t.say); if (m) i.setSelectionRange(m.index, m.index + m[0].length); return czPreview(z); } if (t) S.edit[t.id] = 1; return openFiche(); }
+    if ((b = c("[data-kpirm]"))) { const i = S.cfg.nl.findIndex(x => x.undo && x.undo.removeKpi === b.dataset.kpirm); if (i >= 0) nlRemove(i); else E.applyRule(S.cfg, { removeKpi: b.dataset.kpirm }); return recompute(); }
     if ((b = c("[data-czgo]"))) return czApply(b.closest(".cz"));
     if ((b = c("[data-czundo]"))) { const z = b.closest(".cz"); for (let n = +b.dataset.czundo; n > 0; n--) nlRemove(S.cfg.nl.length - 1); if (S.view === "talk") { S.M = E.analyze(S.anon, S.cfg); saveRules(); return renderTalk("Annulé."); } recompute(); if (z && z.isConnected) z.querySelector(".cz-out").innerHTML = ""; return; }
     if ((b = c("[data-nlrm]"))) { nlRemove(+b.dataset.nlrm); return recompute(); }

@@ -165,7 +165,8 @@
     var stages = stageNames.map(function (s) { return spelled[norm(s)] || s.charAt(0).toUpperCase() + s.slice(1); });
     if (!S) stages = Object.keys(groupBy(deals.filter(function (d) { return d.status === "open"; }), function (d) { return d.stage; }));
     var stageIx = {}; stages.forEach(function (s, i) { stageIx[norm(s)] = i; });
-    deals.forEach(function (d) { d.age = (snap - d.created) / DAY; d.cycle = d.closed ? (d.closed - d.created) / DAY : null; var k = stageIx[norm(d.stage)]; d.cur = d.status === "open" ? (k != null ? k : d.maxStage) : -1; });
+    var cfIx = cfg.cycleFrom != null && stageIx[cfg.cycleFrom] != null ? stageIx[cfg.cycleFrom] : -1;
+    deals.forEach(function (d) { d.age = (snap - d.created) / DAY; d.cycle = d.closed ? (d.closed - (cfIx >= 0 && d.entered[cfIx] ? d.entered[cfIx] : d.created)) / DAY : null; var k = stageIx[norm(d.stage)]; d.cur = d.status === "open" ? (k != null ? k : d.maxStage) : -1; });
 
     var open = deals.filter(function (d) { return d.status === "open"; }), won = deals.filter(function (d) { return d.status === "won"; }), lost = deals.filter(function (d) { return d.status === "lost"; });
     var amt = function (d) { return d.amount || 0; }, openEur = sum(open, amt);
@@ -358,7 +359,7 @@
     if (k2 != null) Q.push({ id: "motion", check: "B2", text: "Votre win rate est de " + fmt.pct(k2) + ". D’où viennent surtout vos deals ?", why: "La fourchette attendue change : 30–45 % sur des demandes entrantes, 10–20 % en prospection à froid.", options: [{ label: "Demandes entrantes", set: { wrMin: 30, wrMax: 45 } }, { label: "Prospection à froid", set: { wrMin: 10, wrMax: 20 } }, { label: "Un mélange", set: { wrMin: 17, wrMax: 30 } }] });
     if (S >= 3) Q.push({ id: "qual", check: "B2", text: "À partir de quelle étape un deal est-il vraiment qualifié chez vous ?", why: "Le win rate se calcule sur les deals ayant atteint cette étape.", options: stages.slice(0, Math.min(4, S)).map(function (st, i) { return { label: st, set: { qualStage: i } }; }) });
     M.questions = Q; M.values = values;
-    M.rules = { eomOk: !!cfg.eomOk, exclude: excl, qualStage: Math.min(qs, Math.max(S - 1, 0)), stagMult: mult, wrMin: wrMin, wrMax: wrMax, cycle: +cfg.cycle || null, cycleAuto: autoDays, fixedAmounts: fixed, stagDays: sd || null, ownersOff: off, since: cfg.since || null, stageDays: stLim, minAmount: cfg.minAmount || null, pipeline: pipeUsed, pipelines: pipeNames.map(function (k) { return { name: k, n: pipes[k].length }; }) };
+    M.rules = { eomOk: !!cfg.eomOk, exclude: excl, qualStage: Math.min(qs, Math.max(S - 1, 0)), stagMult: mult, wrMin: wrMin, wrMax: wrMax, cycle: +cfg.cycle || null, cycleAuto: autoDays, fixedAmounts: fixed, stagDays: sd || null, ownersOff: off, since: cfg.since || null, stageDays: stLim, minAmount: cfg.minAmount || null, cycleFrom: cfIx >= 0 ? stages[cfIx] : null, pipeline: pipeUsed, pipelines: pipeNames.map(function (k) { return { name: k, n: pipes[k].length }; }) };
     // ---------- what the tool understood of this business: every truth is assumed until the user confirms or corrects it ----------
     var ans = cfg.answers || {}, T = [], qt = function (s) { return "«" + NB + s + NB + "»"; };
     var stK = Object.keys(stLim), stTxt = stK.length ? " (sauf " + stK.map(function (k) { var i = stages.map(norm).indexOf(k); return "en " + qt(i >= 0 ? stages[i] : k) + " : " + stLim[k] + " jours"; }).join(", ") + ")" : "";
@@ -409,12 +410,12 @@
       var sh = pc(x.n, lost.length); if (x.name === "(vide)" || defClass(x.name) !== "vague" || sh < 10) return;
       var a = { reasons: {} }, b = { reasons: {} }; a.reasons[x.name] = "nd"; b.reasons[x.name] = "vague";
       truth({ id: "reason:" + x.name, topic: "Raisons de perte", interview: firstReason, ev: "reasons", hl: x.name, ask: fmt.pct(sh) + " de vos deals perdus sont classés " + qt(x.name) + ". Quand un commercial coche ça, il veut dire quoi ?", why: "Selon votre réponse, c’est un sujet de saisie ou une vraie cause de perte.", assumed: qt(x.name) + " est une case par défaut, qui ne dit pas pourquoi vous perdez",
-        options: [{ label: "Le prospect ne répond plus", set: a, said: qt(x.name) + " veut dire que le prospect ne répond plus", note: qt(x.name) + " devient une vraie cause de perte : le silence du prospect." }, { label: "Rien de précis, c’est la case par défaut", set: b, said: qt(x.name) + " est la case qu’on coche par défaut", note: "Ces deals sont comptés comme perdus sans raison connue." }, { label: "Je ne sais pas", set: b, said: "personne ne sait ce que veut dire " + qt(x.name), note: "Si vous ne le savez pas, vos commerciaux non plus : je le compte comme une raison inconnue." }] });
+        options: [{ label: "Le prospect ne répond plus", set: a, said: qt(x.name) + " veut dire que le prospect ne répond plus", note: qt(x.name) + " devient une vraie cause de perte : le silence du prospect." }, { label: "Rien de précis, c’est la case par défaut", set: b, said: qt(x.name) + " est la case qu’on coche par défaut", note: "Ces deals sont comptés comme perdus sans raison connue." }, { label: "Je ne sais pas", set: b, said: "personne ne sait ce que veut dire " + qt(x.name), note: "Je la compte comme une raison inconnue." }] });
       firstReason = false;
     });
     var phA = open.filter(function (d) { return d.amount === +modeAll; }), modeTxt = fmt.int(+modeAll) + NB + "€";
     if (modeAllShare >= 10) truth({ id: "fixed", topic: "Montants", interview: true, ev: "amounts", ask: (phA.length >= 3 ? phA.length + " deals ouverts affichent" : fmt.pct(modeAllShare) + " de vos deals affichent") + " exactement " + modeTxt + ". C’est le prix d’une de vos offres ?", why: "Si c’est un tarif, ces montants sont justes. Sinon, une partie de votre pipeline repose sur un chiffre que personne n’a estimé.", assumed: modeTxt + " est un montant mis en attendant, pas un vrai prix",
-      options: [{ label: "Oui, c’est notre tarif", set: { addFixed: +modeAll }, said: modeTxt + " est un prix de votre catalogue", note: "Je ne vous en reparlerai pas." }, { label: "Non, un montant mis en attendant", set: { removeFixed: +modeAll }, said: modeTxt + " n’est pas un tarif", note: fmt.eur(sum(phA, amt)) + " de votre pipeline reposent sur des montants que personne n’a chiffrés." }, { label: "Je ne sais pas", set: { removeFixed: +modeAll }, said: "personne ne sait si " + modeTxt + " est un vrai prix", note: "Si personne ne le sait, je le compte comme un montant mis en attendant." }] });
+      options: [{ label: "Oui, c’est notre tarif", set: { addFixed: +modeAll }, said: modeTxt + " est un prix de votre catalogue", note: "Je ne vous en reparlerai pas." }, { label: "Non, un montant mis en attendant", set: { removeFixed: +modeAll }, said: modeTxt + " n’est pas un tarif", note: fmt.eur(sum(phA, amt)) + " de votre pipeline reposent sur des montants que personne n’a chiffrés." }, { label: "Je ne sais pas", set: { removeFixed: +modeAll }, said: "personne ne sait si " + modeTxt + " est un vrai prix", note: "Je le compte comme un montant non chiffré." }] });
     if (h3 != null && h3 >= 20) truth({ id: "eom", topic: "Dates de signature", ask: fmt.pct(h3) + " de vos dates de signature tombent le dernier jour du mois. C’est une règle chez vous ?", why: "Si vous datez toujours à fin de mois, c’est normal. Sinon, ce sont des dates mises pour remplir la case.", assumed: "ces dates de fin de mois sont mises par défaut",
       options: [{ label: "Oui, on date à fin de mois", set: { eomOk: true }, said: "dater à fin de mois est votre règle" }, { label: "Non, c’est la date mise par défaut", set: { eomOk: false }, said: "les dates de fin de mois sont mises par défaut" }, { label: "Je ne sais pas", set: { eomOk: false }, said: "personne ne sait pourquoi vos dates tombent en fin de mois" }] });
     if (S >= 3) truth({ id: "qual", topic: "Votre vente", ask: "À partir de quelle étape un deal est-il vraiment sérieux chez vous ?", why: "Je calcule votre taux de signature sur les deals qui ont atteint cette étape.", assumed: "un deal est sérieux à partir de " + qt(stages[Math.min(qs, S - 1)]),
@@ -453,7 +454,7 @@
     if (shareSt >= 15 && nSt >= 3) B.push({ key: "stalled", ch: 0, tone: "r", title: "Les " + nSt + " deals à l’arrêt, commercial par commercial.", sub: fmt.eur(M.pipe.union) + " sur " + fmt.eur(openEur) + " : des deals qui ne bougent plus, ou qui devaient signer à une date déjà passée.", truths: ["stale", "team"],
       audit: "j’ai regardé vos " + open.length + " deals ouverts un par un : depuis quand chacun " + (S ? "est dans son étape" : "est ouvert") + ", et si sa date de signature est déjà passée.",
       decision: "d’ici vendredi, chaque commercial relance ou ferme ses deals à l’arrêt.", worthLabel: "Ce que ça change", worth: "votre prévision repart de " + fmt.eur(alive) + ", et vos revues de pipeline portent sur " + (open.length - nSt) + " deals au lieu de " + open.length + ".",
-      unknown: "deals oubliés, ou deals gardés pour rassurer ? Ce n’est pas la même conversation à avoir avec l’équipe.",
+      unknown: "pourquoi ces deals n’avancent plus. C’est à voir deal par deal, avec ceux qui les portent.",
       sol: { name: (S ? "Une durée limite par étape" : "Une durée limite par deal") + ", et une revue de pipeline qui regarde ce qui bouge", start: "Relancer, c’est obtenir une prochaine étape datée, confirmée par le client. Sinon le deal est fermé : il pourra toujours être rouvert.", rule: alertRule,
         ritual: "En revue de pipeline, ne passez plus tous les deals en revue : seulement ceux en alerte, et ceux qui doivent signer dans le mois. Une seule question par deal : quelle est la prochaine étape, à quelle date, et le client l’a-t-il confirmée ?", sign: "moins de 15" + NB + "% de votre pipeline à l’arrêt. Aujourd’hui : " + fmt.pct(shareSt) + "." },
       slide: "Nous sortons " + nSt + " deals à l’arrêt de la prévision (" + fmt.eur(M.pipe.union) + "). Chacun relance ou ferme les siens d’ici vendredi.",
@@ -468,7 +469,7 @@
     if (tf) {
       var nPh = phA.length, ePh = fmt.eur(sum(phA, amt)), lead = nPh >= 3 ? nPh + " deals ouverts à " + modeTxt + " pile" : fmt.pct(modeAllShare) + " de vos deals à " + modeTxt + " pile", auditAm = "j’ai compté combien de vos " + fmt.int(withAmt.length) + " deals chiffrés portent exactement le même montant.";
       B.push(tf.answer === 0 || (tf.answer != null && fixed.indexOf(+modeAll) >= 0) ? { key: "amounts", ch: 0, half: true, tone: "g", audit: auditAm, title: modeTxt + " est un prix de votre catalogue : point levé.", sub: nPh >= 3 ? "Ces " + ePh + " sont de vrais montants." : "", truths: ["fixed"] }
-        : tf.answer == null ? { key: "amounts", ch: 0, half: true, tone: "o", audit: auditAm, title: lead + " : vrai prix, ou case remplie ?", sub: "Répondez juste en dessous : selon le cas, c’est un tarif ou un trou dans votre prévision.", truths: ["fixed"] }
+        : tf.answer == null ? { key: "amounts", ch: 0, half: true, tone: "o", audit: auditAm, title: lead + " : vrai prix, ou case remplie ?", sub: "Répondez juste en dessous : selon le cas, c’est un tarif ou un trou dans votre prévision.", truths: ["fixed"], fact: lead, ask: "C’est le prix d’une de vos offres ?", stake: tf.why }
         : { key: "amounts", ch: 0, half: true, tone: "r", audit: auditAm, title: lead + (nPh >= 3 ? " : " + ePh + " que personne n’a chiffrés." : " : un montant que personne n’a chiffré."), sub: "", truths: ["fixed"], decision: "cette semaine, faites chiffrer ces " + (nPh >= 3 ? nPh + " " : "") + "deals par ceux qui les portent.", unknown: "montant rempli d’office à la création du deal, ou commerciaux qui ne chiffrent qu’au dernier moment ? Le réglage à faire dans le CRM n’est pas le même.",
           sol: { name: "Un montant demandé au bon moment, jamais rempli d’office", rule: "Supprimez la valeur par défaut du champ montant, et rendez-le obligatoire seulement " + (serious ? "à partir de l’étape " + qt(serious) : "quand le deal est sérieux") + ". Demandé plus tôt, le commercial ne peut pas le connaître : il invente.",
             ritual: "Tant que le chiffre n’est pas connu, une fourchette (petit, moyen, gros deal) vaut mieux qu’un montant inventé. Une fois par mois, vérifiez qu’aucun montant ne revient trop souvent.", sign: "plus aucun montant porté par plus d’un deal sur dix, hors tarifs de votre catalogue." },
@@ -476,7 +477,7 @@
     }
     var te = tOf("eom"), auditDt = "j’ai regardé quel jour tombe la date de signature prévue de vos " + withClose.length + " deals ouverts datés.";
     if (te) B.push(te.answer != null && cfg.eomOk ? { key: "dates", ch: 0, half: true, tone: "g", audit: auditDt, title: "Dater à fin de mois est votre règle : point levé.", sub: "", truths: ["eom"] }
-      : te.answer == null ? { key: "dates", ch: 0, half: true, tone: "o", audit: auditDt, title: fmt.pct(h3) + " de vos dates de signature tombent le dernier jour du mois : règle maison, ou date par défaut ?", sub: "Répondez juste en dessous.", truths: ["eom"] }
+      : te.answer == null ? { key: "dates", ch: 0, half: true, tone: "o", audit: auditDt, title: fmt.pct(h3) + " de vos dates de signature tombent le dernier jour du mois : règle maison, ou date par défaut ?", sub: "Répondez juste en dessous.", truths: ["eom"], fact: fmt.pct(h3) + " des dates de signature au dernier jour du mois", ask: "C’est une règle chez vous ?", stake: te.why }
       : { key: "dates", ch: 0, half: true, tone: "r", audit: auditDt, title: fmt.pct(h3) + " de vos dates de signature sont là pour remplir la case.", sub: "Ce ne sont pas des engagements de clients.", truths: ["eom"], decision: "ce mois-ci, une date de signature est une date donnée par le client, sinon le deal n’en a pas.", unknown: "dates posées à la création du deal, ou repoussées de mois en mois ? Un seul fichier ne le montre pas : il en faut deux, à une semaine d’écart.",
         sol: { name: "Une date de signature vient du client, pas du calendrier", start: "Un deal sans date sort de la prévision du mois, il ne disparaît pas.", rule: "Ajoutez un champ court, « ce qui justifie cette date » (un comité, la fin du contrat en cours, un démarrage voulu), obligatoire dès qu’un deal entre dans la prévision du mois.",
           ritual: "Chaque semaine, regardez les dates repoussées. Un report de plus de deux semaines, ou vers le mois suivant, signale un deal à risque : les chances de signer baissent à chaque report.", sign: "moins d’une date sur cinq le dernier jour du mois. Aujourd’hui : " + fmt.pct(h3) + "." } });
@@ -514,7 +515,7 @@
     var A = [];
     A.push(shareSt >= 15 && nSt >= 3 ? { q: "Puis-je croire mon pipeline ?", a: (shareSt >= 30 ? "Non. " : "Pas entièrement. ") + fmt.eur(M.pipe.union) + " sur " + fmt.eur(openEur) + " de pipeline ouvert sont à l’arrêt.", tone: shareSt >= 30 ? "r" : "o" } : { q: "Puis-je croire mon pipeline ?", a: "Oui. " + (nSt ? (nSt > 1 ? "Seuls " + nSt + " deals sont" : "Un seul deal est") + " à l’arrêt." : "Aucun deal n’est à l’arrêt."), tone: "g" });
     A.push(b6c && b6c.status === "r" ? { q: "Où est-ce que je perds ?", a: "En fin de parcours : " + fmt.int(b6c.lateN) + " deals déjà perdus en " + lateA + " ou en " + lateB + ".", tone: "r" } : S >= 2 ? { q: "Où est-ce que je perds ?", a: M.leak ? "Surtout à l’étape " + M.leak + "." : "Nulle part en particulier : vos pertes sont réparties sur tout le parcours.", tone: M.leak ? "o" : "g" } : { q: "Où est-ce que je perds ?", a: "Votre fichier ne le dit pas : il manque les dates de passage d’étape.", tone: "na" });
-    A.push(!d8 ? { q: "Est-ce que je sais pourquoi ?", a: "Votre fichier ne contient pas assez de raisons de perte pour le dire.", tone: "na" } : d8.status === "r" ? { q: "Est-ce que je sais pourquoi ?", a: "Non. " + cap(W10[x10(d8.share)]) + " pertes sur dix n’ont pas de raison.", tone: "r" } : silent ? { q: "Est-ce que je sais pourquoi ?", a: "Oui, et c’est le silence : " + fmt.pct(pc(silent.n, lost.length)) + " de vos deals perdus ne répondent plus.", tone: "o" } : { q: "Est-ce que je sais pourquoi ?", a: "Oui. " + cap(W10[10 - x10(d8.share)]) + " pertes sur dix ont une vraie raison.", tone: "g" });
+    A.push(!d8 ? { q: "Est-ce que je sais pourquoi ?", a: "Votre fichier ne contient pas assez de raisons de perte pour le dire.", tone: "na" } : d8.status === "r" ? { q: "Est-ce que je sais pourquoi ?", a: "Non. " + x10(d8.share) + " pertes sur 10 n’ont pas de raison.", tone: "r" } : silent ? { q: "Est-ce que je sais pourquoi ?", a: "Oui, et c’est le silence : " + fmt.pct(pc(silent.n, lost.length)) + " de vos deals perdus ne répondent plus.", tone: "o" } : { q: "Est-ce que je sais pourquoi ?", a: "Oui. " + (10 - x10(d8.share)) + " pertes sur 10 ont une vraie raison.", tone: "g" });
     var okLine = k2 != null && k2 >= wrMin ? "vous signez " + fmt.pct(k2) + " de vos deals sérieux, c’est " + (k2 > wrMax ? "au-dessus de" : "dans") + " la norme (" + wrMin + " à " + wrMax + NB + "%)." + (b6c && b6c.status === "r" ? " Le problème n’est pas l’entrée du pipeline, c’est la fin." : "") : M.good[0] ? M.good[0].text.charAt(0).toLowerCase() + M.good[0].text.slice(1) : "";
     var V = shareSt >= 15 && nSt >= 3 ? { kind: "alive", title: "Votre CRM affiche " + fmt.eur(openEur) + ". " + fmt.eur(alive) + " sont encore vivants.", em: fmt.eur(alive), sub: nSt + " deals ne bougent plus ou devaient signer à une date déjà passée. Si votre prévision part de " + fmt.eur(openEur) + ", " + fmt.pct(shareSt) + " reposent sur eux.", bench: shareSt >= 33 ? "Au-delà de 30" + NB + "% de pipeline à l’arrêt, on ne peut plus s’appuyer dessus pour prévoir." : "" }
       : b6c && b6c.status === "r" ? { kind: "leak", title: "Votre pipeline de " + fmt.eur(openEur) + " tient debout. C’est en fin de parcours que vous perdez : " + fmt.int(b6c.lateN) + " deals.", em: fmt.int(b6c.lateN) + " deals", sub: fmt.pct(b6c.share) + " de vos pertes arrivent en " + lateA + " ou en " + lateB + ", une fois tout le travail fait.", bench: "" }
@@ -525,6 +526,107 @@
     // the slide and the roadmap follow the same priority, whatever the order of the chapters
     var PRI = ["stalled", "journey", "reasons", "orphans", "amounts", "dates", "rep"], ranked = B.slice().sort(function (a, b) { return PRI.indexOf(a.key) - PRI.indexOf(b.key); });
     M.story = { verdict: V, answers: A, good: okLine, blocks: B, decisions: ranked.filter(function (b) { return b.slide; }).slice(0, 3).map(function (b) { return b.slide; }), roadmap: ranked.filter(function (b) { return b.sol; }).map(function (b) { return { key: b.key, name: b.sol.name, first: cap(b.decision) }; }), slideTitle: V.kind === "alive" ? "Notre pipeline vivant : " + fmt.eur(alive) + ", pas " + fmt.eur(openEur) + "." : "Notre pipeline : " + fmt.eur(openEur) + ". Voici où nous perdons.", alive: alive, aliveShare: 100 - shareSt, aliveN: open.length - nSt };
+    // ---------- read at a glance: for every finding a short form (figure, one line), the action in one line, and the method behind the number ----------
+    var defLim = sd || (S ? Math.round(mult * (med(k5.filter(Boolean)) || 0)) || 30 : k4 ? Math.round(mult * k4) : 60), inStage = S ? "dans la même étape" : "sans signature";
+    B.forEach(function (b) {
+      var k = b.key, x = null;
+      b.sev = b.tone === "r" ? "Constat critique" : b.tone === "o" ? "Question" : b.tone === "g" ? "Sain" : "Non mesurable";
+      if (b.tone !== "r") return;
+      if (k === "stalled") x = { big: nSt + " deals à l’arrêt", fig: fmt.eur(M.pipe.union), line: fmt.pct(shareSt) + " du montant de votre pipeline ouvert", rule: "stale",
+        method: "Deals ouverts qui dépassent la durée limite ci-dessous, ou dont la date de signature prévue est passée.", scope: nSt + " deals sur " + open.length + " ouverts · " + fmt.eur(M.pipe.union) + " sur " + fmt.eur(openEur),
+        act: "Relancer ou fermer ces " + nSt + " deals, puis fixer une durée limite " + (S ? "par étape" : "par deal"), goal: "moins de 15" + NB + "% du pipeline à l’arrêt", now: fmt.pct(shareSt),
+        s: ["Chaque commercial relance ou ferme ses deals à l’arrêt, d’ici vendredi", "Une alerte dans le CRM quand un deal dépasse sa durée limite", "Une revue de pipeline limitée aux deals en alerte"] };
+      else if (k === "orphans") x = { big: byC.E8.orphN + " deals sans porteur", fig: fmt.eur(byC.E8.impact), line: "Ils sont confiés à quelqu’un qui ne vend plus chez vous", rule: "team",
+        method: "Deals ouverts dont le commercial fait partie des personnes que vous avez déclarées comme ne vendant plus.", scope: byC.E8.orphN + " deals sur " + open.length + " ouverts · " + fmt.eur(byC.E8.impact),
+        act: "Réattribuer ou fermer ces " + byC.E8.orphN + " deals cette semaine", goal: "aucun deal ouvert sans porteur", now: byC.E8.orphN + " deals",
+        s: ["Réattribuer ces deals à un porteur nommé, les plus avancés d’abord", "Aucun compte désactivé tant que ses deals n’ont pas de nouveau porteur", "Le nouveau porteur appelle chaque client dans les sept jours"] };
+      else if (k === "amounts") x = { big: (nPh >= 3 ? nPh + " deals" : fmt.pct(modeAllShare) + " des deals") + " à " + modeTxt + " pile", fig: nPh >= 3 ? ePh : "", line: "Le même montant sur tous ces deals, sans chiffrage propre", rule: "fixed",
+        method: "Deals qui portent exactement le même montant. Au-delà d’un deal sur dix, c’est un tarif ou une valeur remplie d’office.", scope: fmt.pct(modeAllShare) + " des " + fmt.int(withAmt.length) + " deals chiffrés" + (nPh >= 3 ? " · " + nPh + " ouverts, " + ePh : ""),
+        act: "Faire chiffrer ces deals, et supprimer le montant par défaut", goal: "aucun montant porté par plus d’un deal sur dix", now: fmt.pct(modeAllShare),
+        s: ["Faire chiffrer ces deals par ceux qui les portent, cette semaine", "Plus de valeur par défaut : le montant devient obligatoire " + (serious ? "à partir de " + qt(serious) : "quand le deal est sérieux"), "Une fourchette plutôt qu’un chiffre inventé"] };
+      else if (k === "dates") x = { big: fmt.pct(h3) + " des dates au dernier jour du mois", fig: "", line: "Ces dates ne viennent pas d’un engagement du client", rule: "eom",
+        method: "Part des deals ouverts dont la date de signature prévue tombe le dernier jour d’un mois.", scope: fmt.pct(h3) + " des " + withClose.length + " deals ouverts datés",
+        act: "N’accepter qu’une date de signature donnée par le client", goal: "moins d’une date sur cinq en fin de mois", now: fmt.pct(h3),
+        s: ["Une date de signature vient du client, sinon le deal n’en a pas", "Un champ court « ce qui justifie cette date », obligatoire", "Chaque semaine, regarder les dates repoussées"] };
+      else if (k === "journey") x = { big: fmt.int(b6c.lateN) + " deals perdus en fin de parcours", fig: fmt.eur(b6c.lateEur), line: fmt.pct(b6c.share) + " de vos pertes, en " + lateA + " ou en " + lateB, rule: null,
+        method: "Pour chaque deal perdu, la dernière étape atteinte. La fin de parcours, ce sont les deux dernières étapes.", scope: fmt.int(b6c.lateN) + " deals sur " + fmt.int(cl.length) + " perdus" + (cohort !== deals ? ", parmi les deals créés il y a plus de quatre mois" : "") + " · " + fmt.eur(b6c.lateEur),
+        act: "Fixer trois conditions d’entrée en " + lateA + ", vérifiables côté client", goal: "moins d’une perte sur deux en fin de parcours", now: fmt.pct(b6c.share), gain: "+" + b6c.gainN + " deals gagnés, soit " + fmt.eur(b6c.gainEur),
+        s: ["Pendant un mois, votre feu vert avant toute entrée en " + lateA, "Trois conditions d’entrée, chacune étant un acte du client", "Relire les dix derniers deals perdus tard"] };
+      else if (k === "rep") x = { big: fmt.pct(e2c.conv) + " contre " + fmt.pct(e2c.team) + " en " + e2c.stageName, fig: "", line: "Un commercial décroche de l’équipe à cette étape, et seulement là", rule: "team",
+        method: "Pour chaque commercial et chaque étape, la part de ses deals qui passent à la suite, comparée à l’équipe. Alerte sous 70" + NB + "% du niveau de l’équipe.", scope: fmt.pct(e2c.conv) + " sur " + e2c.n + " deals, contre " + fmt.pct(e2c.team) + " pour l’équipe",
+        act: "Accompagner ce commercial sur l’étape " + e2c.stageName + ", et elle seule", goal: "rejoindre l’équipe à cette étape : " + fmt.pct(e2c.team), now: fmt.pct(e2c.conv), gain: "+" + e2c.gainN + " deals gagnés",
+        s: ["Relire ensemble ses 5 derniers deals perdus à cette étape", "Les comparer à deux deals gagnés par un collègue", "Deux rendez-vous observés, un objectif à trente jours"] };
+      else if (k === "reasons" && b.read === "A") x = { big: x10(d8.share) + " pertes sur 10 sans raison", fig: fmt.eur(d8.impact), line: "Impossible de savoir sur quoi vous perdez", rule: rT[0] || null,
+        method: "Part des deals perdus dont la raison est vide, ou ne dit pas pourquoi le deal est perdu.", scope: fmt.pct(d8.share) + " des " + fmt.int(lost.length) + " deals perdus · " + fmt.eur(d8.impact),
+        act: "Imposer six raisons de perte, obligatoires pour fermer un deal", goal: "moins d’une perte sur dix sans raison", now: fmt.pct(d8.share),
+        s: ["Six raisons au maximum, obligatoires pour fermer un deal", "Des raisons qui appellent chacune une action différente", "Cinq clients perdus appelés chaque mois"] };
+      else if (k === "reasons") x = { big: fmt.pct(pc(silent.n, lost.length)) + " des deals perdus en silence", fig: fmt.eur(silent.eur), line: "Le prospect a cessé de répondre", rule: rT[0] || null,
+        method: "Part des deals perdus classés " + qt(silent.name) + " : vous m’avez dit que cela veut dire que le prospect ne répond plus.", scope: silent.n + " deals sur " + fmt.int(lost.length) + " perdus · " + fmt.eur(silent.eur),
+        act: "Fixer un nombre de relances, puis fermer le deal", goal: "moins de deals perdus en silence", now: fmt.pct(pc(silent.n, lost.length)),
+        s: ["Fixer combien de relances avant de fermer, et à quel rythme", "Un dernier message qui annonce la fermeture du dossier", "Jamais de rendez-vous sans la date du suivant"] };
+      if (!x) return;
+      b.big = x.big; b.fig = x.fig; b.line = x.line; b.method = x.method; b.scope = x.scope; b.rule = x.rule;
+      b.sol.act = x.act; b.sol.goal = x.goal; b.sol.now = x.now; b.sol.gain = x.gain || ""; b.sol.steps.forEach(function (st, i) { st.s = x.s[i]; });
+    });
+    V.method = V.kind === "alive" ? "Pipeline ouvert, moins les deals à l’arrêt et ceux dont la date de signature prévue est passée." : "Montant total des deals ouverts de votre fichier."; V.scope = open.length + " deals ouverts, " + fmt.eur(openEur) + (nSt ? ". À l’arrêt : " + nSt + " deals, " + fmt.eur(M.pipe.union) + " (sans mouvement " + fmt.eur(M.pipe.stagOnly) + ", date dépassée " + fmt.eur(M.pipe.pastOnly) + ", les deux à la fois " + fmt.eur(M.pipe.both) + ")" : ""); V.rule = tOf("stale") ? "stale" : null;
+    M.story.glance = A.map(function (a, i) { var bs = B.filter(function (b) { return b.ch === i; }), top = bs.filter(function (b) { return b.sol; })[0], ask = bs.filter(function (b) { return b.tone === "o"; })[0]; return { q: a.q, a: a.a, tone: a.tone, key: top ? top.key : ask ? ask.key : bs[0] ? bs[0].key : "", act: top ? top.sol.act : "", goal: top ? top.sol.goal : "", pending: !top && ask ? ask.title : "" }; });
+    M.story.counts = { crit: B.filter(function (b) { return b.tone === "r"; }).length, ask: B.filter(function (b) { return b.tone === "o"; }).length, ok: B.filter(function (b) { return b.tone === "g"; }).length };
+    // the sentence that restates each rule: "Modifier la règle" puts it in the rule bar, ready to be changed
+    T.forEach(function (t) {
+      t.say = t.id === "stale" ? "Un deal est à l’arrêt après " + defLim + " jours " + inStage : t.id === "fixed" ? fmt.int(+modeAll) + " € est un prix de notre catalogue" : t.id === "eom" ? "Dater à fin de mois est notre règle"
+        : t.id.indexOf("reason:") === 0 ? "« " + t.id.slice(7) + " » veut dire que le prospect ne répond plus" : t.id === "qual" ? "Le taux de signature se calcule à partir de l’étape " + stages[Math.min(qs, S - 1)]
+        : t.id === "cycle" ? "Chez nous, une vente dure " + alertDays + " jours" : t.id === "since" ? "Jugez seulement les 12 derniers mois" : "";
+    });
+    // three starting points for the rule bar, shown only when it has focus: a rule, a calculation method, an indicator
+    M.hints = [{ kind: "Règle", text: "Un deal sans nouvelle depuis 45 jours est à l’arrêt" },
+      S >= 3 ? { kind: "Calcul", text: "Le taux de signature se calcule à partir de l’étape " + stages[Math.min(2, S - 1)] } : { kind: "Calcul", text: "Ne comptez pas les deals de moins de 1 000 €" },
+      { kind: "KPI", text: dims.some(function (dm) { return dm.key === "source"; }) ? "Panier moyen des deals gagnés, par source" : "Nombre de deals créés par mois" }];
+    // how each secondary check is computed, in one sentence (shown on hover)
+    var HOW = { A1: "Nombre d’étapes ouvertes de votre pipeline. Entre quatre et sept, il reste lisible.", A2: "Part des deals ouverts rangés dans l’étape la plus chargée.", A3: "Part des deals clos qui n’ont aucune date d’entrée dans au moins une étape de leur parcours.", A4: "Part des deals qui passent chaque étape. Au-delà de 95" + NB + "%, l’étape ne filtre rien.", A6: "Part des deals dont la première étape renseignée n’est pas la première du pipeline.",
+      B1: "Pour chaque étape, la part des deals qui passent et le montant perdu à ce stade.", B2: "Deals gagnés divisés par les deals gagnés ou perdus, parmi ceux qui ont atteint l’étape où un deal est sérieux.", B3: "Le même taux calculé en montant, comparé au taux en nombre de deals.", B4: "Deals créés par semaine sur les quatre dernières semaines, comparés aux douze précédentes.", B5: "Taux de signature de chaque source ayant au moins dix deals clos.", B6: "Part des deals perdus dont la dernière étape atteinte est l’une des deux dernières.",
+      C1: "Durée entre la création et la signature du deal gagné du milieu, sur douze mois, comparée à la durée attendue.", C2: "Part de la durée totale d’une vente passée dans chaque étape.", C3: "Montant des deals ouverts restés dans leur étape au-delà de la durée limite, rapporté au pipeline ouvert.", C4: "Part des deals ouverts plus vieux que deux fois la durée d’une vente gagnée.",
+      D1: "Part des deals ouverts sans montant, sans date de signature, sans commercial ou sans source : le pire des quatre.", D2: "Part des deals ouverts dont la date de signature prévue est déjà passée.", D5: "Part des deals ouverts sans échange enregistré récemment.", D6: "Part des deals qui portent exactement le même montant, hors tarifs que vous avez déclarés.", D7: "Part des entreprises qui ont plusieurs deals ouverts en même temps.", D8: "Part des deals perdus dont la raison est vide ou ne dit rien.",
+      E1: "Écart de taux de signature entre les commerciaux ayant au moins quinze deals clos.", E2: "Pour chaque commercial et chaque étape, la part de ses deals qui passent, comparée à l’équipe.", E4: "Part du montant gagné réalisée par le cinquième des commerciaux qui signe le plus.", E8: "Deals ouverts portés par une personne que vous avez déclarée comme ne vendant plus.",
+      G2: "Part des deals perdus dès les deux premières étapes. Perdre tôt coûte moins cher.", G4: "Parmi les pertes qui ont une vraie raison, la part de celles où le client n’a rien décidé.", G6: "Part des deals gagnés en moins de sept jours après leur création.", H2: "Part des deals gagnés signés dans les cinq derniers jours ouvrés du mois.", H3: "Part des dates de signature prévues qui tombent le dernier jour d’un mois.", I1: "Taux de signature de chaque segment ayant au moins dix deals clos.", P1: "Montant des deals à l’arrêt ou à date de signature dépassée, rapporté au pipeline ouvert." };
+    M.checks.forEach(function (c) { c.how = (HOW[c.id] || "") + (c.n != null && c.status !== "na" ? " Calculé sur " + fmt.int(c.n) + " deals." : ""); });
+    // ---------- indicators the user invented in plain words (cfg.kpis): a measure, a population, filters, a breakdown ----------
+    var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."], POPS = { all: deals, open: open, won: won, lost: lost, closed: won.concat(lost) };
+    var kpiOf = function (k) {
+      var f = k.filters || {}, base = POPS[k.pop] || deals, sIx = f.stage != null ? stageIx[f.stage] : null, hasF = Object.keys(f).length > 0;
+      var keepD = function (d) { return !(f.min != null && !(d.amount >= f.min)) && !(f.max != null && !(d.amount != null && d.amount <= f.max)) && !(f.dim && norm(dimOf(d, f.dim.key)) !== norm(f.dim.value)) && !(f.owner && d.owner !== f.owner) && !(f.reason && norm(d.reason) !== norm(f.reason)) && !(sIx != null && (d.status === "open" ? d.cur : d.maxStage) !== sIx) && !(f.since && d.created < snap - f.since * 30.4 * DAY); };
+      var fv = function (v) { return v == null ? "—" : k.measure === "count" ? fmt.int(v) : k.measure === "winrate" || k.measure === "share" ? fmt.pct(v) : k.measure === "cycle" || k.measure === "stagetime" ? fmt.days(v) : fmt.eur(v); };
+      var val = function (a) {
+        var wa = a.filter(function (d) { return d.amount > 0; }), cy;
+        if (k.measure === "count") return { v: a.length, n: a.length };
+        if (k.measure === "sum") return { v: sum(a, amt), n: a.length };
+        if (k.measure === "avg") return { v: wa.length ? sum(wa, amt) / wa.length : null, n: wa.length };
+        if (k.measure === "median") return { v: med(wa.map(amt)), n: wa.length };
+        if (k.measure === "winrate") { a = a.filter(function (d) { return S < 2 || reached(d, Math.min(qs, S - 1)); }); return { v: pc(a.filter(function (d) { return d.status === "won"; }).length, a.length), n: a.length }; }
+        if (k.measure === "cycle") { cy = a.map(function (d) { return d.cycle; }).filter(function (c) { return c != null; }); return { v: !cy.length ? null : k.stat === "avg" ? sum(cy) / cy.length : med(cy), n: cy.length }; }
+        if (k.measure === "weighted") return { v: sum(a, function (d) { return amt(d) * ((k.weights || {})[norm(stages[d.cur] || "")] || 0) / 100; }), n: a.length };
+        return { v: null, n: 0 };
+      };
+      var gk = function (d) { var b = k.by; return b === "owner" ? d.owner || "" : b === "stage" ? (d.status === "open" ? stages[d.cur] : stages[d.maxStage]) || d.stage || "—" : b === "reason" ? d.reason || "Non renseigné" : b === "month" ? String(mKey(k.pop === "all" || k.pop === "open" ? d.created : d.closed || d.created)) : dimOf(d, b) || "Non renseigné"; };
+      var pop = base.filter(keepD), den = hasF ? base : deals, share = k.measure === "share", tot, rows = [], more = 0;
+      if (k.measure === "stagetime") { var fi = stageIx[k.stage]; tot = { v: fi != null && M.funnel[fi] ? M.funnel[fi].days : null, n: fi != null && M.funnel[fi] ? M.funnel[fi].reached : 0 }; rows = M.funnel.map(function (s) { return { key: s.name, l: s.name, who: null, v: s.days, n: s.reached, f: fv(s.days) }; }).filter(function (r) { return r.v != null; }); }
+      else {
+        tot = share ? { v: pc(pop.length, den.length), n: den.length } : val(pop);
+        if (k.by) {
+          var g = groupBy(share ? den : pop, gk);
+          rows = Object.keys(g).map(function (key) { var r = share ? { v: pc(g[key].filter(keepD).length, g[key].length), n: g[key].length } : val(g[key]); return { key: key, l: k.by === "month" ? MOIS[+key % 12] + NB + String(Math.floor(+key / 12)).slice(2) : k.by === "owner" ? "" : key, who: k.by === "owner" ? key : null, v: r.v, n: r.n, f: fv(r.v) }; }).filter(function (r) { return r.v != null && r.n > 0; });
+          if (k.by === "month") rows = rows.sort(function (a, b) { return a.key - b.key; }).slice(-12);
+          else if (k.by === "stage") rows.sort(function (a, b) { var ia = stageIx[norm(a.key)], ib = stageIx[norm(b.key)]; return (ia != null ? ia : 99) - (ib != null ? ib : 99); });
+          else { rows.sort(function (a, b) { return b.v - a.v; }); more = Math.max(0, rows.length - 8); rows = rows.slice(0, 8); }
+        }
+      }
+      var HK = { count: "Nombre de deals correspondant à votre description", sum: "Somme des montants des deals correspondant à votre description", avg: "Moyenne des montants, sur les deals qui en ont un", median: "Montant du deal du milieu, quand on les range du plus petit au plus gros", winrate: "Deals gagnés divisés par les deals gagnés ou perdus" + (S >= 2 ? ", parmi ceux arrivés à l’étape où un deal est sérieux" : ""), cycle: (k.stat === "avg" ? "Durée moyenne" : "Durée du deal du milieu") + " entre la création et la signature des deals gagnés", share: "Deals concernés divisés par " + (hasF ? "tous les deals de la même famille" : "tous les deals"), weighted: "Montant de chaque deal ouvert multiplié par la probabilité que vous donnez à son étape", stagetime: "Durée entre l’entrée dans l’étape et l’entrée dans la suivante, pour le deal du milieu" };
+      return { id: k.id, label: k.label, text: k.text, measure: k.measure, by: k.by || null, value: tot.v, f: fv(tot.v), n: tot.n, rows: rows, more: more, how: HK[k.measure] + ".", scope: "Calculé sur " + fmt.int(tot.n) + " deals, avec vos règles" };
+    };
+    M.custom = (cfg.kpis || []).map(kpiOf);
+    // ---------- the sales cycle from the first stage to the signature: deals entering each stage, share moving on, time spent ----------
+    var weak = -1; M.funnel.forEach(function (f, i) { if (f.conv != null && (weak < 0 || f.conv < M.funnel[weak].conv)) weak = i; });
+    M.cycle = !S ? null : { stages: M.funnel.map(function (f) { return { name: f.name, n: f.reached, conv: f.conv, days: f.days }; }), from: M.funnel[0].reached, won: cw.length, overall: pc(cw.length, M.funnel[0].reached), days: k4, weak: weak, slow: slow,
+      method: "Pour chaque étape : les deals qui y entrent, la part qui passe à la suivante, et le temps qu’y reste le deal du milieu.", scope: fmt.int(cohort.length) + " deals" + (cohort !== deals ? " créés il y a plus de quatre mois, pour que leur parcours soit terminé" : "") };
     // compact anonymised snapshot of the analysed pipeline, kept by the app to compare with the next export
     var idOk = deals.length && deals.every(function (d) { return d.id; }) && Object.keys(groupBy(deals, function (d) { return d.id; })).length === deals.length;
     M.snapshot = idOk ? { date: snap, stages: stages, deals: deals.map(function (d) { return [String(d.id), d.cur, d.status === "won" ? 1 : d.status === "lost" ? 2 : 0, d.amount || 0, d.close || 0, d.owner]; }) } : null;
@@ -544,6 +646,8 @@
       else if (k === "toggleOwner") { var hadO = (cfg.ownersOff || []).indexOf(set.toggleOwner) >= 0; cfg.ownersOff = (cfg.ownersOff || []).filter(function (h) { return h !== set.toggleOwner; }); if (!hadO) cfg.ownersOff.push(set.toggleOwner); }
       else if (k === "ownerOff") cfg.ownersOff = (cfg.ownersOff || []).filter(function (h) { return h !== set.ownerOff; }).concat([set.ownerOff]);
       else if (k === "ownerOn") cfg.ownersOff = (cfg.ownersOff || []).filter(function (h) { return h !== set.ownerOn; });
+      else if (k === "addKpi") cfg.kpis = (cfg.kpis || []).filter(function (x) { return x.id !== set.addKpi.id; }).concat([set.addKpi]);
+      else if (k === "removeKpi") cfg.kpis = (cfg.kpis || []).filter(function (x) { return x.id !== set.removeKpi; });
       else cfg[k] = set[k];
     }
     return cfg;
@@ -559,6 +663,7 @@
       else if (k === "toggleOwner") u.toggleOwner = set[k];
       else if (k === "ownerOff") { if ((cfg.ownersOff || []).indexOf(set[k]) < 0) u.ownerOn = set[k]; }
       else if (k === "ownerOn") { if ((cfg.ownersOff || []).indexOf(set[k]) >= 0) u.ownerOff = set[k]; }
+      else if (k === "addKpi") { var kid = set[k].id; if (!(cfg.kpis || []).some(function (y) { return y.id === kid; })) u.removeKpi = kid; }
       else u[k] = cfg[k] != null ? cfg[k] : null;
     }
     return u;
@@ -575,7 +680,49 @@
     var days = function (m) { return Math.round(+m[1] * (/^s/.test(m[2]) ? 7 : /^m/.test(m[2]) ? 30 : /^a/.test(m[2]) ? 365 : 1)); };
     var months = function (m) { return Math.round(+m[1] * (/^a/.test(m[2]) ? 12 : 1)); };
     var has = function (n, w) { return w.length > 1 && (" " + n + " ").indexOf(" " + w) >= 0; };   // word-prefix match: "partenaire" also finds "partenaires"
+    var hasW = function (n, w) { return w.length > 1 && new RegExp("(^| )" + rxEsc(w) + "s?( |$)").test(n); };   // whole word, plural allowed
     var money = function (o) { var m = o.match(/(\d[\d\s .,]*)\s*(k€|k\b|€|euros?|eur\b)/i); if (!m) return null; var raw = m[1].replace(/[\s ]/g, ""); if (/^\d{1,3}(\.\d{3})+$/.test(raw)) raw = raw.replace(/\./g, ""); var v = parseFloat(raw.replace(",", ".")) * (/k/i.test(m[2]) ? 1000 : 1); return v > 0 ? v : null; };
+    // An indicator described in plain words: a measure, a population, optional filters and a breakdown ("par source").
+    var GROUPS = [["owner", /par (commercial|commerciaux|vendeur|personne|responsable|porteur|proprietaire)/], ["stage", /par (etape|phase|stade)/], ["month", /par mois|mensuel|chaque mois/], ["reason", /par (raison|motif)/], ["source", /par (source|origine|canal|provenance)/], ["segment", /par (segment|taille|secteur)/]];
+    var BYTXT = { owner: "par commercial", stage: "par étape", month: "par mois", reason: "par raison de perte" }, dimOfKey = function (key) { return (M.dims || []).filter(function (d) { return d.key === key; })[0]; };
+    var readKpi = function (o, n, stageHit) {
+      var f = {}, w = {}, by = null, m;
+      if (/ponder/.test(n) && N2) {
+        M.stages.forEach(function (st) { var sn = norm(st), a = n.match(new RegExp("(\\d{1,3}) (?:en |pour |sur |a l etape )?" + rxEsc(sn) + "( |$)")) || n.match(new RegExp(rxEsc(sn) + " (?:a |de )?(\\d{1,3})( |$)")); if (a && +a[1] <= 100) w[sn] = +a[1]; });
+        if (Object.keys(w).length >= 2) return { id: "k:pondere", measure: "weighted", pop: "open", filters: {}, weights: w, by: "stage", text: o, label: "Pipeline pondéré par la probabilité de chaque étape" };
+      }
+      var meas = /(taux de (?:signature|closing|conversion|transformation|reussite|gain|victoire)|win rate)/.test(n) ? "winrate"
+        : stageHit >= 0 && N2 && /(temps|duree|delai)\w* (?:passe |moyen |moyenne |median |mediane )?(?:en|dans|a l etape)/.test(n) ? "stagetime"
+        : /(duree|cycle|delai)/.test(n) && /(vente|signature|signer|cycle|conclu|gagn)/.test(n) ? "cycle"
+        : /(panier|ticket)/.test(n) || /(montant|valeur|taille)\w* (?:moyen|median)/.test(n) || /(moyenne|mediane) des montants/.test(n) ? (/median/.test(n) ? "median" : "avg")
+        : /(\bpart\b|proportion|pourcentage)/.test(n) ? "share"
+        : /(montant|valeur|chiffre d affaires|\bca\b|total|somme)/.test(n) || /pipeline (?:par|total|ouvert|en cours|de |des )/.test(n) ? "sum"
+        : /(nombre|combien|volume|compte)/.test(n) ? "count" : null;
+      if (!meas) return null;
+      GROUPS.forEach(function (g) { if (!by && g[1].test(n)) by = g[0]; });
+      if ((by === "source" || by === "segment") && !dimOfKey(by)) by = null;
+      if (!by) (M.dims || []).forEach(function (dm) { if (!by && n.indexOf("par " + norm(dm.label)) >= 0) by = dm.key; });
+      var intent = /(calcul|indicateur|kpi|combien|quel|montre|affiche|donne|veux|voir|suivre|mesure|ajoute|cree)/.test(n) || /^(?:le |la |les |mon |ma |notre |nos )?(montant|nombre|total|somme|panier|ticket|taux|part|proportion|pourcentage|duree|temps|cycle|delai|volume)/.test(n);
+      if (!intent && !by) return null;
+      var pop = /(gagn|remport|\bsignes?\b)/.test(n) ? "won" : /perdu/.test(n) ? "lost" : /(ouvert|en cours)/.test(n) ? "open" : /(\bclos\b|ferme)/.test(n) ? "closed" : null, v = money(o);
+      if (v && /(plus de|au dessus|superieur|au moins|a partir de)/.test(n)) f.min = v; else if (v && /(moins de|inferieur|en dessous|au dessous)/.test(n)) f.max = v;
+      (M.dims || []).forEach(function (dm) { if (dm.key === by) return; dm.values.forEach(function (val) { if (!f.dim && norm(val.v).length > 2 && hasW(n, norm(val.v))) f.dim = { key: dm.key, value: val.v }; }); });
+      if (stageHit >= 0 && meas !== "stagetime" && by !== "stage" && N2 && /( en | a l etape | au stade | dans l etape )/.test(" " + n + " ")) f.stage = norm(M.stages[stageHit]);
+      Object.keys(names).forEach(function (h) { var full = norm(names[h]); if (full && has(n, full)) f.owner = h; });
+      if (by !== "reason" && (pop === "lost" || meas === "share")) M.reasons.forEach(function (r) { if (r.name !== "(vide)" && !f.reason && hasW(n, norm(r.name))) f.reason = r.name; });
+      if ((m = n.match(/(\d+) derni\w+ mois/) || n.match(/depuis (\d+) mois/))) f.since = +m[1];
+      if (f.reason && !pop) pop = "lost";
+      if (meas === "winrate") pop = "closed"; else if (meas === "cycle") pop = "won"; else if (meas === "stagetime") pop = "all";
+      else if (!pop) pop = meas === "avg" || meas === "median" ? (/(panier|ticket)/.test(n) ? "won" : "all") : meas === "sum" && /pipeline/.test(n) ? "open" : "all";
+      if (meas === "share" && !Object.keys(f).length && pop === "all") return null;
+      var stat = /moyen/.test(n) ? "avg" : "median", P = { won: " gagnés", lost: " perdus", open: " ouverts", closed: " clos", all: /(^| )cree/.test(n) ? " créés" : "" };
+      var LBL = { count: "Nombre de deals", sum: "Montant total des deals", avg: "Montant moyen des deals", median: "Montant médian des deals", share: "Part des deals", winrate: "Taux de signature", cycle: (stat === "avg" ? "Durée moyenne" : "Durée médiane") + " d’une vente", stagetime: "Temps passé en " + (stageHit >= 0 ? qt(M.stages[stageHit]) : "") };
+      var plain = meas === "winrate" || meas === "cycle" || meas === "stagetime", lab = LBL[meas] + (plain ? "" : P[pop]);
+      var ft = (f.dim ? " " + qt(f.dim.value) : "") + (f.stage ? " en " + qt(M.stages[stageHit]) : "") + (f.min ? " de plus de " + fmt.eur(f.min) : "") + (f.max ? " de moins de " + fmt.eur(f.max) : "") + (f.owner ? " de {who:" + f.owner + "}" : "") + (f.reason ? " pour " + qt(f.reason) : "") + (f.since ? " créés depuis " + f.since + " mois" : "");
+      lab += ft && plain ? ", deals" + ft : ft;
+      if (by) lab += ", " + (BYTXT[by] || "par " + (dimOfKey(by) ? dimOfKey(by).label.toLowerCase() : by));
+      return { id: "k:" + n.slice(0, 80), measure: meas, pop: pop, filters: f, by: by, stat: stat, stage: meas === "stagetime" ? norm(M.stages[stageHit]) : null, text: o, label: lab };
+    };
     String(text || "").split(/[\n;!?]+|\.(?=\s|$)/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (o) {
       var n = norm(o).replace(new RegExp("\\b(" + NUMS + ")(?= (?:" + UNITS + "|fois|deals? sur)\\b)", "g"), function (w) { return NUMW[w]; }).replace(new RegExp("\\bsur (" + NUMS + ")\\b", "g"), function (w, a) { return "sur " + NUMW[a]; });
       var hit = [], masks = [], m, a, b, d, v, ans;
@@ -596,8 +743,15 @@
         else if (/(tout l historique|toute la periode|tout le fichier|toutes les annees)/.test(n)) push("Je juge tout l’historique de votre fichier", { since: null }, { since: optOf("since", { since: null }) });
       }
 
+      // calculation methods: what the signature rate is computed on, where the length of a sale starts
+      if (/(taux de (?:signature|closing|conversion|transformation|reussite)|win rate)/.test(n) && /(calcul|compte|mesur|base)/.test(n) && !/\d/.test(n)) {
+        if (stageHit >= 0 && N2) push("Le taux de signature se calcule sur les deals arrivés en " + qt(M.stages[stageHit]), { qualStage: stageHit }, { qual: optOf("qual", { qualStage: stageHit }) });
+        else if (/(tous les deals|deals crees|des la creation|toutes les opportunites|tout le pipeline)/.test(n)) push("Le taux de signature se calcule sur tous les deals créés", { qualStage: 0 }, { qual: optOf("qual", { qualStage: 0 }) });
+      }
+      if (!dur && stageHit >= 0 && N2 && /(cycle|duree d une vente|duree de vente|duree des ventes|delai de vente)/.test(n) && /(a partir|depuis|des l|commence|demarre|se compte|se calcule|se mesure)/.test(n)) push("La durée d’une vente se compte à partir de l’étape " + qt(M.stages[stageHit]), { cycleFrom: norm(M.stages[stageHit]) });
+
       // what a normal signature rate is here
-      if ((m = n.match(/(?:win rate|taux de (?:closing|conversion|transformation|signature|reussite))[a-z ]*?(\d{1,2})(?:\s*(?:a|et)\s*(\d{1,2}))?/))) { a = +m[1]; b = m[2] ? +m[2] : a + 5; if (!m[2]) a = Math.max(1, a - 5); push("Un taux de signature normal chez vous : " + a + " à " + b + NB + "%", { wrMin: a, wrMax: b }, { motion: optOf("motion", { wrMin: a, wrMax: b }) }); }
+      if (/\d\s*(%|pour ?cent)/i.test(o) && !money(o) && (m = n.match(/(?:win rate|taux de (?:closing|conversion|transformation|signature|reussite))[a-z ]*?(\d{1,2})(?:\s*(?:a|et)\s*(\d{1,2}))?/))) { a = +m[1]; b = m[2] ? +m[2] : a + 5; if (!m[2]) a = Math.max(1, a - 5); push("Un taux de signature normal chez vous : " + a + " à " + b + NB + "%", { wrMin: a, wrMax: b }, { motion: optOf("motion", { wrMin: a, wrMax: b }) }); }
       else if ((m = n.match(/(\d+) deals? sur (\d+)/)) && +m[2] > 0 && +m[1] <= +m[2] && /(sign|gagn|transform|conclu|clos)/.test(n)) { v = Math.round(+m[1] / +m[2] * 100); a = Math.max(1, v - 5); b = v + 5; push("Un taux de signature normal chez vous : " + a + " à " + b + NB + "%", { wrMin: a, wrMax: b }, { motion: true }); }
       else if (!exclT && many && /(inbound|entrant)/.test(n)) push("Vos deals viennent surtout de demandes entrantes : 30 à 45" + NB + "% de signature attendus", { wrMin: 30, wrMax: 45 }, { motion: optOf("motion", { wrMin: 30, wrMax: 45 }) });
       else if (!exclT && many && /(outbound|prospection|a froid|cold)/.test(n)) push("Vos deals viennent surtout de la prospection : 10 à 20" + NB + "% de signature attendus", { wrMin: 10, wrMax: 20 }, { motion: optOf("motion", { wrMin: 10, wrMax: 20 }) });
@@ -646,6 +800,7 @@
         if (onV || offV) { masks.push([names[h], h]); masks.push([names[h].split(/\s+/)[0], h]); }
       });
 
+      if (!hit.length) { var kp = readKpi(o, n, stageHit); if (kp) push("Nouvel indicateur : " + kp.label, { addKpi: kp }); }
       if (!hit.length) return out.notes.push(o);
       if (exc >= 0 && dur) out.notes.push(o.slice(exc));   // the exception needs its own sentence, with its own delay
       // names never leave the screen: in what is kept of the sentence, a person is replaced by a reference
@@ -674,6 +829,7 @@
       else if (x && y && y.tone === "g" && x.tone !== "g") out.push("point levé sur " + BLK[k]);
       else if (x && y && (x.tone !== y.tone || x.read !== y.read)) out.push("autre lecture pour " + BLK[k]);
     });
+    (b.custom || []).forEach(function (k) { if (!(a.custom || []).some(function (x) { return x.id === k.id; })) out.push(k.label + " : " + k.f); });
     if (st(b, "C1") && st(a, "C1") !== st(b, "C1")) out.push("votre durée de vente est maintenant jugée " + { g: "normale", o: "un peu longue", r: "trop longue" }[st(b, "C1")]);
     if (st(b, "B2") && st(a, "B2") !== st(b, "B2")) out.push("votre taux de signature est maintenant jugé " + { g: "dans la norme", o: "sous la norme", r: "très en dessous de la norme" }[st(b, "B2")]);
     return out;
