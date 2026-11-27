@@ -141,11 +141,15 @@ button,select,input,textarea{font:inherit;color:inherit}
 .ans p{padding:15px 0 0;font-size:15px;color:var(--slab-2)}.ans p b{color:#6FCFA5;font-weight:600}
 
 /* ---- business rules: assumed until the user confirms or corrects ---- */
-.rbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
-.rbar .wrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center;padding-top:9px;padding-bottom:9px;font-size:14px;position:relative}
-.rbar b{font-weight:650}.rbar .link{font-size:14px;font-weight:600}
+.rbar{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--slab-line)}
+.rbar .wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:24px;align-items:center;padding-top:10px;padding-bottom:10px;font-size:14px;position:relative;color:var(--slab-2);white-space:nowrap}
+.rbar b{font-weight:650;color:var(--cream)}.rbar .link{font-size:14px;font-weight:600}.rbar .cz-out{white-space:normal;color:var(--cream)}
+.rbar #rbar .tag{margin:0 0 0 8px}
+@media (max-width:1180px){.rbar .brand{display:none}.rbar .wrap{grid-template-columns:minmax(0,1fr) auto auto}}
+.rbar.hint .cz-in{animation:nudge 1.5s ease-in-out 2.2s 2}
+@keyframes nudge{50%{border-color:var(--hot);box-shadow:0 0 0 4px rgba(255,106,74,.3)}}
 .rbar .cz{margin:0;max-width:none}.rbar .cz-in{margin:0}.rbar .cz-in input{padding:10px 14px;font-size:16px}.rbar .cz-in button{padding:0 16px;font-size:14px}
-.rbar .cz-out{position:absolute;left:40px;right:40px;top:100%;background:var(--bg);border:2px solid var(--ink);border-top:0;padding:4px 20px 18px;box-shadow:0 18px 40px rgba(21,20,15,.18)}
+.rbar .cz-out{position:absolute;left:40px;right:40px;top:100%;background:var(--slab);border:1px solid var(--cream);border-top:0;padding:4px 20px 18px;box-shadow:0 22px 44px rgba(21,20,15,.35)}
 .rbar .cz:not(.open) .cz-out{display:none}
 
 /* ---- the composer: a business rule said in plain words becomes a rule of calculation ---- */
@@ -190,7 +194,7 @@ button,select,input,textarea{font:inherit;color:inherit}
 .slab .opt{border-color:var(--cream);color:var(--cream)}.slab .opt small{color:var(--slab-2)}.slab .opt:hover{background:var(--slab-line)}.slab .opt.on{background:var(--cream);color:var(--ink)}
 
 /* ---- chapters and blocks ---- */
-section{padding-top:88px;scroll-margin-top:50px}
+section{padding-top:88px;scroll-margin-top:60px}
 h2{font-size:15px;font-weight:650;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:20px;align-items:baseline}
 h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 .chap-h{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:end;padding-bottom:22px;border-bottom:2px solid var(--ink)}
@@ -339,9 +343,9 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   .top{flex-wrap:wrap;gap:6px 16px}.drop>*,.t-body>*,.blk>*,.halves>*,.offer>*{min-width:0}
   .how{gap:0;margin-bottom:56px}.how div,.how div+div{padding:16px 0 4px;border-left:0}.how div+div{border-top:1px solid var(--line)}
   .rec{padding:24px 20px 20px}.rec-s,.rec-k{gap:0}.rec-s li,.rec-s li+li{padding:14px 0 6px;border-left:0}.rec-s li+li{border-top:1px solid var(--slab-line)}.rec-k div,.rec-k div+div{padding:12px 0 0}
-  .rbar{position:static}.rbar .wrap{grid-template-columns:1fr;gap:8px}.rbar .cz-out{left:20px;right:20px}.cz-in input{font-size:16px;padding:13px 12px}.cz-in button{padding:0 14px}
+  .rbar{position:static}.rbar .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 16px;white-space:normal}.rbar .cz{order:3;flex:1 0 100%}.rbar #rbar{order:4;flex:1 0 100%}.rbar .cz-out{left:20px;right:20px}.cz-in input{font-size:16px;padding:13px 12px}.cz-in button{padding:0 14px}
   .chap-h{gap:12px;align-items:start}.ans a{grid-template-columns:1fr;gap:2px}.ans a::after{display:none}
-  .strip{height:48px;gap:0}.v-strip .strip{height:56px}.acts [data-fiche]{display:none}.t-body{padding-top:32px}.t-side .big{font-size:52px}
+  .strip{height:48px;gap:0}.v-strip .strip{height:56px}.t-body{padding-top:32px}.t-side .big{font-size:52px}
   .dr{grid-template-columns:1fr 84px}.dr span:nth-child(n+3){display:none}.dr.head span:nth-child(n+3){display:none}
   .jr{grid-template-columns:1fr 84px 84px;gap:6px 10px}.jr-t{grid-column:1/-1;order:9}.jr span:nth-child(4),.jr.head span:nth-child(2),.jr.head span:nth-child(4){display:none}
   .rb-r{grid-template-columns:100px 1fr}.rb-v{grid-column:1/-1;text-align:left}.hb-r{grid-template-columns:96px 1fr 96px}
@@ -426,8 +430,13 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 
 <!-- 4. REPORT -->
 <div id="v-report" hidden>
+  <div class="rbar slab" id="rb"><div class="wrap">
+    <span class="brand">FLASH SALES FUNNEL AUDIT</span>
+    <div class="cz" id="czB"><div class="cz-in"><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Une règle de votre métier, avec vos mots"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div></div>
+    <span id="rbar"></span>
+    <button class="link" data-restart type="button">Nouveau fichier</button>
+  </div></div>
   <header class="slab"><div class="wrap">
-    <div class="top"><span class="brand">FLASH SALES FUNNEL AUDIT</span><span class="hide" id="filefacts"></span><span class="acts"><button class="link" data-fiche type="button">Vos règles</button><button class="link" data-restart type="button">Nouveau fichier</button></span></div>
     <div class="vd" id="vd">
       <p class="eyebrow" id="vEyebrow"></p>
       <h1 id="vTitle"></h1>
@@ -445,10 +454,6 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
       <div class="ans" id="vAns"></div>
     </div>
   </div></header>
-  <div class="rbar"><div class="wrap">
-    <span id="rbar"></span>
-    <div class="cz lt" id="czB"><div class="cz-in"><input type="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Une règle de votre métier, avec vos mots"><button type="button" data-czgo>Appliquer</button></div><div class="cz-out" aria-live="polite"></div></div>
-  </div></div>
   <div class="wrap">
     <section id="moves" hidden><h2>Ce qui a bougé <span id="movesSub"></span></h2><div class="mvs" id="mvs"></div><div class="two mv2"><div id="mvPushed"></div><div id="mvDue"></div></div></section>
     <div id="chapters"></div>
@@ -467,9 +472,9 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
 <aside class="rules" id="fiche" aria-label="Ce que l’outil a compris de votre business"></aside>
 <div id="tip" role="tooltip"></div>
 
-<!-- ?v=20261127143439 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
-<script src="./config.js?v=20261127143439"></script>
-<script src="./engine.js?v=20261127143439"></script>
+<!-- ?v=20261127143814 is stamped by design/tools/deploy.sh so browsers never mix an old engine with a new page -->
+<script src="./config.js?v=20261127143814"></script>
+<script src="./engine.js?v=20261127143814"></script>
 <script>
 (function () {
   "use strict";
@@ -652,11 +657,12 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   }
   function nlRemove(i) { const e = S.cfg.nl[i]; if (!e) return; E.applyRule(S.cfg, e.undo || {}); Object.keys(e.prev || {}).forEach(id => { if (e.prev[id] == null) delete S.cfg.answers[id]; else S.cfg.answers[id] = e.prev[id]; }); S.cfg.nl.splice(i, 1); }
   let czTimer = 0;
-  document.addEventListener("input", e => { const c = e.target.closest && e.target.closest(".cz"); if (!c || !S.M) return; clearTimeout(czTimer); czTimer = setTimeout(() => czPreview(c), 140); });
+  document.addEventListener("input", e => { const c = e.target.closest && e.target.closest(".cz"); if (!c || !S.M) return; c.classList.add("open"); clearTimeout(czTimer); czTimer = setTimeout(() => czPreview(c), 140); });
   document.addEventListener("keydown", e => { const c = e.target.closest && e.target.closest(".cz"); if (!c) return; if (e.key === "Enter") { e.preventDefault(); clearTimeout(czTimer); czApply(c); } else if (e.key === "Escape") { c.classList.remove("open"); e.target.blur(); calm(); } });
   document.addEventListener("focusin", e => { const c = e.target.closest && e.target.closest(".cz"); if (c) c.classList.add("open"); });
   // the placeholder keeps suggesting rules written from the user's own file
-  let phI = 0; setInterval(() => { if (S.view !== "report" || !S.M || !S.M.examples.length) return; const ex = who(S.M.examples[phI++ % S.M.examples.length].text); ["czV", "czB"].forEach(id => { const i = $(id).querySelector("input"); if (!i.value && document.activeElement !== i) i.placeholder = (id === "czB" ? "Dites une règle de votre métier. Par exemple : " : "Par exemple : ") + ex; }); }, 3400);
+  let phI = 0; const czPh = () => { if (S.view !== "report" || !S.M || !S.M.examples.length) return; const ex = who(S.M.examples[phI++ % S.M.examples.length].text); ["czV", "czB"].forEach(id => { const i = $(id).querySelector("input"); if (!i.value && document.activeElement !== i) i.placeholder = (id === "czB" ? "Dites une règle de votre métier. Par exemple : " : "Par exemple : ") + ex; }); };
+  setInterval(czPh, 3400);
 
   const optsHtml = (t, cls) => t.options.map((o, j) => `<button class="${cls}${t.kind === "multi" ? " tog" + (o.on ? " on" : "") : t.answer === j ? " on" : ""}" type="button" data-t="${att(t.id)}" data-o="${j}">${esc(t.who ? name(o.who) || o.label : o.label)}${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</button>`).join("");
   function reasonsChart(only) { const M = S.M, tot = M.reasons.reduce((a, r) => a + r.n, 0) || 1; return `<p class="c-title">Raisons de perte saisies · ${F.int(tot)} deals perdus</p>` + hbars(M.reasons.map(r => ({ l: r.name, v: r.n, f: F.int(r.n) + " · " + F.pct(r.n / tot * 100), cls: (only ? r.name === only : r.cls === "vague") ? "hl" : "", tip: r.name + " : " + r.n + " deals, " + F.eur(r.eur) }))) + (only ? "" : `<p class="cap">En rouge : les valeurs qui ne disent pas pourquoi le deal est perdu.</p>`); }
@@ -695,7 +701,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   }
 
   // ---------- 4. report ----------
-  function showReport() { S.lit = true; S.intro = true; renderReport(); view("report"); observe(); S.intro = false; }
+  function showReport() { S.lit = true; S.intro = true; renderReport(); view("report"); observe(); S.intro = false; czPh(); $("rb").classList.remove("hint"); void $("rb").offsetWidth; $("rb").classList.add("hint"); }
   function recompute() { S.M = E.analyze(S.anon, S.cfg); saveRules(); if (S.view === "report") { renderReport(); document.querySelectorAll("#v-report .rv").forEach(el => el.classList.add("in")); } if ($("fiche").classList.contains("on")) renderFiche(); }
   function betLine() { const b = S.bet, x = Math.round(S.M.story.aliveShare); if (!b) return ""; const d = b[1] - x; return Math.abs(d) <= 8 ? `Vous aviez vu juste : ${x}${NB}% de votre pipeline est vivant.` : d > 0 ? `Vous pariiez sur ${b[2]}. Votre fichier dit ${x}${NB}%.` : `Vous étiez plus dur que votre fichier : ${x}${NB}% de votre pipeline est vivant.`; }
   function repBars() { const rs = S.M.reps.filter(r => r.open > 0).sort((a, b) => b.stalledEur - a.stalledEur), mx = Math.max.apply(null, rs.map(r => r.openEur)) || 1;
@@ -778,9 +784,8 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
   function renderReport() {
     const M = S.M, st = M.story, v = st.verdict, a = S.anon, done = M.truths.filter(t => t.answer != null).length, sup = M.truths.length - done, nSt = M.pipe.unionN;
     Object.keys(STRIPS).forEach(k => { if (!document.querySelector(`#v-drop [data-strip="${k}"]`)) delete STRIPS[k]; });
-    $("filefacts").textContent = `${S.name} · ${F.int(M.meta.rows)} deals sur ${M.monthsAll} mois${M.rules.pipelines.length > 1 && M.rules.pipeline ? " · pipeline " + M.rules.pipeline : ""} · ${F.int(a.hashedValues)} noms masqués`;
     $("vd").classList.toggle("intro", !!S.intro);
-    $("vEyebrow").textContent = `Votre pipeline au ${F.date(M.snap)} · ${M.meta.open} deals ouverts`;
+    $("vEyebrow").textContent = `Votre pipeline au ${F.date(M.snap)} · ${M.meta.open} deals ouverts · ${S.name} · ${F.int(M.meta.rows)} deals sur ${M.monthsAll} mois${M.rules.pipelines.length > 1 && M.rules.pipeline ? " · pipeline " + M.rules.pipeline : ""} · ${F.int(a.hashedValues)} noms masqués`;
     $("vTitle").innerHTML = esc(v.title).replace(esc(v.em), `<em id="vEm">${esc(v.em)}</em>`);
     $("vBet").textContent = betLine();
     $("vPrev").textContent = S.prev && S.prev.kpi && S.prev.kpi.n != null ? `Le ${F.date(S.prev.date)}, ${S.prev.kpi.n} deals étaient à l’arrêt. Aujourd’hui : ${nSt}.` : "";
@@ -792,7 +797,7 @@ h2 span{font-weight:400;color:var(--ink-2);font-size:14px}
     $("seeCols").onclick = () => { renderMap(); view("map"); };
     if (S.intro) setTimeout(() => { paint(); if (v.kind === "alive") countTo($("vEm"), M.kpi.openEur, st.alive, 1300); }, 1000);
     const given = done + S.cfg.nl.filter(x => !Object.keys(x.prev || {}).length).length;
-    $("rbar").innerHTML = `<button class="link" type="button" data-fiche>Vos règles</button> <b>${given}</b> donnée${given > 1 ? "s" : ""} par vous${S.learned ? ", retenues depuis votre dernière visite" : ""}${sup ? ` · <span class="tag sup">${sup} que je suppose</span>` : ""}`;
+    $("rbar").innerHTML = `<button class="link" type="button" data-fiche>Vos règles</button>${given ? ` <b>${given}</b> de vous` : ""}${sup ? ` <span class="tag sup">${sup} supposée${sup > 1 ? "s" : ""}</span>` : ""}`;
     $("czVex").innerHTML = M.examples.length ? `<span>Par exemple :</span>${chips(4)}` : "";
 
     // week-over-week movements (only when a previous export of the same pipeline is remembered)

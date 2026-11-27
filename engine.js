@@ -582,11 +582,11 @@
       var push = function (label, set, answers) { var an = {}; for (var k in answers || {}) if (answers[k] != null) an[k] = answers[k]; hit.push({ label: label, set: set, answers: an }); };
       var exclT = /(ignor|exclu|ne compt\w* pas|ne pas compter|sans compter|\bhors |retir|enlev|de cote|ne juge\w* pas|ne regard\w* pas|pas de la vente|oublie|tenir compte|tenez pas compte)/.test(n), backT = /(reintegr|remet|recompt|a nouveau|rejuge)/.test(n);
       var staleK = /(sans mouvement|sans nouvelle|sans activite|sans reponse|sans signe|ne bouge|a l arret|\bmorts?\b|stagn|inactif|bloque|meme etape|sans changer d etape|dort|dorment|enlis|perime)/.test(n), many = /(surtout|principalement|essentiellement|majorit|uniquement|que de|que du|100|vien|fait|faisons|sommes)/.test(n);
-      var dur = n.match(DUR), stageHit = -1;
+      var dur = n.match(DUR), stageHit = -1, exc = o.search(/\b(sauf|except[ée]|hormis|mais pas|à l[’']exception)\b/i);
       M.stages.forEach(function (st, i) { var w = norm(st); if (w.length >= 3 && has(n, w) && (stageHit < 0 || w.length > norm(M.stages[stageHit]).length)) stageHit = i; });
 
       // durations: one stage, every stage, the length of a sale, or the period to judge
-      if (dur && stageHit >= 0 && N2 && !/(qualifi|serieux)/.test(n) && (staleK || /(rest|dur|normal|peut|jusqu|attend|prend|train|long)/.test(n))) { d = days(dur); a = { stageDays: {} }; a.stageDays[norm(M.stages[stageHit])] = d; push("En " + qt(M.stages[stageHit]) + ", un deal n’est à l’arrêt qu’après " + d + " jours", a); }
+      if (dur && stageHit >= 0 && exc < 0 && N2 && !/(qualifi|serieux)/.test(n) && (staleK || /(rest|dur|normal|peut|jusqu|attend|prend|train|long)/.test(n))) { d = days(dur); a = { stageDays: {} }; a.stageDays[norm(M.stages[stageHit])] = d; push("En " + qt(M.stages[stageHit]) + ", un deal n’est à l’arrêt qu’après " + d + " jours", a); }
       else if (dur && staleK && !/cycle/.test(n)) { d = days(dur); push("Un deal est à l’arrêt après " + d + " jours " + (N2 ? "dans la même étape" : "sans signature"), { stagDays: d }, { stale: optOf("stale", { stagDays: d }) }); }
       else if (staleK && (m = n.match(/(\d+(?: \d)?)\s*(?:x|fois)/))) { v = parseFloat(m[1].replace(" ", ".")); if (v >= 1 && v <= 6) push("Un deal est à l’arrêt au-delà de " + String(v).replace(".", ",") + " fois la durée normale", { stagMult: v, stagDays: null }, { stale: true }); }
       else if (dur && /(cycle|vente\w* (?:dure|prend|se signe|se fait|se conclu)\w*|signe\w* en|signature en|pour signer|delai de vente|duree d une vente)/.test(n)) { d = days(dur); push("Chez vous, une vente normale dure jusqu’à " + d + " jours", { cycle: d }, { cycle: optOf("cycle", { cycle: d }) }); }
@@ -647,6 +647,7 @@
       });
 
       if (!hit.length) return out.notes.push(o);
+      if (exc >= 0 && dur) out.notes.push(o.slice(exc));   // the exception needs its own sentence, with its own delay
       // names never leave the screen: in what is kept of the sentence, a person is replaced by a reference
       var mask = o; masks.forEach(function (p) { if (p[0]) mask = mask.replace(new RegExp(rxEsc(p[0]), "gi"), "{who:" + p[1] + "}"); });
       if (masks.length && mask === o) mask = null;
